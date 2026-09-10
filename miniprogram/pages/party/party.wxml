@@ -1,0 +1,24 @@
+<view class="container party-container">
+  <view class="glass-card header-card grad-2">
+    <text class="h-title">党团流程追踪</text>
+    <text class="h-sub">当前阶段：{{currentStageName || '尚未开启流程'}}</text>
+  </view>
+
+  <view class="glass-card timeline-card">
+    <view class="timeline" wx:if="{{steps.length > 0}}">
+      <view class="step {{item.status}}" wx:for="{{steps}}" wx:key="stageId">
+        <view class="step-line"></view>
+        <view class="step-icon"><view class="inner-circle"></view></view>
+        <view class="step-content">
+          <view class="step-title-row">
+            <text class="s-name">{{item.stageName}}</text>
+            <text class="status-badge {{item.status}}">{{item.statusText}}</text>
+          </view>
+          <text class="s-desc" wx:if="{{item.description}}">{{item.description}}</text>
+          <text class="s-time" wx:if="{{item.time}}">开始时间：{{item.time}}</text>
+        </view>
+      </view>
+    </view>
+    <view wx:else class="empty-hint">暂无党团流程数据，请联系管理员初始化。</view>
+  </view>
+</view>

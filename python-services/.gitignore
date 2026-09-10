@@ -1,0 +1,6 @@
+.env
+key.env
+__pycache__/
+*.py[cod]
+chroma_db/
+uploaded_transcripts/

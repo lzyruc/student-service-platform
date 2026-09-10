@@ -1,0 +1,76 @@
+{
+  "code": 200,
+  "data": [
+    {
+      "path": "/home/index",
+      "name": "home",
+      "component": "/home/index",
+      "meta": {
+        "icon": "HomeFilled",
+        "title": "首页",
+        "isLink": "",
+        "isHide": false,
+        "isFull": false,
+        "isAffix": true,
+        "isKeepAlive": true
+      }
+    },
+    {
+      "path": "/college/knowledgeBase",
+      "name": "collegeKnowledgeBase",
+      "component": "/college/notification/index",
+      "meta": {
+        "icon": "Menu",
+        "title": "通知公告 / 知识库",
+        "isLink": "",
+        "isHide": false,
+        "isFull": false,
+        "isAffix": false,
+        "isKeepAlive": true
+      }
+    },
+    {
+      "path": "/college/trainingPlan",
+      "name": "collegeTrainingPlan",
+      "component": "/college/trainingPlan/index",
+      "meta": {
+        "icon": "Menu",
+        "title": "培养方案",
+        "isLink": "",
+        "isHide": false,
+        "isFull": false,
+        "isAffix": false,
+        "isKeepAlive": true
+      }
+    },
+    {
+      "path": "/college/examineApprove",
+      "name": "collegeExamineApprove",
+      "component": "/college/examineandapprove/index",
+      "meta": {
+        "icon": "Menu",
+        "title": "审批中心",
+        "isLink": "",
+        "isHide": false,
+        "isFull": false,
+        "isAffix": false,
+        "isKeepAlive": true
+      }
+    },
+    {
+      "path": "/college/studentInformation",
+      "name": "collegeStudentInformation",
+      "component": "/college/studentinformation/index",
+      "meta": {
+        "icon": "Menu",
+        "title": "学生信息",
+        "isLink": "",
+        "isHide": false,
+        "isFull": false,
+        "isAffix": false,
+        "isKeepAlive": true
+      }
+    }
+  ],
+  "msg": "成功"
+}

@@ -1,0 +1,39 @@
+{
+  "pages": [
+    "pages/login/login",
+    "pages/main/main",
+    "pages/profile/profile",
+    "pages/academic/academic",
+    "pages/qa/qa",
+    "pages/party/party",
+    "pages/notice/notice",
+    "pages/cert/cert"
+  ],
+  "window": {
+    "navigationBarBackgroundColor": "#ffffff",
+    "navigationBarTitleText": "学院综合服务平台",
+    "navigationBarTextStyle": "black",
+    "backgroundColor": "#F4F7FD"
+  },
+  "tabBar": {
+    "color": "#A0B2C6",
+    "selectedColor": "#157DEC",
+    "backgroundColor": "#ffffff",
+    "borderStyle": "white",
+    "list": [
+      {
+        "pagePath": "pages/main/main",
+        "text": "服务大厅",
+        "iconPath": "assets/fuwu.jpg",
+        "selectedIconPath": "assets/fuwu.jpg"
+      },
+      {
+        "pagePath": "pages/profile/profile",
+        "text": "个人中心",
+        "iconPath": "assets/profile-tab.png",
+        "selectedIconPath": "assets/profile-tab-active.png"
+      }
+    ]
+  },
+  "sitemapLocation": "sitemap.json"
+}

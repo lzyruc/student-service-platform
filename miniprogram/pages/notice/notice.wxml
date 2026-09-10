@@ -1,0 +1,28 @@
+<view class="container">
+  <view wx:if="{{notices.length === 0}}" class="empty-hint glass-card">目前没有需要您关注的通知哦~</view>
+
+  <view class="glass-card notice-item" wx:for="{{notices}}" wx:key="id">
+    <view class="n-header">
+      <view class="n-tag grad-{{index % 4 + 1}}">{{item.tags || '通知'}}</view>
+      <text class="n-time">{{item.publishTime}}</text>
+    </view>
+    <view class="n-title">
+      <text class="urgent-badge" wx:if="{{item.isUrgent}}">紧急</text>
+      {{item.title}}
+    </view>
+    <view class="n-desc">{{item.content || '暂无正文内容'}}</view>
+
+    <view class="n-attachment" wx:if="{{item.fileId}}" bindtap="downloadAttachment" data-fileid="{{item.fileId}}" data-filetype="{{item.fileType}}">
+      <text class="attach-icon">📎</text>
+      <view class="attach-info">
+        <text class="attach-name">{{item.originalName || '通知附件'}}</text>
+        <text class="attach-meta">{{item.fileType || '文件'}} · 点击查看</text>
+      </view>
+    </view>
+    
+    <view class="n-footer">
+      <text class="n-status {{item.isConfirmed ? 'read' : 'unread'}}">{{item.isConfirmed ? '已阅并确认' : '待确认接收'}}</text>
+      <button class="btn-mini grad-3" wx:if="{{!item.isConfirmed}}" bindtap="confirmRead" data-id="{{item.id}}">确认接收</button>
+    </view>
+  </view>
+</view>

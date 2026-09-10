@@ -1,0 +1,9 @@
+.login-container { height: 100vh; display: flex; align-items: center; justify-content: center; padding: 40rpx; background: var(--grad-1); }
+.login-card { width: 100%; padding: 64rpx 40rpx; text-align: center; }
+.logo-circle { font-size: 80rpx; margin-bottom: 20rpx; }
+.sys-title { font-size: 48rpx; font-weight: bold; color: var(--c-primary); display: block; margin-bottom: 10rpx; }
+.sys-subtitle { font-size: 26rpx; color: #666; display: block; margin-bottom: 54rpx; }
+.input-group { text-align: left; margin-bottom: 40rpx; }
+.label { font-size: 28rpx; color: #333; margin-bottom: 16rpx; display: block; font-weight: bold; }
+.input-box { background: #f5f7fa; height: 96rpx; border-radius: 20rpx; padding: 0 30rpx; font-size: 30rpx; border: 1rpx solid #e3e8f0; box-sizing: border-box; }
+.login-btn { width: 100%; height: 96rpx; line-height: 96rpx; border-radius: 48rpx; background: var(--grad-2); font-size: 32rpx; font-weight: bold; margin-top: 40rpx; box-shadow: 0 12rpx 24rpx rgba(21, 137, 255, 0.3); color: #fff; }

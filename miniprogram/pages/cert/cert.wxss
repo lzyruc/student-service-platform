@@ -1,0 +1,30 @@
+.form-title { font-size: 36rpx; font-weight: bold; color: var(--c-primary); margin-bottom: 40rpx; text-align: center; }
+.form-item { margin-bottom: 30rpx; }
+.f-label { font-size: 28rpx; color: #333; margin-bottom: 10rpx; display: block; font-weight: bold; }
+.f-picker { background: #f5f7fa; padding: 24rpx 30rpx; border-radius: 16rpx; font-size: 28rpx; color: #333; border: 1px solid #e0e6ed; }
+.f-textarea { background: #f5f7fa; width: auto; padding: 24rpx 30rpx; border-radius: 16rpx; font-size: 28rpx; height: 160rpx; border: 1px solid #e0e6ed; box-sizing: border-box; }
+.btn-primary { margin-top: 40rpx; width: 100% !important; border-radius: 50rpx; height: 90rpx; line-height: 90rpx; box-shadow: 0 10rpx 20rpx rgba(21,125,236,0.3); color: #fff; background: var(--grad-1); }
+.tip-box { margin-top: 10rpx; padding: 18rpx 22rpx; background: #f7f9ff; border: 1px solid #dce7ff; border-radius: 16rpx; }
+.tip-text { font-size: 24rpx; color: #5c6f91; line-height: 1.7; display: block; }
+
+.mt-30 { margin-top: 30rpx; padding: 30rpx 40rpx; }
+.history-block { border-bottom: 1px dashed #eee; }
+.history-block:last-child { border-bottom: none; }
+.history-item { display: flex; justify-content: space-between; align-items: center; padding: 20rpx 0; }
+.h-left { display: flex; flex-direction: column; }
+.h-type { font-size: 28rpx; color: #333; font-weight: bold; }
+.h-time { font-size: 22rpx; color: #999; margin-top: 6rpx; }
+.h-right { display: flex; flex-direction: column; align-items: flex-end; }
+.h-status { font-size: 26rpx; font-weight: bold; margin-bottom: 6rpx; }
+.passed { color: #4CAF50; }
+.pending { color: var(--c-secondary); }
+.rejected { color: #F44336; }
+.h-download { font-size: 22rpx; color: var(--c-primary); text-decoration: underline; }
+.reason-panel { background: #f7f9fc; border-radius: 12rpx; padding: 18rpx 20rpx; margin: 0 0 20rpx; border: 1rpx solid #e6ebf2; }
+.reason-label { display: block; font-size: 22rpx; color: #8a96a8; margin-bottom: 8rpx; }
+.reason-text { display: block; font-size: 26rpx; color: #333; line-height: 1.6; word-break: break-all; }
+
+.history-subtitle { font-size: 26rpx; font-weight: bold; color: #333; margin: 10rpx 0; }
+.mt-20 { margin-top: 20rpx; }
+.date-row { display: flex; gap: 16rpx; }
+.date-picker { flex: 1; text-align: center; }

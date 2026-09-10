@@ -1,0 +1,23 @@
+<view class="container login-container grad-1">
+  <view class="glass-card login-card">
+    <view class="logo-area">
+      <view class="logo-circle">🎓</view>
+      <text class="sys-title">综合服务平台</text>
+      <text class="sys-subtitle">学生端登录</text>
+    </view>
+
+    <view class="form-area">
+      <view class="input-group">
+        <text class="label">学号</text>
+        <input type="text" placeholder="请输入学号" value="{{account}}" bindinput="onAccountInput" class="input-box" />
+      </view>
+
+      <view class="input-group">
+        <text class="label">密码</text>
+        <input type="password" placeholder="请输入密码" value="{{password}}" bindinput="onPasswordInput" class="input-box" />
+      </view>
+
+      <button class="btn-primary login-btn" bindtap="handleLogin">登录</button>
+    </view>
+  </view>
+</view>

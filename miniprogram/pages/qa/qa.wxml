@@ -1,0 +1,18 @@
+<view class="container qa-container">
+  <view class="section-title">🤖 政策智能助手</view>
+  <scroll-view class="chat-area glass-card" scroll-y="true" scroll-into-view="{{bottomId}}">
+    <block wx:for="{{chatList}}" wx:key="index">
+      <view class="message {{item.role === 'user' ? 'msg-user' : 'msg-ai'}}">
+        <view class="msg-bubble {{item.role === 'user' ? 'bg-primary' : 'bg-white'}}">
+          <text>{{item.content}}</text>
+        </view>
+      </view>
+    </block>
+    <view id="scroll-bottom"></view>
+  </scroll-view>
+
+  <view class="input-area glass-card">
+    <input class="chat-input" value="{{inputValue}}" bindinput="onInput" placeholder="询问奖学金、政策..." confirm-type="send" bindconfirm="askAI" />
+    <button class="send-btn grad-1" bindtap="askAI"><text class="send-icon">➤</text><text class="send-text">发送</text></button>
+  </view>
+</view>

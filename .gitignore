@@ -1,0 +1,28 @@
+# Environment and local configuration
+**/.env
+!**/.env.example
+**/application.properties
+**/project.private.config.json
+
+# Dependencies and build outputs
+**/.venv/
+**/node_modules/
+**/target/
+**/dist/
+**/build/
+
+# Runtime data
+**/uploads/
+**/*.db
+**/chroma_db/
+**/__pycache__/
+**/.pytest_cache/
+**/.ruff_cache/
+**/*.pyc
+**/*.log
+
+# IDE and operating-system files
+**/.idea/
+**/.vscode/
+**/.DS_Store
+**/Thumbs.db

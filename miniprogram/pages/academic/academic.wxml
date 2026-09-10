@@ -1,0 +1,28 @@
+<view class="container">
+  <view class="glass-card upload-section">
+    <view class="upload-info">
+      <view class="u-title">学业进度诊断</view>
+      <view class="u-sub">上传最新成绩单PDF，引擎将比对培养方案</view>
+    </view>
+    <button class="btn-primary" bindtap="uploadTranscript">上传成绩单</button>
+  </view>
+
+  <view class="glass-card report-section" wx:if="{{report}}">
+    <view class="risk-badge {{report.riskLevel === 'high' ? 'danger' : 'safe'}}">
+      风险等级：{{report.riskLevel === 'high' ? '高' : '低'}}
+    </view>
+    <view class="divider"></view>
+    <view class="info-row">
+      <text class="i-label">核心课与挂科缺口：</text>
+      <text class="i-value danger-text">{{report.missingCredits}} 门</text>
+    </view>
+    
+    <view class="suggestion-box grad-4">
+      <view class="s-title">💡 选课与学业建议：</view>
+      <view wx:if="{{report.suggestions && report.suggestions.length > 0}}">
+        <view wx:for="{{report.suggestions}}" wx:key="*this" class="s-text">• {{item}}</view>
+      </view>
+      <view wx:else class="s-text">• 当前学业进度良好，未发现挂科或缺失核心课程，请继续保持！</view>
+    </view>
+  </view>
+</view>

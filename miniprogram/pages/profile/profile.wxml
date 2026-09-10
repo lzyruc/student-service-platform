@@ -1,0 +1,45 @@
+﻿<view class="container profile-container">
+  <view class="profile-header">
+    <view class="header-bg-mask"></view>
+    <view class="header-content">
+      <image class="avatar" src="/assets/头像.webp" mode="aspectFill"></image>
+      <view class="user-info">
+        <view class="name-row">
+          <text class="name">{{name}}</text>
+          <text class="identity-badge">学生</text>
+        </view>
+        <text class="student-no">学号: {{studentNo}} | {{userInfo.major || '信息学院'}}</text>
+      </view>
+    </view>
+  </view>
+
+  <view class="glass-card info-board-card">
+    <view class="board-title">我的学业看板</view>
+    <view class="stats-grid">
+      <view class="stat-item {{showCourses ? 'stat-item-active' : ''}}" bindtap="toggleCourses">
+        <text class="stat-num">{{earnedCredits}}</text>
+        <text class="stat-name">已修总学分 ▼</text>
+      </view>
+      <view class="stat-item">
+        <text class="stat-num">0</text>
+        <text class="stat-name">挂科违纪记录</text>
+      </view>
+    </view>
+
+    <view class="course-dropdown {{showCourses ? 'dropdown-expand' : ''}}">
+      <view class="dropdown-inner">
+        <view class="course-list-title">已修读课程明细：</view>
+        <view class="course-row" wx:for="{{myCourses}}" wx:key="name">
+          <view class="c-info">
+            <text class="c-dot">●</text>
+            <text class="c-name">{{item.name || item.courseName}}</text>
+          </view>
+          <text class="c-credit">{{item.credit || item.credits || 0}} 学分</text>
+        </view>
+      </view>
+    </view>
+  </view>
+
+
+  <button class="logout-btn" bindtap="handleLogout">安全退出当前账号</button>
+</view>

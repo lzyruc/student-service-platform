@@ -1,0 +1,19 @@
+# RAG 模块依赖
+langchain
+langchain-openai
+langchain-community
+chromadb
+tiktoken
+docx2txt
+pypdf
+fastapi
+uvicorn
+pydantic
+rapidocr_onnxruntime  # 用于解析校历图片(OCR)
+python-dotenv  # 用于安全加载环境变量
+python-multipart  # FastAPI 文件上传支持
+
+# PDF 生成与解析依赖
+PyMuPDF
+pdfplumber
+pandas

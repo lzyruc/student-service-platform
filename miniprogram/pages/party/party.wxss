@@ -1,0 +1,33 @@
+.party-container { min-height: 100vh; }
+
+.header-card { color: #fff; padding: 36rpx 40rpx; }
+.h-title { display: block; font-size: 38rpx; font-weight: 700; line-height: 1.3; }
+.h-sub { display: block; margin-top: 12rpx; font-size: 26rpx; opacity: 0.92; line-height: 1.4; }
+
+.timeline-card { padding: 34rpx 30rpx; }
+.timeline { position: relative; }
+.step { position: relative; display: flex; align-items: flex-start; min-height: 128rpx; }
+.step:last-child { min-height: 80rpx; }
+.step-line { position: absolute; left: 19rpx; top: 42rpx; bottom: -2rpx; width: 2rpx; background: #dce7f5; }
+.step:last-child .step-line { display: none; }
+.step-icon { position: relative; z-index: 1; width: 40rpx; height: 40rpx; border-radius: 50%; background: #dce7f5; display: flex; align-items: center; justify-content: center; flex: 0 0 40rpx; margin-top: 4rpx; }
+.inner-circle { width: 16rpx; height: 16rpx; border-radius: 50%; background: #fff; }
+.step-content { flex: 1; margin-left: 24rpx; padding-bottom: 34rpx; }
+.step-title-row { display: flex; align-items: center; justify-content: space-between; gap: 16rpx; }
+.s-name { color: #24364f; font-size: 30rpx; font-weight: 700; line-height: 1.35; }
+.s-desc { display: block; color: #66758a; font-size: 25rpx; line-height: 1.55; margin-top: 10rpx; }
+.s-time { display: block; color: #9aa8bb; font-size: 23rpx; margin-top: 10rpx; }
+.status-badge { flex: 0 0 auto; font-size: 22rpx; line-height: 34rpx; padding: 0 14rpx; border-radius: 8rpx; background: #edf2f8; color: #7a8aa0; }
+
+.step.completed .step-icon,
+.status-badge.completed { background: #18a058; color: #fff; }
+.step.completed .step-line { background: #18a058; }
+.step.active .step-icon,
+.status-badge.active { background: var(--c-primary); color: #fff; }
+.step.active .step-icon { box-shadow: 0 0 0 8rpx rgba(21,125,236,0.12); }
+.step.paused .step-icon,
+.status-badge.paused { background: #f59e0b; color: #fff; }
+.step.pending .step-icon { background: #dce7f5; }
+
+.empty-hint { text-align: center; color: #8a98aa; padding: 70rpx 20rpx; font-size: 28rpx; line-height: 1.5; }
+.grad-2 { background: var(--grad-2); }

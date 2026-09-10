@@ -1,0 +1,16 @@
+.notice-item { padding: 30rpx; }
+.n-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20rpx; }
+.n-tag { color: #fff; font-size: 22rpx; padding: 4rpx 16rpx; border-radius: 8rpx; }
+.n-time { font-size: 24rpx; color: #999; }
+.n-title { font-size: 32rpx; font-weight: bold; color: #333; margin-bottom: 10rpx; line-height: 1.4; }
+.n-desc { font-size: 26rpx; color: #666; line-height: 1.5; margin-bottom: 20rpx; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
+.n-attachment { display: flex; align-items: center; gap: 16rpx; background: #f7f9fc; border: 1rpx solid #e6ebf2; border-radius: 8rpx; padding: 18rpx 20rpx; margin-bottom: 20rpx; }
+.attach-icon { font-size: 34rpx; line-height: 1; }
+.attach-info { min-width: 0; flex: 1; display: flex; flex-direction: column; }
+.attach-name { font-size: 26rpx; color: #263447; font-weight: 600; overflow: hidden; white-space: nowrap; text-overflow: ellipsis; }
+.attach-meta { margin-top: 4rpx; font-size: 22rpx; color: #8a96a8; overflow: hidden; white-space: nowrap; text-overflow: ellipsis; }
+.n-footer { display: flex; justify-content: space-between; align-items: center; border-top: 1px dashed #eee; padding-top: 20rpx; }
+.n-status { font-size: 24rpx; font-weight: bold; }
+.n-status.read { color: #ccc; }
+.n-status.unread { color: var(--c-primary); }
+.btn-mini { margin: 0; height: 50rpx; line-height: 50rpx; font-size: 24rpx; color: #fff; padding: 0 20rpx; border-radius: 25rpx; }
