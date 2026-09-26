@@ -5,42 +5,44 @@ import shutil
 from dotenv import load_dotenv
 from fastapi import FastAPI, HTTPException, BackgroundTasks
 
-# 自动加载当前目录下的 .env 文件，保护 API Key 不被直接暴露在代码中
-load_dotenv()
-load_dotenv("key.env", override=False)
+# 始终从脚本所在目录加载 .env，避免因启动目录不同而找不到配置。
+BASE_DIR = os.path.dirname(os.path.abspath(__file__))
+load_dotenv(os.path.join(BASE_DIR, ".env"))
 from typing import Optional
 from pydantic import BaseModel
 from langchain_community.document_loaders import PyPDFLoader, Docx2txtLoader, TextLoader
 from langchain_core.documents import Document
 from langchain_text_splitters import RecursiveCharacterTextSplitter
-from langchain_openai import OpenAIEmbeddings, ChatOpenAI
+from langchain_huggingface import HuggingFaceEmbeddings
+from langchain_openai import ChatOpenAI
 from langchain_community.vectorstores import Chroma
 from langchain_core.prompts import ChatPromptTemplate
 from rapidocr_onnxruntime import RapidOCR
 import uvicorn
 
 class RAGEngine:
-    def __init__(self, persist_directory="./chroma_db"):
-        # 智谱 API 配置
-        zhipu_api_key = os.getenv("ZHIPU_API_KEY")
-        if not zhipu_api_key:
-            print("警告: 未在环境变量中找到 ZHIPU_API_KEY，请检查 .env 文件")
-        
-        # 智谱开放平台的 OpenAI 兼容接口地址
-        zhipu_api_base = "https://open.bigmodel.cn/api/paas/v4/"
-        
+    def __init__(self, persist_directory=None):
+        deepseek_api_key = os.getenv("DEEPSEEK_API_KEY", "").strip()
+        if not deepseek_api_key:
+            raise RuntimeError("未找到 DEEPSEEK_API_KEY，请在 python-services/.env 中配置")
+
+        deepseek_api_base = os.getenv("DEEPSEEK_BASE_URL", "https://api.deepseek.com").rstrip("/")
+        deepseek_model = os.getenv("DEEPSEEK_MODEL", "deepseek-flash").strip()
+        embedding_model = os.getenv("EMBEDDING_MODEL", "BAAI/bge-small-zh-v1.5").strip()
+        embedding_device = os.getenv("EMBEDDING_DEVICE", "cpu").strip()
+
         self.llm = ChatOpenAI(
             temperature=0,
-            model="glm-4-flash", # 智谱的高性价比/免费推理模型
-            openai_api_key=zhipu_api_key,
-            openai_api_base=zhipu_api_base
+            model=deepseek_model,
+            api_key=deepseek_api_key,
+            base_url=deepseek_api_base,
         )
-        self.embeddings = OpenAIEmbeddings(
-            model="embedding-3", # 智谱的文本向量模型
-            openai_api_key=zhipu_api_key,
-            openai_api_base=zhipu_api_base
+        self.embeddings = HuggingFaceEmbeddings(
+            model_name=embedding_model,
+            model_kwargs={"device": embedding_device},
+            encode_kwargs={"normalize_embeddings": True},
         )
-        self.persist_directory = persist_directory
+        self.persist_directory = persist_directory or os.path.join(BASE_DIR, "chroma_db")
         self.vectorstore = self._init_vectorstore()
         self.ocr = RapidOCR() # 初始化 OCR 引擎用于处理图片
 
@@ -48,7 +50,11 @@ class RAGEngine:
         """初始化 Chroma 本地向量数据库"""
         if not os.path.exists(self.persist_directory):
             os.makedirs(self.persist_directory)
-        return Chroma(persist_directory=self.persist_directory, embedding_function=self.embeddings)
+        return Chroma(
+            collection_name="student_policy_bge_zh",
+            persist_directory=self.persist_directory,
+            embedding_function=self.embeddings,
+        )
 
     def _load_image_with_ocr(self, file_path):
         """使用 OCR 读取图片（如校历）并转为 Document 对象"""
@@ -241,7 +247,7 @@ def api_ingest_all(background_tasks: BackgroundTasks):
     [Web管理端 API] 批量扫描并录入 '政策文件库' 文件夹中的所有文件。
     使用后台任务避免请求超时。
     """
-    folder = "./政策文件库"
+    folder = os.path.join(BASE_DIR, "政策文件库")
     background_tasks.add_task(rag_engine.rebuild_from_folder, folder)
     return {"status": "success", "message": f"已启动后台任务，正在重建知识库并解析 {folder} 中的文件及校历图片。"}
 
@@ -280,8 +286,8 @@ if __name__ == "__main__":
     print("="*50)
     
     # 尝试加载环境变量
-    if not os.getenv("ZHIPU_API_KEY"):
-        print("【注意】未检测到 ZHIPU_API_KEY，请确保 .env 文件存在且配置正确！")
+    if not os.getenv("DEEPSEEK_API_KEY"):
+        print("【注意】未检测到 DEEPSEEK_API_KEY，请确保 .env 文件存在且配置正确！")
         
     # 启动 Uvicorn 服务器
     # 注意：在 Windows 下如果直接运行可能需要指定 reload=False

@@ -98,6 +98,8 @@ python -m pip install -r requirements.txt
 Copy-Item .env.example .env
 ```
 
+在 `python-services/.env` 中填写 `DEEPSEEK_API_KEY`。对话模型默认使用 DeepSeek 的 `deepseek-flash`，RAG 向量由本地 `BAAI/bge-small-zh-v1.5` 生成；首次启动会下载向量模型。更换向量模型后需要重新执行知识库构建。
+
 分别启动：
 
 ```powershell
