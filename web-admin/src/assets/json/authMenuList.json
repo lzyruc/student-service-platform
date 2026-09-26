@@ -16,12 +16,26 @@
       }
     },
     {
-      "path": "/college/knowledgeBase",
-      "name": "collegeKnowledgeBase",
+      "path": "/college/notification",
+      "name": "collegeNotification",
       "component": "/college/notification/index",
       "meta": {
         "icon": "Menu",
-        "title": "通知公告 / 知识库",
+        "title": "通知公告",
+        "isLink": "",
+        "isHide": false,
+        "isFull": false,
+        "isAffix": false,
+        "isKeepAlive": true
+      }
+    },
+    {
+      "path": "/college/knowledgeBase",
+      "name": "collegeKnowledgeBase",
+      "component": "/college/knowledgeBase/index",
+      "meta": {
+        "icon": "Menu",
+        "title": "知识库",
         "isLink": "",
         "isHide": false,
         "isFull": false,

@@ -10,6 +10,8 @@
 **/target/
 **/dist/
 **/build/
+!web-admin/build/
+!web-admin/build/**
 
 # Runtime data
 **/uploads/
