@@ -21,7 +21,7 @@ public class DbTestController {
         Integer result = jdbcTemplate.queryForObject("SELECT 1", Integer.class);
 
         if (result != null && result == 1) {
-            return Result.success("数据库连接正常", "Kingbase connected successfully");
+            return Result.success("数据库连接正常", "MySQL connected successfully");
         }
 
         return Result.fail("数据库连接异常");

@@ -109,7 +109,7 @@
 {
   "code": 200,
   "message": "数据库连接正常",
-  "data": "Kingbase connected successfully"
+  "data": "MySQL connected successfully"
 }
 ```
 

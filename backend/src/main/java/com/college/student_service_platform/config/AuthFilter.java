@@ -35,6 +35,8 @@ public class AuthFilter extends OncePerRequestFilter {
                 || uri == null
                 || !uri.startsWith("/api/")
                 || uri.equals("/api/health")
+                || uri.equals("/api/test/db")
+                || uri.equals("/api/test/user-count")
                 || uri.equals("/api/geeker/login")
                 || uri.equals("/api/auth/login");
     }

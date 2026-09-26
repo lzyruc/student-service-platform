@@ -6,7 +6,7 @@
 
 | 模块 | 技术栈 | 职责 |
 | --- | --- | --- |
-| [`backend/`](./backend/) | Java 17、Spring Boot、JdbcTemplate、KingbaseES | 认证授权、学生数据、业务接口、文件与审批服务 |
+| [`backend/`](./backend/) | Java 17、Spring Boot、JdbcTemplate、MySQL 8 | 认证授权、学生数据、业务接口、文件与审批服务 |
 | [`python-services/`](./python-services/) | Python、FastAPI、LangChain、Chroma | 政策知识库问答、成绩单解析与学业预警 |
 | [`miniprogram/`](./miniprogram/) | 微信小程序原生框架 | 学生端业务入口 |
 | [`web-admin/`](./web-admin/) | Vue 3、TypeScript、Vite、Element Plus | 管理员业务后台 |
@@ -27,7 +27,7 @@
 
 ```text
 微信小程序 ───────────────┐
-                          ├──> Spring Boot API :8081 ──> KingbaseES
+                          ├──> Spring Boot API :8081 ──> MySQL 8
 Vue Web 管理端 :8848 ─────┘             │
                                         ├──> 政策问答服务 :8000
                                         └──> 学业预警服务 :8002
@@ -53,7 +53,7 @@ Spring Boot 是统一业务入口和权限边界。Python 服务负责模型、�
 
 - Java 17
 - Maven 3.9+
-- KingbaseES 8/9
+- MySQL 8.0+
 - Python 3.11+
 - Node.js 18+
 - pnpm 9+
@@ -63,10 +63,10 @@ Spring Boot 是统一业务入口和权限边界。Python 服务负责模型、�
 
 ### 1. 数据库与 Java 后端
 
-在 KingbaseES 中执行：
+在 MySQL Workbench 中打开并执行：
 
 ```text
-backend/docs/sql/init.sql
+backend/docs/sql/init-mysql.sql
 ```
 
 复制配置文件并通过环境变量提供敏感配置：
@@ -75,16 +75,18 @@ backend/docs/sql/init.sql
 cd backend
 Copy-Item src/main/resources/application-example.properties src/main/resources/application.properties
 
-$env:DB_URL="jdbc:kingbase8://localhost:54321/student_platform"
+$env:DB_URL="jdbc:mysql://127.0.0.1:3306/student_platform?useUnicode=true&characterEncoding=UTF-8&serverTimezone=Asia/Shanghai&useSSL=false&allowPublicKeyRetrieval=true"
 $env:DB_USERNAME="your_user"
 $env:DB_PASSWORD="your_password"
 $env:JWT_SECRET="replace-with-at-least-32-random-bytes"
 $env:ADMIN_BOOTSTRAP_PASSWORD="one-time-strong-admin-password"
 
-.\mvnw.cmd spring-boot:run
+.\mvnw.cmd package -DskipTests
+java -jar .\target\student-service-platform-0.0.1-SNAPSHOT.jar
 ```
 
 后端默认运行在 `http://localhost:8081`。首次成功创建管理员后，应删除 `ADMIN_BOOTSTRAP_PASSWORD`。
+在 Windows + JDK 17 下，如果项目路径包含中文，`spring-boot:run` 的类路径参数文件可能发生编码错误；运行可执行 jar 可避免该问题。
 
 ### 2. Python 智能服务
 
@@ -150,10 +152,10 @@ pnpm build:dev
 
 ## 当前边界
 
-- KingbaseES 与项目内 JDBC 驱动按团队已取得的许可使用；团队制品库可用时可迁移到私有 Maven 仓库，以改善依赖可移植性。
+- 当前关系数据库基线为 MySQL 8；历史 Kingbase 初始化脚本仅用于迁移核对，新环境使用 `init-mysql.sql`。
 - Web 管理端仍保留原 Geeker-Admin 的 MIT License 和署名。
 - 四个模块需要按本地数据库、模型服务和微信环境完成联合配置后才能进行端到端运行。
-- 生产部署前还应补充登录限流、依赖漏洞扫描，以及基于独立 Kingbase 测试库的接口集成测试。
+- 生产部署前还应补充登录限流、依赖漏洞扫描，以及基于独立 MySQL 测试库的接口集成测试。
 
 ## 许可证与第三方组件
 
