@@ -1,0 +1,114 @@
+[
+  {
+    "id": "ug_suspension_process",
+    "question": "本科生申请休学需要经过哪些办理步骤？",
+    "expected_doc_type": "本科",
+    "expected_source_contains": "本科生学籍管理规定",
+    "evidence_groups": [["本人提出休学申请"], ["所在学院审核同意"], ["学生处审批"]]
+  },
+  {
+    "id": "ug_suspension_duration",
+    "question": "本科生因普通原因休学，最长可以休学多久？",
+    "expected_doc_type": "本科",
+    "expected_source_contains": "本科生学籍管理规定",
+    "evidence_groups": [["一般以学年为单位"], ["累计不得超过2学年"]]
+  },
+  {
+    "id": "ug_resumption_deadline",
+    "question": "本科生休学后申请复学的期限和手续是什么？",
+    "expected_doc_type": "本科",
+    "expected_source_contains": "本科生学籍管理规定",
+    "evidence_groups": [["开学后14天内"], ["书面复学申请"], ["学生处审批"]]
+  },
+  {
+    "id": "ug_transfer_window",
+    "question": "本科生转学申请每年什么时候受理？",
+    "expected_doc_type": "本科",
+    "expected_source_contains": "本科生学籍管理规定",
+    "evidence_groups": [["每年5月、11月"], ["转学申请"]]
+  },
+  {
+    "id": "pg_major_change_process",
+    "question": "研究生申请转专业需要经过哪些步骤？",
+    "expected_doc_type": "研究生",
+    "expected_source_contains": "研究生学籍管理规定",
+    "evidence_groups": [["学生本人提出申请"], ["导师和所在学院同意"], ["转入学院"], ["研究生院审批"]]
+  },
+  {
+    "id": "pg_health_suspension",
+    "question": "研究生因健康问题需要停课多少天才应当休学？",
+    "expected_doc_type": "研究生",
+    "expected_source_contains": "研究生学籍管理规定",
+    "evidence_groups": [["停课30天及以上"], ["校医院确认"]]
+  },
+  {
+    "id": "pg_resumption_deadline",
+    "question": "研究生休学后应在什么时候申请复学？",
+    "expected_doc_type": "研究生",
+    "expected_source_contains": "研究生学籍管理规定",
+    "evidence_groups": [["开学后14天内"], ["书面复学申请"], ["导师和学院审核同意"]]
+  },
+  {
+    "id": "pg_absence_withdrawal",
+    "question": "研究生未经批准连续多少天不参加教学活动会被退学？",
+    "expected_doc_type": "研究生",
+    "expected_source_contains": "研究生学籍管理规定",
+    "evidence_groups": [["连续14天"], ["未参加学校规定的教学活动"]]
+  },
+  {
+    "id": "pg_voluntary_withdrawal",
+    "question": "研究生本人申请退学需要经过什么流程？",
+    "expected_doc_type": "研究生",
+    "expected_source_contains": "研究生学籍管理规定",
+    "evidence_groups": [["本人提出书面申请"], ["导师签字确认"], ["研究生院审核同意"]]
+  },
+  {
+    "id": "pg_appeal_deadline",
+    "question": "研究生对学籍处理决定有异议，应在多少天内申诉？",
+    "expected_doc_type": "研究生",
+    "expected_source_contains": "研究生学籍管理规定",
+    "evidence_groups": [["10日内"], ["书面申诉"], ["学生申诉处理委员会"]]
+  },
+  {
+    "id": "discipline_organized_cheating",
+    "question": "组织考试作弊会受到什么处分？",
+    "expected_doc_type": "违纪处分",
+    "expected_source_contains": "学生违纪处分管理办",
+    "evidence_groups": [["组织作弊"], ["开除学籍处分"]]
+  },
+  {
+    "id": "discipline_defense_deadline",
+    "question": "学生收到拟处分告知书后，可以在几天内陈述和申辩？",
+    "expected_doc_type": "违纪处分",
+    "expected_source_contains": "学生违纪处分管理办",
+    "evidence_groups": [["3日内"], ["书面陈述和申辩"]]
+  },
+  {
+    "id": "discipline_appeal_deadline",
+    "question": "学生对违纪处分决定有异议，应当在多少天内提出申诉？",
+    "expected_doc_type": "违纪处分",
+    "expected_source_contains": "学生违纪处分管理办",
+    "evidence_groups": [["10日内"], ["书面申诉"], ["学生申诉处理委员会"]]
+  },
+  {
+    "id": "discipline_suspension_clock",
+    "question": "学生在处分期内休学，休学时间是否计入处分期？",
+    "expected_doc_type": "违纪处分",
+    "expected_source_contains": "学生违纪处分管理办",
+    "evidence_groups": [["休学时间不计入处分期"]]
+  },
+  {
+    "id": "calendar_spring_start",
+    "question": "根据校历，2026年春季学期学生什么时候开始上课？",
+    "expected_doc_type": "校历",
+    "expected_source_contains": "微信图片_20260427155528.png",
+    "evidence_groups": [["2026年3月2日上课"]]
+  },
+  {
+    "id": "calendar_fall_exam_week",
+    "question": "根据校历，2025至2026学年秋季学期考试周是什么时候？",
+    "expected_doc_type": "校历",
+    "expected_source_contains": "微信图片_20260427155528.png",
+    "evidence_groups": [["2025年12月29日至2026年1月9日"]]
+  }
+]

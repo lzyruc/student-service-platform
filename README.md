@@ -129,6 +129,17 @@ pnpm dev
 
 ## 测试与构建
 
+RAG 检索基准：
+
+```powershell
+cd python-services
+.\.venv\Scripts\python.exe .\evaluation\rag_eval.py `
+  --label baseline_retrieval_2026-09-27 `
+  --output .\evaluation\results\baseline_retrieval_2026-09-27.json
+```
+
+当前16题检索基准、指标定义和逐题发现见 [RAG 检索基准报告](./python-services/evaluation/BASELINE_REPORT.md)。
+
 Java 后端：
 
 ```powershell
