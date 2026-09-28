@@ -6,6 +6,7 @@
 .report-section { position: relative; margin-top: 30rpx; }
 .risk-badge { display: inline-block; padding: 6rpx 20rpx; border-radius: 20rpx; font-size: 26rpx; font-weight: bold; margin-bottom: 20rpx; }
 .safe { background: #E8F5E9; color: #4CAF50; }
+.warning { background: #FFF7E6; color: #D97706; }
 .danger { background: #FFEBEE; color: #F44336; }
 .divider { height: 1px; background: #eee; margin: 30rpx 0; }
 .info-row { display: flex; justify-content: space-between; margin-bottom: 30rpx; font-size: 30rpx; }

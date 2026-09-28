@@ -38,14 +38,18 @@ public class StudentService {
         int inserted = 0;
         int updated = 0;
 
-        for (StudentImportItem s : students) {
+        for (int index = 0; index < students.size(); index++) {
+            StudentImportItem s = students.get(index);
+            if (s == null) {
+                throw new IllegalArgumentException("第 " + (index + 1) + " 条学生数据不能为空");
+            }
             String studentNo = normalize(s.getStudentNo());
             String name = normalize(s.getName());
             String roleCode = normalize(s.getRoleCode());
             if (roleCode.equals("admin")) {
                 String username = studentNo.isEmpty() ? name : studentNo;
                 if (username.isEmpty()) {
-                    continue;
+                    throw new IllegalArgumentException("第 " + (index + 1) + " 条管理员数据缺少账号");
                 }
 
                 int status = s.getStatus() == null ? 1 : (s.getStatus() == 0 ? 0 : 1);
@@ -95,7 +99,9 @@ public class StudentService {
             String major = normalize(s.getMajor());
             String grade = normalize(s.getGrade());
             if (studentNo.isEmpty() || name.isEmpty() || className.isEmpty() || major.isEmpty() || grade.isEmpty()) {
-                continue;
+                throw new IllegalArgumentException(
+                        "第 " + (index + 1) + " 条学生数据缺少学号、姓名、班级、专业或年级"
+                );
             }
 
             String gender = normalize(s.getGender());

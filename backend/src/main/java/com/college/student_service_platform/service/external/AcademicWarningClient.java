@@ -27,18 +27,6 @@ public class AcademicWarningClient {
         this.callExecutor = callExecutor;
     }
 
-    public Object getTrainingPlan() {
-        String url = properties.getWarningService().getBaseUrl() + "/api/admin/warning/training_plan";
-        return callExecutor.executeRetryable("培养方案查询服务",
-                () -> restTemplate.getForObject(url, Object.class));
-    }
-
-    public Object saveTrainingPlan(Object request) {
-        String url = properties.getWarningService().getBaseUrl() + "/api/admin/warning/training_plan";
-        return callExecutor.executeOnce("培养方案保存服务",
-                () -> restTemplate.postForObject(url, request, Object.class));
-    }
-
     public Object analyzeTranscript(MultipartFile file, String studentNo, String trainingPlanJson) throws IOException {
         String url = properties.getWarningService().getBaseUrl() + "/api/student/warning/analyze";
         ByteArrayResource fileResource = new ByteArrayResource(file.getBytes()) {

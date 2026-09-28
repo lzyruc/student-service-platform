@@ -480,6 +480,10 @@ const saveTrainingPlan = async () => {
       ElMessage.error("请至少填写 1 门课程名称");
       return;
     }
+    if (!courses.some(course => course.category.includes("核心"))) {
+      ElMessage.error("请至少将一门课程的类别填写为包含“核心”的类别，学业预警需要据此比对");
+      return;
+    }
     const totalCredits = Number(courses.reduce((acc, cur) => acc + (Number(cur.credits) || 0), 0).toFixed(2));
     const payload = {
       major: planForm.major,

@@ -21,7 +21,8 @@ public class WarningRecordService {
         this.objectMapper = objectMapper;
     }
 
-    public Long saveFromPythonResponse(Long userId, String studentNo, Long transcriptFileId, Object pythonResponse) {
+    public Long saveFromPythonResponse(Long userId, String studentNo, Long transcriptFileId,
+                                       Long trainingPlanId, Object pythonResponse) {
         Map<String, Object> root = asMap(pythonResponse);
         Map<String, Object> pythonResponseMap = asMap(root.get("pythonResponse"));
         Map<String, Object> data = firstMap(
@@ -72,8 +73,13 @@ public class WarningRecordService {
                 report.get("suggestions"),
                 data.get("suggestions")
         );
+        List<Object> coreCourses = firstList(
+                report.get("core_courses"),
+                report.get("coreCourses")
+        );
 
         int courseCount = courses == null ? 0 : courses.size();
+        int coreCourseCount = coreCourses == null ? 0 : coreCourses.size();
         int failedCourseCount = failedCourses == null ? 0 : failedCourses.size();
         int missingCourseCount = missingCourses == null ? 0 : missingCourses.size();
 
@@ -98,15 +104,15 @@ public class WarningRecordService {
                 userId,
                 studentNo,
                 transcriptFileId,
-                null,
+                trainingPlanId,
                 warningLevel == null || warningLevel.isBlank() ? "未知" : warningLevel,
                 totalEarnedCredits,
                 courseCount,
-                0, // core_course_count
+                coreCourseCount,
                 failedCourseCount,
                 missingCourseCount,
                 toJson(courses == null ? List.of() : courses),
-                null, // core_courses_json
+                toJson(coreCourses),
                 toJson(failedCourses),
                 toJson(missingCourses),
                 toJson(suggestions),

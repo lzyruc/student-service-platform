@@ -2,7 +2,11 @@ package com.college.student_service_platform.controller;
 
 import com.college.student_service_platform.common.Result;
 import com.college.student_service_platform.common.AuthContext;
+import com.college.student_service_platform.dto.FileUploadResponse;
+import com.college.student_service_platform.dto.TrainingPlanItem;
 import jakarta.servlet.http.HttpServletRequest;
+import com.college.student_service_platform.service.FileService;
+import com.college.student_service_platform.service.TrainingPlanService;
 import com.college.student_service_platform.service.WarningRecordService;
 import com.college.student_service_platform.service.external.AcademicWarningClient;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -22,31 +26,25 @@ public class AcademicWarningProxyController {
 
     private final AcademicWarningClient academicWarningClient;
     private final WarningRecordService warningRecordService;
+    private final TrainingPlanService trainingPlanService;
+    private final FileService fileService;
     private final JdbcTemplate jdbcTemplate;
     private final ObjectMapper objectMapper;
 
     public AcademicWarningProxyController(
             AcademicWarningClient academicWarningClient,
             WarningRecordService warningRecordService,
+            TrainingPlanService trainingPlanService,
+            FileService fileService,
             JdbcTemplate jdbcTemplate,
             ObjectMapper objectMapper
     ) {
         this.academicWarningClient = academicWarningClient;
         this.warningRecordService = warningRecordService;
+        this.trainingPlanService = trainingPlanService;
+        this.fileService = fileService;
         this.jdbcTemplate = jdbcTemplate;
         this.objectMapper = objectMapper;
-    }
-
-    @GetMapping("/admin/warning/training-plan")
-    public Result<Object> getTrainingPlan() {
-        Object response = academicWarningClient.getTrainingPlan();
-        return Result.success("培养方案查询成功", response);
-    }
-
-    @PostMapping("/admin/warning/training-plan")
-    public Result<Object> saveTrainingPlan(@RequestBody Object request) {
-        Object response = academicWarningClient.saveTrainingPlan(request);
-        return Result.success("培养方案保存成功", response);
     }
 
     @PostMapping("/student/warning/analyze")
@@ -60,31 +58,40 @@ public class AcademicWarningProxyController {
             String stuSql = "SELECT major, grade FROM t_student WHERE student_no = ?";
             java.util.List<Map<String, Object>> stus = jdbcTemplate.queryForList(stuSql, studentNo);
             if (stus.isEmpty()) {
-                return Result.fail("未找到该学生的专业和年级信息");
+                return Result.fail(404, "未找到该学生的专业和年级信息");
             }
 
             String major = String.valueOf(stus.get(0).get("major"));
             String grade = String.valueOf(stus.get(0).get("grade"));
-            String planSql = "SELECT json_content FROM t_training_plan WHERE major = ? AND grade = ? ORDER BY created_at DESC LIMIT 1";
-            java.util.List<String> plans = jdbcTemplate.queryForList(planSql, String.class, major, grade);
-            if (plans.isEmpty()) {
-                return Result.fail("数据库中未找到匹配的培养方案：" + major + " / " + grade);
+            TrainingPlanItem plan = trainingPlanService.getLatest(major, grade);
+            if (plan == null) {
+                return Result.fail(404, "数据库中未找到匹配的培养方案：" + major + " / " + grade);
             }
 
-            String trainingPlanJson = convertTrainingPlanForPython(plans.get(0));
+            String trainingPlanJson = convertTrainingPlanForPython(plan.getJsonContent());
+            Long userId = findUserId(studentNo);
             Object response = academicWarningClient.analyzeTranscript(file, studentNo, trainingPlanJson);
-            try {
-                warningRecordService.saveFromPythonResponse(null, studentNo, null, response);
-            } catch (Exception e) {
-                log.error("Warning analysis succeeded but persistence failed for student {}", studentNo, e);
-            }
+            FileUploadResponse transcript = fileService.uploadFile(file, "transcript", userId);
+            warningRecordService.saveFromPythonResponse(userId, studentNo, transcript.getId(), plan.getId(), response);
             return Result.success("学业预警分析成功", response);
         } catch (IllegalArgumentException e) {
-            return Result.fail("培养方案或成绩单格式不正确");
+            return Result.fail(400, e.getMessage());
         } catch (Exception e) {
             log.error("Academic warning analysis failed for student {}", studentNo, e);
             return Result.fail("学业预警分析失败，请稍后重试");
         }
+    }
+
+    private Long findUserId(String studentNo) {
+        java.util.List<Long> ids = jdbcTemplate.queryForList(
+                "SELECT id FROM t_user WHERE student_no = ? LIMIT 1",
+                Long.class,
+                studentNo
+        );
+        if (ids.isEmpty()) {
+            throw new IllegalArgumentException("未找到该学生的用户账号");
+        }
+        return ids.get(0);
     }
 
     @SuppressWarnings("unchecked")

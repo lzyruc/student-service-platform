@@ -2,10 +2,10 @@ import os
 import re
 import shutil
 import json
+import uuid
 import pdfplumber
 import uvicorn
 from fastapi import FastAPI, HTTPException, UploadFile, File, Form
-from pydantic import BaseModel
 
 class AcademicWarningEngine:
     def __init__(self, training_plan=None):
@@ -110,6 +110,7 @@ class AcademicWarningEngine:
             "total_earned_credits": 0.0,
             "official_gpa": official_gpa,
             "failed_courses": [],
+            "core_courses": [],
             "missing_core_courses": [],
             "warning_level": "正常", # 正常 / 一般预警 / 严重预警
             "course_suggestions": []
@@ -130,7 +131,9 @@ class AcademicWarningEngine:
 
         # 检查是否缺失核心必修课
         for core_course in self.training_plan.get("core_courses", []):
-            if core_course not in completed_courses:
+            if core_course in completed_courses:
+                report["core_courses"].append(core_course)
+            else:
                 report["missing_core_courses"].append(core_course)
                 # 将缺失的核心课加入选课建议
                 report["course_suggestions"].append(f"建议重修或补修核心课程: {core_course}")
@@ -150,41 +153,13 @@ class AcademicWarningEngine:
 
 app = FastAPI(title="学业预警分析 API")
 
-DEFAULT_TRAINING_PLAN = {
-    "required_credits": 150.0,
-    "core_courses": [
-        "高等数学Ⅰ", "高等数学Ⅱ", "高等代数Ⅰ", "高等代数Ⅱ",
-        "程序设计", "数据结构与算法Ⅰ", "计算机系统基础Ⅰ", "离散数学A", "操作系统"
-    ]
-}
 UPLOAD_DIR = "./uploaded_transcripts"
 os.makedirs(UPLOAD_DIR, exist_ok=True)
-
-class TrainingPlanRequest(BaseModel):
-    required_credits: float
-    core_courses: list[str]
-
-@app.get("/api/admin/warning/training_plan")
-def get_training_plan():
-    return {
-        "status": "success",
-        "data": DEFAULT_TRAINING_PLAN
-    }
-
-@app.post("/api/admin/warning/training_plan")
-def update_training_plan(req: TrainingPlanRequest):
-    DEFAULT_TRAINING_PLAN["required_credits"] = req.required_credits
-    DEFAULT_TRAINING_PLAN["core_courses"] = req.core_courses
-    return {
-        "status": "success",
-        "message": "培养方案已更新",
-        "data": DEFAULT_TRAINING_PLAN
-    }
 
 @app.post("/api/student/warning/analyze")
 async def analyze_warning(
     file: UploadFile = File(...),
-    training_plan: str = Form(None)
+    training_plan: str = Form(...)
 ):
     if not file.filename:
         raise HTTPException(status_code=400, detail="未上传文件")
@@ -192,18 +167,20 @@ async def analyze_warning(
         raise HTTPException(status_code=400, detail="仅支持上传 PDF 成绩单")
 
     safe_filename = os.path.basename(file.filename)
-    temp_path = os.path.join(UPLOAD_DIR, safe_filename)
+    temp_path = os.path.join(UPLOAD_DIR, f"{uuid.uuid4().hex}_{safe_filename}")
+
+    try:
+        plan = json.loads(training_plan)
+        if not isinstance(plan, dict):
+            raise ValueError("培养方案必须是 JSON 对象")
+        if not isinstance(plan.get("core_courses"), list):
+            raise ValueError("培养方案缺少 core_courses 数组")
+    except Exception as e:
+        raise HTTPException(status_code=400, detail=f"培养方案格式错误: {e}")
 
     try:
         with open(temp_path, "wb") as buffer:
             shutil.copyfileobj(file.file, buffer)
-
-        plan = DEFAULT_TRAINING_PLAN
-        if training_plan:
-            try:
-                plan = json.loads(training_plan)
-            except Exception as e:
-                print("解析传入的培养方案失败，降级使用默认方案:", e)
 
         engine = AcademicWarningEngine(training_plan=plan)
         courses, official_gpa = engine.parse_ruc_transcript(temp_path)

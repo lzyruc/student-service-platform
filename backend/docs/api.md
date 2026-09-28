@@ -331,11 +331,11 @@ Content-Type：`application/json`
 }
 ```
 
-## 8. 查询培养方案
+## 8. 查询培养方案列表
 
 ### 接口地址
 
-`GET /api/admin/warning/training-plan`
+`GET /api/training-plan/list`
 
 ### 请求方式
 
@@ -351,26 +351,23 @@ Content-Type：`application/json`
 | --- | --- | --- |
 | code | number | 业务状态码 |
 | message | string | 返回消息 |
-| data | object | 学业预警服务返回的培养方案数据，按外部服务原样透传 |
+| data | array | MySQL 中保存的培养方案列表，按最近更新时间倒序排列 |
 
 ### 示例 JSON
 
 ```json
 {
   "code": 200,
-  "message": "培养方案查询成功",
-  "data": {
+  "message": "成功",
+  "data": [{
+    "id": 1720000000001,
     "major": "计算机科学与技术",
     "grade": "2024",
-    "requiredCredits": 160,
-    "courses": [
-      {
-        "courseCode": "CS101",
-        "courseName": "程序设计基础",
-        "credits": 4
-      }
-    ]
-  }
+    "version": "v1.0",
+    "jsonContent": "{\"courses\":[...]}",
+    "courseCount": 1,
+    "totalCredits": 4
+  }]
 }
 ```
 
@@ -378,7 +375,7 @@ Content-Type：`application/json`
 
 ### 接口地址
 
-`POST /api/admin/warning/training-plan`
+`POST /api/training-plan/save`
 
 ### 请求方式
 
@@ -388,22 +385,18 @@ Content-Type：`application/json`
 
 Content-Type：`application/json`
 
-请求体为培养方案 JSON，当前后端按 `Object` 接收并透传到学业预警服务。
+请求体包含培养方案索引字段和完整 JSON。`id` 为空时新增，存在时修改。后端会解析 `jsonContent`，重新计算课程数和总学分，并要求至少存在一门课程类别包含“核心”的课程。
 
 示例：
 
 ```json
 {
+  "id": null,
   "major": "计算机科学与技术",
   "grade": "2024",
-  "requiredCredits": 160,
-  "courses": [
-    {
-      "courseCode": "CS101",
-      "courseName": "程序设计基础",
-      "credits": 4
-    }
-  ]
+  "version": "v1.0",
+  "remark": "2024 版培养方案",
+  "jsonContent": "{\"major\":\"计算机科学与技术\",\"grade\":\"2024\",\"version\":\"v1.0\",\"courses\":[{\"category\":\"专业核心课\",\"courseName\":\"程序设计基础\",\"credits\":4,\"offeredAt\":\"1\"}]}"
 }
 ```
 
@@ -413,7 +406,7 @@ Content-Type：`application/json`
 | --- | --- | --- |
 | code | number | 业务状态码 |
 | message | string | 返回消息 |
-| data | object | 学业预警服务返回结果，按外部服务原样透传 |
+| data | number | 新增或修改后的培养方案 ID |
 
 ### 示例 JSON
 
@@ -421,12 +414,11 @@ Content-Type：`application/json`
 {
   "code": 200,
   "message": "培养方案保存成功",
-  "data": {
-    "status": "success",
-    "message": "培养方案已保存"
-  }
+  "data": 1720000000001
 }
 ```
+
+培养方案详情使用 `GET /api/training-plan/{id}`，删除使用 `DELETE /api/training-plan/{id}`。培养方案只保存在 MySQL；Python 预警服务不再维护独立的内存副本。
 
 ## 10. 学业预警分析
 
@@ -445,7 +437,7 @@ Content-Type：`multipart/form-data`
 | 参数名 | 类型 | 必填 | 说明 |
 | --- | --- | --- | --- |
 | file | file | 是 | 成绩单文件 |
-| studentNo | string | 是 | 学号 |
+| studentNo | string | 管理员代查时必填 | 学生登录时从 JWT 获取学号；管理员代查时传目标学号 |
 
 ### 返回格式
 
@@ -453,7 +445,7 @@ Content-Type：`multipart/form-data`
 | --- | --- | --- |
 | code | number | 业务状态码 |
 | message | string | 返回消息 |
-| data | object | 学业预警服务返回的分析结果，按外部服务原样透传 |
+| data | object | 学业预警服务返回的课程解析和预警报告 |
 
 ### 示例 JSON
 
@@ -462,14 +454,22 @@ Content-Type：`multipart/form-data`
   "code": 200,
   "message": "学业预警分析成功",
   "data": {
-    "studentNo": "20240001",
-    "riskLevel": "low",
-    "missingCredits": 8,
-    "suggestions": [
-      "优先补修专业必修课",
-      "下学期完成实践环节学分"
-    ]
+    "status": "success",
+    "data": {
+      "course_count": 12,
+      "courses": [],
+      "report": {
+        "warning_level": "一般预警",
+        "total_earned_credits": 82.5,
+        "core_courses": [],
+        "failed_courses": [],
+        "missing_core_courses": [],
+        "course_suggestions": []
+      }
+    }
   }
 }
 ```
+
+分析成功后，Java 后端会保存成绩单文件，并把学生用户 ID、成绩单文件 ID、实际使用的培养方案 ID 和完整分析结果写入 `t_warning_record`。
 

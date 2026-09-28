@@ -35,11 +35,17 @@ Page({
 
               const warningLevel = String(report.warning_level || report.riskLevel || '');
               const missingCoreCourses = report.missing_core_courses || [];
+              const failedCourses = report.failed_courses || [];
+              const normalizedLevel = warningLevel.toLowerCase();
+              let riskLevel = 'low';
+              if (warningLevel.includes('严重') || normalizedLevel === 'high') riskLevel = 'high';
+              else if (warningLevel.includes('一般') || normalizedLevel === 'medium') riskLevel = 'medium';
 
               this.setData({
                 report: {
-                  riskLevel: warningLevel.includes('低') || warningLevel.includes('正常') || warningLevel.toLowerCase() === 'low' ? 'low' : 'high',
-                  missingCredits: report.missingCredits || report.missing_credits || missingCoreCourses.length,
+                  riskLevel,
+                  warningLevel: warningLevel || '未知',
+                  issueCount: missingCoreCourses.length + failedCourses.length,
                   suggestions: report.course_suggestions || report.suggestions || payloadData.suggestions || []
                 }
               });

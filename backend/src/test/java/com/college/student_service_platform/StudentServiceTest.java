@@ -13,6 +13,7 @@ import org.springframework.jdbc.datasource.DriverManagerDataSource;
 import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 class StudentServiceTest {
@@ -98,6 +99,20 @@ class StudentServiceTest {
                 Integer.class,
                 "20260001"
         ));
+    }
+
+    @Test
+    void rejectsIncompleteRowsInsteadOfSilentlyReportingSuccess() {
+        StudentImportItem student = student("20260002", "李四", "", "13800000001");
+
+        IllegalArgumentException error = assertThrows(
+                IllegalArgumentException.class,
+                () -> service.importStudents(List.of(student))
+        );
+
+        assertTrue(error.getMessage().contains("第 1 条"));
+        assertEquals(0, jdbcTemplate.queryForObject("SELECT COUNT(*) FROM t_student", Integer.class));
+        assertEquals(0, jdbcTemplate.queryForObject("SELECT COUNT(*) FROM t_user", Integer.class));
     }
 
     private StudentImportItem student(String studentNo, String name, String major, String contact) {

@@ -8,13 +8,13 @@
   </view>
 
   <view class="glass-card report-section" wx:if="{{report}}">
-    <view class="risk-badge {{report.riskLevel === 'high' ? 'danger' : 'safe'}}">
-      风险等级：{{report.riskLevel === 'high' ? '高' : '低'}}
+    <view class="risk-badge {{report.riskLevel === 'high' ? 'danger' : (report.riskLevel === 'medium' ? 'warning' : 'safe')}}">
+      风险等级：{{report.warningLevel}}
     </view>
     <view class="divider"></view>
     <view class="info-row">
       <text class="i-label">核心课与挂科缺口：</text>
-      <text class="i-value danger-text">{{report.missingCredits}} 门</text>
+      <text class="i-value danger-text">{{report.issueCount}} 门</text>
     </view>
     
     <view class="suggestion-box grad-4">

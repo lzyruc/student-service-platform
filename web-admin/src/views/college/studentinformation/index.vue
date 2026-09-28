@@ -17,7 +17,6 @@
             <el-button type="primary" :loading="importLoading">Excel 导入</el-button>
           </el-upload>
           <el-button type="primary" plain :disabled="students.length === 0" @click="exportJson">导出 JSON</el-button>
-          <el-button type="warning" plain @click="clearCache">清空缓存</el-button>
         </div>
       </div>
       <el-alert
@@ -175,7 +174,7 @@
 </template>
 
 <script setup lang="ts" name="collegeStudentInformation">
-import { computed, onMounted, reactive, ref, watch } from "vue";
+import { computed, onMounted, reactive, ref } from "vue";
 import { ElMessage, ElMessageBox } from "element-plus";
 import type { FormInstance, FormRules, UploadFile } from "element-plus";
 import * as XLSX from "xlsx";
@@ -200,8 +199,6 @@ type StudentRow = {
   wechatOpenid: string;
   updatedAt: string;
 };
-
-const STORAGE_KEY = "college_student_information_v2";
 
 const formatTime = (d = new Date()) => {
   const pad = (n: number) => String(n).padStart(2, "0");
@@ -352,8 +349,9 @@ const refreshList = async () => {
         updatedAt: normalizeBackendTime((i as any).updatedAt || (i as any).updated_at) || formatTime()
       } satisfies StudentRow;
     });
-  } catch {
-    loadFromCache();
+  } catch (e: any) {
+    students.value = [];
+    ElMessage.error(e?.message ?? "学生列表读取失败");
   } finally {
     listLoading.value = false;
   }
@@ -458,15 +456,6 @@ const removeRow = async (studentNo: string) => {
   }
 };
 
-const clearCache = async () => {
-  try {
-    localStorage.removeItem(STORAGE_KEY);
-  } catch {}
-  resetForm();
-  ElMessage.success("已清空缓存");
-  await refreshList();
-};
-
 const importLoading = ref(false);
 
 const headerMap: Record<string, keyof StudentRow> = {
@@ -554,7 +543,18 @@ const parseExcel = async (file: File) => {
     }
     return o;
   });
-  const rows = mapped.map(toStudentRow).filter(Boolean) as StudentRow[];
+  const invalidRows: number[] = [];
+  const rows = mapped
+    .map((item, index) => {
+      const row = toStudentRow(item);
+      if (!row) invalidRows.push(index + 2);
+      return row;
+    })
+    .filter(Boolean) as StudentRow[];
+  if (invalidRows.length > 0) {
+    const sample = invalidRows.slice(0, 5).join("、");
+    throw new Error(`Excel 第 ${sample}${invalidRows.length > 5 ? " 等" : ""} 行缺少学号或姓名`);
+  }
   return rows;
 };
 
@@ -706,52 +706,6 @@ const copyJson = async () => {
 onMounted(() => {
   refreshList();
 });
-
-const loadFromCache = () => {
-  try {
-    const raw = localStorage.getItem(STORAGE_KEY);
-    if (!raw) return;
-    const data = JSON.parse(raw) as any[];
-    if (!Array.isArray(data)) return;
-    students.value = data.map(i => {
-      const oldContact = normalizeText((i as any).contact);
-      const phone = normalizeText((i as any).phone);
-      const email = normalizeText((i as any).email);
-      const contact = normalizeText(oldContact || phone || email);
-      const status = Number((i as any).status);
-      const roleCodeRaw = normalizeText((i as any).roleCode || (i as any).role_code);
-      const roleCode = roleCodeRaw === "admin" || roleCodeRaw === "管理员" ? "admin" : "student";
-      return {
-        studentNo: normalizeText((i as any).studentNo || (i as any).studentId),
-        name: normalizeText((i as any).name),
-        idCardNo: normalizeText((i as any).idCardNo || (i as any).id_card_no),
-        gender: normalizeGender((i as any).gender),
-        ethnicity: normalizeText((i as any).ethnicity || (i as any).nation),
-        className: normalizeText((i as any).className),
-        major: normalizeText((i as any).major),
-        grade: normalizeText((i as any).grade),
-        educationLevel: normalizeText((i as any).educationLevel || (i as any).education_level) || "本科",
-        contact,
-        password: "",
-        roleCode,
-        status: status === 0 ? 0 : 1,
-        wechatOpenid: normalizeText((i as any).wechatOpenid || (i as any).wechat_openid),
-        updatedAt: normalizeText((i as any).updatedAt) || formatTime()
-      } satisfies StudentRow;
-    });
-  } catch {}
-};
-
-watch(
-  students,
-  val => {
-    try {
-      const passwordFreeRows = val.map(item => ({ ...item, password: "" }));
-      localStorage.setItem(STORAGE_KEY, JSON.stringify(passwordFreeRows));
-    } catch {}
-  },
-  { deep: true }
-);
 </script>
 
 <style scoped lang="scss">
