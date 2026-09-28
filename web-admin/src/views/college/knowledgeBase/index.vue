@@ -2,332 +2,473 @@
   <div class="knowledge-base content-box">
     <div class="card">
       <div class="header">
-        <div class="title">知识库（PDF 上传）</div>
+        <div>
+          <div class="title">政策知识库</div>
+          <div class="subtitle">统一管理政策文件、发布状态和 RAG 向量入库状态</div>
+        </div>
         <div class="actions">
-          <el-button type="primary" plain @click="resetPdf">重置表单</el-button>
+          <el-button @click="loadDocuments()">刷新</el-button>
+          <el-button type="primary" @click="openCreateDialog">新增政策</el-button>
         </div>
       </div>
-      <el-alert title="上传 PDF 后填写信息保存到本地列表，后续再对接后端接口。" type="info" :closable="false" class="mb16" />
-      <el-row :gutter="16">
-        <el-col :xs="24" :md="12">
-          <el-form ref="pdfFormRef" :model="pdfForm" :rules="pdfRules" label-width="96px" label-suffix=" :">
-            <el-form-item label="文件" prop="file">
-              <el-upload
-                drag
-                :auto-upload="false"
-                :multiple="false"
-                :limit="1"
-                accept=".pdf,application/pdf"
-                :show-file-list="true"
-                :file-list="pdfUploadFileList"
-                :on-change="onPdfChange"
-                :on-remove="onPdfRemove"
-              >
-                <el-icon class="el-icon--upload"><UploadFilled /></el-icon>
-                <div class="el-upload__text">把 PDF 拖到这里，或 <em>点击选择</em></div>
-                <template #tip>
-                  <div class="el-upload__tip">仅支持 PDF，单文件建议不超过 30MB</div>
-                </template>
-              </el-upload>
-            </el-form-item>
-            <el-form-item label="标题" prop="title">
-              <el-input v-model.trim="pdfForm.title" placeholder="例如：奖助学金政策 2026 版" clearable />
-            </el-form-item>
-            <el-form-item label="分类" prop="category">
-              <el-select v-model="pdfForm.category" placeholder="请选择" clearable filterable>
-                <el-option label="奖助学金" value="奖助学金" />
-                <el-option label="党团流程" value="党团流程" />
-                <el-option label="请假管理" value="请假管理" />
-                <el-option label="证明开具" value="证明开具" />
-                <el-option label="就业实习" value="就业实习" />
-                <el-option label="其他" value="其他" />
-              </el-select>
-            </el-form-item>
-            <el-form-item label="标签" prop="tags">
-              <el-select
-                v-model="pdfForm.tags"
-                multiple
-                filterable
-                allow-create
-                default-first-option
-                placeholder="选择标签或输入后回车添加"
-              >
-                <el-option v-for="t in tagOptions" :key="t" :label="t" :value="t" />
-              </el-select>
-            </el-form-item>
-            <el-form-item label="版本号" prop="version">
-              <el-input v-model.trim="pdfForm.version" placeholder="例如：v1.0" clearable />
-            </el-form-item>
-            <el-form-item label="生效日期" prop="effectiveDate">
-              <el-date-picker v-model="pdfForm.effectiveDate" type="date" placeholder="请选择日期" value-format="YYYY-MM-DD" />
-            </el-form-item>
-            <el-form-item label="备注" prop="remark">
-              <el-input v-model.trim="pdfForm.remark" type="textarea" :rows="3" placeholder="可选：适用范围/关键变更点等" />
-            </el-form-item>
-            <el-form-item>
-              <el-button type="primary" :loading="uploading" @click="savePdfDoc">保存到本地列表</el-button>
-              <el-button :disabled="!pdfForm.file" @click="previewSelectedPdf">预览所选 PDF</el-button>
-            </el-form-item>
-          </el-form>
-        </el-col>
 
-        <el-col :xs="24" :md="12">
-          <div class="card inner-card">
-            <div class="inner-title">已保存文件（本地）</div>
-            <el-table :data="pdfDocList" row-key="id" height="520">
-              <el-table-column prop="title" label="标题" min-width="180" show-overflow-tooltip />
-              <el-table-column prop="category" label="分类" width="110" />
-              <el-table-column prop="version" label="版本" width="90" />
-              <el-table-column prop="fileName" label="文件名" min-width="180" show-overflow-tooltip />
-              <el-table-column prop="createdAt" label="录入时间" width="160" />
-              <el-table-column label="操作" width="160" fixed="right">
-                <template #default="{ row }">
-                  <el-button link type="primary" @click="previewPdfRow(row)">预览</el-button>
-                  <el-button link type="danger" @click="removePdfRow(row.id)">删除</el-button>
-                </template>
-              </el-table-column>
-            </el-table>
-            <div class="mt12">
-              <el-button type="primary" plain :disabled="pdfDocList.length === 0" @click="exportPdfJson">导出 JSON</el-button>
-              <el-button type="warning" plain :disabled="pdfDocList.length === 0" @click="clearPdfList">清空列表</el-button>
-            </div>
-          </div>
-        </el-col>
-      </el-row>
+      <el-alert
+        title="发布后系统会在后台解析 PDF 并写入向量库；状态变为“已就绪”后，学生问答才能检索到该文档。"
+        type="info"
+        :closable="false"
+        class="mb16"
+      />
+
+      <el-form :model="query" inline class="filter-form" @submit.prevent>
+        <el-form-item label="关键词">
+          <el-input v-model.trim="query.keyword" placeholder="标题、关键词或文件名" clearable @keyup.enter="handleSearch" />
+        </el-form-item>
+        <el-form-item label="分类">
+          <el-select v-model="query.category" clearable filterable placeholder="全部分类" class="filter-select">
+            <el-option v-for="item in categoryOptions" :key="item" :label="item" :value="item" />
+          </el-select>
+        </el-form-item>
+        <el-form-item label="适用对象">
+          <el-select v-model="query.audience" clearable placeholder="全部" class="filter-select">
+            <el-option label="全部学生" value="ALL" />
+            <el-option label="本科生" value="UNDERGRADUATE" />
+            <el-option label="研究生" value="POSTGRADUATE" />
+          </el-select>
+        </el-form-item>
+        <el-form-item label="发布状态">
+          <el-select v-model="query.docStatus" clearable placeholder="全部" class="filter-select">
+            <el-option label="草稿" value="DRAFT" />
+            <el-option label="已发布" value="PUBLISHED" />
+            <el-option label="已归档" value="ARCHIVED" />
+          </el-select>
+        </el-form-item>
+        <el-form-item label="入库状态">
+          <el-select v-model="query.ingestStatus" clearable placeholder="全部" class="filter-select">
+            <el-option label="待入库" value="PENDING" />
+            <el-option label="处理中" value="PROCESSING" />
+            <el-option label="已就绪" value="READY" />
+            <el-option label="失败" value="FAILED" />
+          </el-select>
+        </el-form-item>
+        <el-form-item>
+          <el-button type="primary" @click="handleSearch">查询</el-button>
+          <el-button @click="resetSearch">重置</el-button>
+        </el-form-item>
+      </el-form>
+
+      <el-table v-loading="loading" :data="documents" row-key="id" empty-text="暂无政策文档">
+        <el-table-column label="政策文件" min-width="250">
+          <template #default="{ row }">
+            <div class="document-title">{{ row.title }}</div>
+            <div class="document-file">{{ row.fileName }}</div>
+          </template>
+        </el-table-column>
+        <el-table-column prop="category" label="分类" width="120" show-overflow-tooltip />
+        <el-table-column label="适用对象" width="105">
+          <template #default="{ row }">{{ audienceLabel(row.audience) }}</template>
+        </el-table-column>
+        <el-table-column prop="version" label="版本" width="90" />
+        <el-table-column label="发布状态" width="100">
+          <template #default="{ row }">
+            <el-tag :type="docStatusType(row.docStatus)">{{ docStatusLabel(row.docStatus) }}</el-tag>
+          </template>
+        </el-table-column>
+        <el-table-column label="RAG 入库" width="130">
+          <template #default="{ row }">
+            <el-tooltip v-if="row.ingestStatus === 'FAILED'" :content="row.ingestError || '入库失败'" placement="top">
+              <el-tag type="danger">入库失败</el-tag>
+            </el-tooltip>
+            <el-tag v-else :type="ingestStatusType(row.ingestStatus)">{{ ingestStatusLabel(row.ingestStatus) }}</el-tag>
+          </template>
+        </el-table-column>
+        <el-table-column label="文本块" width="80" align="center">
+          <template #default="{ row }">{{ row.chunkCount || 0 }}</template>
+        </el-table-column>
+        <el-table-column label="更新时间" width="165">
+          <template #default="{ row }">{{ formatDateTime(row.updatedAt) }}</template>
+        </el-table-column>
+        <el-table-column label="操作" width="260" fixed="right">
+          <template #default="{ row }">
+            <el-button link type="primary" :disabled="isProcessing(row)" @click="openEditDialog(row)">编辑</el-button>
+            <el-button link type="primary" @click="downloadDocument(row)">下载</el-button>
+            <el-button
+              link
+              type="success"
+              :loading="publishingId === row.id"
+              :disabled="isProcessing(row)"
+              @click="publishDocument(row)"
+            >
+              {{ row.docStatus === "PUBLISHED" ? "重新入库" : "发布" }}
+            </el-button>
+            <el-button link type="danger" :disabled="isProcessing(row)" @click="removeDocument(row)">删除</el-button>
+          </template>
+        </el-table-column>
+      </el-table>
+
+      <div class="pagination-wrap">
+        <el-pagination
+          v-model:current-page="query.page"
+          v-model:page-size="query.pageSize"
+          :total="total"
+          :page-sizes="[10, 20, 50]"
+          layout="total, sizes, prev, pager, next, jumper"
+          @current-change="loadDocuments()"
+          @size-change="handlePageSizeChange"
+        />
+      </div>
     </div>
 
-    <el-dialog v-model="jsonDialogVisible" title="导出内容（JSON）" width="780px">
-      <el-input v-model="jsonDialogValue" type="textarea" :rows="16" />
+    <el-dialog
+      v-model="dialogVisible"
+      :title="form.id ? '编辑政策文档' : '新增政策文档'"
+      width="760px"
+      destroy-on-close
+      @closed="resetForm"
+    >
+      <el-form ref="formRef" :model="form" :rules="formRules" label-width="100px" label-suffix=" :">
+        <el-form-item label="PDF 文件" prop="file">
+          <el-upload
+            :auto-upload="false"
+            :multiple="false"
+            :limit="1"
+            accept=".pdf,application/pdf"
+            :file-list="uploadFileList"
+            :on-change="handleFileChange"
+            :on-remove="handleFileRemove"
+          >
+            <el-button type="primary" plain>{{ form.fileId ? "替换 PDF" : "选择 PDF" }}</el-button>
+            <template #tip>
+              <div class="el-upload__tip">
+                {{ form.fileId ? `当前文件：${form.existingFileName}；不重新选择则保留原文件` : "仅支持 PDF，最大 20MB" }}
+              </div>
+            </template>
+          </el-upload>
+        </el-form-item>
+        <el-row :gutter="16">
+          <el-col :span="16">
+            <el-form-item label="政策标题" prop="title">
+              <el-input v-model.trim="form.title" maxlength="200" show-word-limit />
+            </el-form-item>
+          </el-col>
+          <el-col :span="8">
+            <el-form-item label="版本号" prop="version"><el-input v-model.trim="form.version" /></el-form-item>
+          </el-col>
+        </el-row>
+        <el-row :gutter="16">
+          <el-col :span="12">
+            <el-form-item label="分类" prop="category">
+              <el-select v-model="form.category" filterable allow-create default-first-option class="full-width">
+                <el-option v-for="item in categoryOptions" :key="item" :label="item" :value="item" />
+              </el-select>
+            </el-form-item>
+          </el-col>
+          <el-col :span="12">
+            <el-form-item label="适用对象" prop="audience">
+              <el-select v-model="form.audience" class="full-width">
+                <el-option label="全部学生" value="ALL" />
+                <el-option label="本科生" value="UNDERGRADUATE" />
+                <el-option label="研究生" value="POSTGRADUATE" />
+              </el-select>
+            </el-form-item>
+          </el-col>
+        </el-row>
+        <el-row :gutter="16">
+          <el-col :span="12">
+            <el-form-item label="生效日期">
+              <el-date-picker v-model="form.effectiveDate" type="date" value-format="YYYY-MM-DD" class="full-width" />
+            </el-form-item>
+          </el-col>
+          <el-col :span="12">
+            <el-form-item label="失效日期">
+              <el-date-picker v-model="form.expiryDate" type="date" value-format="YYYY-MM-DD" class="full-width" />
+            </el-form-item>
+          </el-col>
+        </el-row>
+        <el-form-item label="标签">
+          <el-select v-model="form.tags" multiple filterable allow-create default-first-option class="full-width">
+            <el-option v-for="item in tagOptions" :key="item" :label="item" :value="item" />
+          </el-select>
+        </el-form-item>
+        <el-form-item label="关键词">
+          <el-input v-model.trim="form.keywords" placeholder="多个关键词可用逗号分隔" maxlength="500" />
+        </el-form-item>
+        <el-form-item label="官方链接">
+          <el-input v-model.trim="form.officialUrl" placeholder="https://..." maxlength="500" />
+        </el-form-item>
+        <el-form-item label="备注">
+          <el-input v-model.trim="form.remark" type="textarea" :rows="3" maxlength="1000" show-word-limit />
+        </el-form-item>
+      </el-form>
       <template #footer>
-        <el-button @click="jsonDialogVisible = false">关闭</el-button>
-        <el-button type="primary" @click="copyJson">复制</el-button>
+        <el-button @click="dialogVisible = false">取消</el-button>
+        <el-button type="primary" :loading="saving" @click="saveDocument">保存</el-button>
       </template>
     </el-dialog>
   </div>
 </template>
 
 <script setup lang="ts" name="collegeKnowledgeBase">
-import { computed, reactive, ref, watch } from "vue";
-import { ElMessage } from "element-plus";
+import { computed, nextTick, onBeforeUnmount, onMounted, reactive, ref } from "vue";
+import { ElMessage, ElMessageBox } from "element-plus";
 import type { FormInstance, FormRules, UploadFile, UploadFiles } from "element-plus";
-import { UploadFilled } from "@element-plus/icons-vue";
-import { getDownloadUrl, uploadFile } from "@/api/modules/file";
+import { uploadFile } from "@/api/modules/file";
+import {
+  createPolicyDocument,
+  deletePolicyDocument,
+  listPolicyDocuments,
+  publishPolicyDocument,
+  updatePolicyDocument
+} from "@/api/modules/policyDocument";
+import type { PolicyDocumentApi } from "@/api/modules/policyDocument";
+import { useUserStore } from "@/stores/modules/user";
 
-type PdfDocForm = {
+type PolicyForm = {
+  id?: number;
+  fileId?: number;
+  existingFileName: string;
   file: File | null;
   title: string;
   category: string;
-  tags: string[];
+  audience: PolicyDocumentApi.Audience;
   version: string;
   effectiveDate: string;
+  expiryDate: string;
+  tags: string[];
+  keywords: string;
+  officialUrl: string;
   remark: string;
 };
 
-type PdfDocRow = {
-  id: string;
-  fileId: number;
-  title: string;
-  category: string;
-  tags: string[];
-  version: string;
-  effectiveDate: string;
-  remark: string;
-  fileName: string;
-  fileSize: number;
-  fileType: string;
-  downloadUrl: string;
-  createdAt: string;
-};
+const categoryOptions = ["学籍管理", "奖助学金", "党团流程", "请假管理", "证明开具", "就业实习", "校历", "违纪处分", "其他"];
+const tagOptions = ["全部学生", "本科", "研究生", "学籍", "休学", "复学", "毕业", "违纪处分", "校历"];
+const query = reactive<PolicyDocumentApi.PageQuery>({
+  page: 1,
+  pageSize: 10,
+  keyword: "",
+  category: "",
+  audience: "",
+  docStatus: "",
+  ingestStatus: ""
+});
+const documents = ref<PolicyDocumentApi.Item[]>([]);
+const total = ref(0);
+const loading = ref(false);
+const publishingId = ref<number>();
+let pollTimer: ReturnType<typeof setTimeout> | undefined;
 
-const pdfFormRef = ref<FormInstance>();
-const pdfUploadFileList = ref<UploadFiles>([]);
-const pdfForm = reactive<PdfDocForm>({
+const emptyForm = (): PolicyForm => ({
+  existingFileName: "",
   file: null,
   title: "",
   category: "",
-  tags: [],
+  audience: "ALL",
   version: "v1.0",
   effectiveDate: "",
+  expiryDate: "",
+  tags: [],
+  keywords: "",
+  officialUrl: "",
   remark: ""
 });
+const dialogVisible = ref(false);
+const saving = ref(false);
+const formRef = ref<FormInstance>();
+const form = reactive<PolicyForm>(emptyForm());
+const uploadFileList = ref<UploadFiles>([]);
+const formRules = computed<FormRules>(() => ({
+  file: [
+    { validator: (_r, _v, done) => (!form.file && !form.fileId ? done(new Error("请选择 PDF 文件")) : done()), trigger: "change" }
+  ],
+  title: [{ required: true, message: "请填写政策标题", trigger: "blur" }],
+  category: [{ required: true, message: "请选择或填写分类", trigger: "change" }],
+  audience: [{ required: true, message: "请选择适用对象", trigger: "change" }],
+  version: [{ required: true, message: "请填写版本号", trigger: "blur" }]
+}));
 
-const pdfRules: FormRules = reactive({
-  file: [{ required: true, message: "请选择 PDF 文件", trigger: "change" }],
-  title: [{ required: true, message: "请填写标题", trigger: "blur" }],
-  category: [{ required: true, message: "请选择分类", trigger: "change" }]
-});
-
-const pdfDocList = ref<PdfDocRow[]>([]);
-const uploading = ref(false);
-
-const tagOptions = computed(() => {
-  const base = ["全部学生"];
-  if (pdfForm.category === "党团流程") return [...base, "群众", "共青团员", "入党积极分子", "共产党员"];
-  if (pdfForm.category === "就业实习") return [...base, "毕业年级"];
-  return base;
-});
-
-watch(
-  () => pdfForm.category,
-  () => {
-    if (!pdfForm.tags.length) pdfForm.tags = ["全部学生"];
-  }
-);
-
-const onPdfChange = (uploadFile: UploadFile, uploadFiles: UploadFiles) => {
-  const raw = uploadFile.raw as File | undefined;
-  if (!raw) return;
-  const isPdf = raw.type === "application/pdf" || raw.name.toLowerCase().endsWith(".pdf");
-  if (!isPdf) {
-    ElMessage.error("仅支持 PDF 文件");
-    pdfUploadFileList.value = [];
-    pdfForm.file = null;
-    return;
-  }
-  const maxMB = 30;
-  const isLt = raw.size / 1024 / 1024 <= maxMB;
-  if (!isLt) {
-    ElMessage.error(`文件过大，建议不超过 ${maxMB}MB`);
-    pdfUploadFileList.value = [];
-    pdfForm.file = null;
-    return;
-  }
-  pdfUploadFileList.value = uploadFiles.slice(-1);
-  pdfForm.file = raw;
-  if (!pdfForm.title) pdfForm.title = raw.name.replace(/\.pdf$/i, "");
-};
-
-const onPdfRemove = () => {
-  pdfUploadFileList.value = [];
-  pdfForm.file = null;
-};
-
-const formatTime = (d = new Date()) => {
-  const pad = (n: number) => String(n).padStart(2, "0");
-  return `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())} ${pad(d.getHours())}:${pad(d.getMinutes())}`;
-};
-
-const genId = () => `${Date.now()}-${Math.random().toString(16).slice(2)}`;
-
-const previewFile = (file: File) => {
-  const url = URL.createObjectURL(file);
-  window.open(url, "_blank", "noopener,noreferrer");
-  setTimeout(() => URL.revokeObjectURL(url), 30_000);
-};
-
-const previewSelectedPdf = () => {
-  if (!pdfForm.file) return;
-  previewFile(pdfForm.file);
-};
-
-const savePdfDoc = async () => {
-  if (!pdfFormRef.value) return;
-  await pdfFormRef.value.validate(async valid => {
-    if (!valid) return;
-    if (!pdfForm.file) return;
-    if (uploading.value) return;
-    uploading.value = true;
-    let fileId = 0;
-    let downloadUrl = "";
-    try {
-      const fd = new FormData();
-      fd.append("file", pdfForm.file);
-      fd.append("businessType", "policy");
-      fd.append("uploaderId", "1");
-      const res = await uploadFile(fd);
-      fileId = res.data.id;
-      downloadUrl = getDownloadUrl(fileId);
-    } catch (e: any) {
-      ElMessage.error(e?.message ?? "上传失败");
-      uploading.value = false;
-      return;
-    }
-    pdfDocList.value.unshift({
-      id: genId(),
-      fileId,
-      title: pdfForm.title,
-      category: pdfForm.category,
-      tags: [...pdfForm.tags],
-      version: pdfForm.version,
-      effectiveDate: pdfForm.effectiveDate,
-      remark: pdfForm.remark,
-      fileName: pdfForm.file.name,
-      fileSize: pdfForm.file.size,
-      fileType: pdfForm.file.type,
-      downloadUrl,
-      createdAt: formatTime()
-    });
-    uploading.value = false;
-    ElMessage.success("已上传并保存到本地列表");
-    pdfForm.title = "";
-    pdfForm.category = "";
-    pdfForm.tags = [];
-    pdfForm.version = "v1.0";
-    pdfForm.effectiveDate = "";
-    pdfForm.remark = "";
-    pdfUploadFileList.value = [];
-    pdfForm.file = null;
-  });
-};
-
-const previewPdfRow = (row: PdfDocRow) => {
-  window.open(row.downloadUrl, "_blank", "noopener,noreferrer");
-};
-
-const removePdfRow = (id: string) => {
-  const idx = pdfDocList.value.findIndex(i => i.id === id);
-  if (idx === -1) return;
-  pdfDocList.value.splice(idx, 1);
-  ElMessage.success("已删除");
-};
-
-const clearPdfList = () => {
-  pdfDocList.value = [];
-  ElMessage.success("已清空");
-};
-
-const jsonDialogVisible = ref(false);
-const jsonDialogValue = ref("");
-
-const exportPdfJson = () => {
-  const data = pdfDocList.value.map(d => ({
-    fileId: d.fileId,
-    title: d.title,
-    category: d.category,
-    tags: d.tags,
-    version: d.version,
-    effectiveDate: d.effectiveDate,
-    remark: d.remark,
-    fileName: d.fileName,
-    fileSize: d.fileSize,
-    fileType: d.fileType,
-    downloadUrl: d.downloadUrl,
-    createdAt: d.createdAt
-  }));
-  jsonDialogValue.value = JSON.stringify(data, null, 2);
-  jsonDialogVisible.value = true;
-};
-
-const copyJson = async () => {
+const loadDocuments = async (silent = false) => {
+  if (!silent) loading.value = true;
   try {
-    await navigator.clipboard.writeText(jsonDialogValue.value);
-    ElMessage.success("已复制");
-  } catch {
-    ElMessage.error("复制失败，请手动复制");
+    const response = await listPolicyDocuments({ ...query });
+    documents.value = response.data.records;
+    total.value = response.data.total;
+    schedulePolling();
+  } finally {
+    loading.value = false;
+  }
+};
+const schedulePolling = () => {
+  if (pollTimer) clearTimeout(pollTimer);
+  pollTimer = undefined;
+  if (documents.value.some(item => item.ingestStatus === "PROCESSING")) {
+    pollTimer = setTimeout(() => loadDocuments(true), 3000);
+  }
+};
+const handleSearch = () => {
+  query.page = 1;
+  loadDocuments();
+};
+const resetSearch = () => {
+  Object.assign(query, { page: 1, keyword: "", category: "", audience: "", docStatus: "", ingestStatus: "" });
+  loadDocuments();
+};
+const handlePageSizeChange = () => {
+  query.page = 1;
+  loadDocuments();
+};
+
+const resetForm = () => {
+  Object.assign(form, emptyForm());
+  delete form.id;
+  delete form.fileId;
+  uploadFileList.value = [];
+  nextTick(() => formRef.value?.clearValidate());
+};
+const openCreateDialog = () => {
+  resetForm();
+  dialogVisible.value = true;
+};
+const openEditDialog = (row: PolicyDocumentApi.Item) => {
+  Object.assign(form, {
+    id: row.id,
+    fileId: row.fileId,
+    existingFileName: row.fileName,
+    file: null,
+    title: row.title,
+    category: row.category,
+    audience: row.audience,
+    version: row.version,
+    effectiveDate: row.effectiveDate || "",
+    expiryDate: row.expiryDate || "",
+    tags: [...(row.tags || [])],
+    keywords: row.keywords || "",
+    officialUrl: row.officialUrl || "",
+    remark: row.remark || ""
+  });
+  uploadFileList.value = [];
+  dialogVisible.value = true;
+  nextTick(() => formRef.value?.clearValidate());
+};
+const handleFileChange = (upload: UploadFile, files: UploadFiles) => {
+  const raw = upload.raw as File | undefined;
+  if (!raw) return;
+  if (raw.type !== "application/pdf" && !raw.name.toLowerCase().endsWith(".pdf")) {
+    ElMessage.error("仅支持 PDF 文件");
+    handleFileRemove();
+    return;
+  }
+  if (raw.size > 20 * 1024 * 1024) {
+    ElMessage.error("PDF 文件不能超过 20MB");
+    handleFileRemove();
+    return;
+  }
+  form.file = raw;
+  uploadFileList.value = files.slice(-1);
+  if (!form.title) form.title = raw.name.replace(/\.pdf$/i, "");
+  formRef.value?.validateField("file");
+};
+const handleFileRemove = () => {
+  form.file = null;
+  uploadFileList.value = [];
+};
+
+const saveDocument = async () => {
+  if (!formRef.value || saving.value) return;
+  if (!(await formRef.value.validate().catch(() => false))) return;
+  saving.value = true;
+  try {
+    let fileId = form.fileId;
+    if (form.file) {
+      const body = new FormData();
+      body.append("file", form.file);
+      body.append("businessType", "policy");
+      fileId = (await uploadFile(body)).data.id;
+    }
+    if (!fileId) throw new Error("未获得有效的文件 ID");
+    const payload: PolicyDocumentApi.SaveRequest = {
+      title: form.title,
+      category: form.category,
+      audience: form.audience,
+      version: form.version,
+      effectiveDate: form.effectiveDate || null,
+      expiryDate: form.expiryDate || null,
+      tags: [...form.tags],
+      content: null,
+      keywords: form.keywords || null,
+      officialUrl: form.officialUrl || null,
+      remark: form.remark || null,
+      fileId
+    };
+    if (form.id) {
+      await updatePolicyDocument(form.id, payload);
+      ElMessage.success("政策文档已更新，需要重新发布入库");
+    } else {
+      await createPolicyDocument(payload);
+      ElMessage.success("政策文档已保存为草稿");
+    }
+    dialogVisible.value = false;
+    query.page = 1;
+    await loadDocuments();
+  } finally {
+    saving.value = false;
   }
 };
 
-const resetPdf = () => {
-  pdfUploadFileList.value = [];
-  pdfForm.file = null;
-  pdfForm.title = "";
-  pdfForm.category = "";
-  pdfForm.tags = [];
-  pdfForm.version = "v1.0";
-  pdfForm.effectiveDate = "";
-  pdfForm.remark = "";
-  ElMessage.success("已重置");
+const publishDocument = async (row: PolicyDocumentApi.Item) => {
+  const action = row.docStatus === "PUBLISHED" ? "重新向量化这份政策" : "发布并向量化这份政策";
+  const confirmed = await ElMessageBox.confirm(`${action}？`, "确认发布", { type: "warning" })
+    .then(() => true)
+    .catch(() => false);
+  if (!confirmed) return;
+  publishingId.value = row.id;
+  try {
+    await publishPolicyDocument(row.id);
+    ElMessage.success("发布任务已提交，正在后台进行 RAG 入库");
+    await loadDocuments(true);
+  } finally {
+    publishingId.value = undefined;
+  }
 };
+const removeDocument = async (row: PolicyDocumentApi.Item) => {
+  const confirmed = await ElMessageBox.confirm(`确定删除政策“${row.title}”吗？原始 PDF 文件仍会保留。`, "删除确认", {
+    type: "warning"
+  })
+    .then(() => true)
+    .catch(() => false);
+  if (!confirmed) return;
+  await deletePolicyDocument(row.id);
+  ElMessage.success("政策记录已删除");
+  if (documents.value.length === 1 && query.page > 1) query.page -= 1;
+  await loadDocuments();
+};
+const downloadDocument = async (row: PolicyDocumentApi.Item) => {
+  const apiBase = String(import.meta.env.VITE_API_URL || "/api").replace(/\/$/, "");
+  const response = await fetch(`${apiBase}/file/download/${row.fileId}`, {
+    headers: { "x-access-token": useUserStore().token }
+  });
+  if (!response.ok) return void ElMessage.error("文件下载失败");
+  const url = URL.createObjectURL(await response.blob());
+  const anchor = document.createElement("a");
+  anchor.href = url;
+  anchor.download = row.fileName;
+  anchor.click();
+  URL.revokeObjectURL(url);
+};
+
+const isProcessing = (row: PolicyDocumentApi.Item) => row.ingestStatus === "PROCESSING";
+const audienceLabel = (value: PolicyDocumentApi.Audience) =>
+  ({ ALL: "全部学生", UNDERGRADUATE: "本科生", POSTGRADUATE: "研究生" })[value] || value;
+const docStatusLabel = (value: PolicyDocumentApi.DocStatus) =>
+  ({ DRAFT: "草稿", PUBLISHED: "已发布", ARCHIVED: "已归档" })[value] || value;
+const docStatusType = (value: PolicyDocumentApi.DocStatus) =>
+  (({ DRAFT: "info", PUBLISHED: "success", ARCHIVED: "warning" }) as const)[value];
+const ingestStatusLabel = (value: PolicyDocumentApi.IngestStatus) =>
+  ({ PENDING: "待入库", PROCESSING: "处理中", READY: "已就绪", FAILED: "入库失败" })[value] || value;
+const ingestStatusType = (value: PolicyDocumentApi.IngestStatus) =>
+  (({ PENDING: "info", PROCESSING: "warning", READY: "success", FAILED: "danger" }) as const)[value];
+const formatDateTime = (value?: string) => (value ? value.replace("T", " ").slice(0, 19) : "-");
+
+onMounted(() => loadDocuments());
+onBeforeUnmount(() => pollTimer && clearTimeout(pollTimer));
 </script>
 
 <style scoped lang="scss">
@@ -336,22 +477,58 @@ const resetPdf = () => {
     display: flex;
     align-items: center;
     justify-content: space-between;
-    margin-bottom: 12px;
-
-    .title {
-      font-size: 18px;
-      font-weight: 600;
-    }
+    gap: 16px;
+    margin-bottom: 16px;
   }
-
-  .inner-card {
-    padding: 16px;
+  .title {
+    font-size: 20px;
+    font-weight: 600;
+    color: var(--el-text-color-primary);
+  }
+  .subtitle {
+    margin-top: 5px;
+    font-size: 13px;
+    color: var(--el-text-color-secondary);
+  }
+  .actions {
+    display: flex;
+    flex-shrink: 0;
+    gap: 8px;
+  }
+  .filter-form {
+    padding: 16px 16px 0;
+    margin-bottom: 16px;
+    background: var(--el-fill-color-lighter);
     border-radius: 8px;
   }
-
-  .inner-title {
+  .filter-select {
+    width: 145px;
+  }
+  .document-title {
     font-weight: 600;
-    margin-bottom: 12px;
+    color: var(--el-text-color-primary);
+  }
+  .document-file {
+    margin-top: 5px;
+    overflow: hidden;
+    font-size: 12px;
+    color: var(--el-text-color-secondary);
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+  .pagination-wrap {
+    display: flex;
+    justify-content: flex-end;
+    margin-top: 18px;
+  }
+  .full-width {
+    width: 100%;
+  }
+}
+@media (max-width: 900px) {
+  .knowledge-base .header {
+    align-items: flex-start;
+    flex-direction: column;
   }
 }
 </style>

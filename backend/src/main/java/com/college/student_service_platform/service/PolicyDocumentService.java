@@ -32,11 +32,17 @@ public class PolicyDocumentService {
 
     private final PolicyDocumentRepository repository;
     private final ObjectMapper objectMapper;
+    private final PolicyIngestionService policyIngestionService;
     private final AtomicLong idSequence = new AtomicLong(System.currentTimeMillis());
 
-    public PolicyDocumentService(PolicyDocumentRepository repository, ObjectMapper objectMapper) {
+    public PolicyDocumentService(
+            PolicyDocumentRepository repository,
+            ObjectMapper objectMapper,
+            PolicyIngestionService policyIngestionService
+    ) {
         this.repository = repository;
         this.objectMapper = objectMapper;
+        this.policyIngestionService = policyIngestionService;
     }
 
     @Transactional
@@ -65,7 +71,8 @@ public class PolicyDocumentService {
 
     @Transactional
     public PolicyDocumentItem update(Long id, PolicyDocumentSaveRequest request) {
-        requireDocument(id);
+        PolicyDocumentRow existing = requireDocument(id);
+        assertNotProcessing(existing);
         validateRequest(request, id);
 
         PolicyDocument document = buildDocument(request);
@@ -129,21 +136,28 @@ public class PolicyDocumentService {
         return new PolicyDocumentPageResponse(records, total, page, pageSize);
     }
 
-    @Transactional
     public PolicyDocumentItem publish(Long id) {
         PolicyDocumentRow row = requireDocument(id);
+        assertNotProcessing(row);
         if ("ARCHIVED".equals(row.document().getDocStatus())) {
             throw new ApiException(HttpStatus.CONFLICT, "已归档文档不能直接发布");
         }
         if (repository.publish(id) != 1) {
             throw notFound();
         }
+        try {
+            policyIngestionService.ingestAsync(id);
+        } catch (RuntimeException exception) {
+            repository.markIngestFailed(id, "无法提交 RAG 入库任务，请稍后重新发布");
+            throw new ApiException(HttpStatus.SERVICE_UNAVAILABLE, "无法提交 RAG 入库任务，请稍后重试");
+        }
         return get(id);
     }
 
-    @Transactional
     public void delete(Long id) {
-        requireDocument(id);
+        PolicyDocumentRow row = requireDocument(id);
+        assertNotProcessing(row);
+        policyIngestionService.deleteVectors(row);
         if (repository.delete(id) != 1) {
             throw notFound();
         }
@@ -202,6 +216,12 @@ public class PolicyDocumentService {
             throw notFound();
         }
         return repository.findById(id).orElseThrow(this::notFound);
+    }
+
+    private void assertNotProcessing(PolicyDocumentRow row) {
+        if ("PROCESSING".equals(row.document().getIngestStatus())) {
+            throw new ApiException(HttpStatus.CONFLICT, "文档正在入库，请等待完成后再操作");
+        }
     }
 
     private PolicyDocumentItem toItem(PolicyDocumentRow row) {

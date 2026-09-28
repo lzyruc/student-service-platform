@@ -41,6 +41,10 @@ public class ExternalServiceProperties {
         return http.readTimeout;
     }
 
+    public Duration getIngestReadTimeout() {
+        return http.ingestReadTimeout;
+    }
+
     public int getMaxAttempts() {
         return Math.max(1, Math.min(3, http.maxAttempts));
     }
@@ -67,6 +71,7 @@ public class ExternalServiceProperties {
     public static class Http {
         private Duration connectTimeout = Duration.ofSeconds(3);
         private Duration readTimeout = Duration.ofSeconds(30);
+        private Duration ingestReadTimeout = Duration.ofMinutes(5);
         private int maxAttempts = 2;
 
         public Duration getConnectTimeout() {
@@ -83,6 +88,14 @@ public class ExternalServiceProperties {
 
         public void setReadTimeout(Duration readTimeout) {
             this.readTimeout = readTimeout;
+        }
+
+        public Duration getIngestReadTimeout() {
+            return ingestReadTimeout;
+        }
+
+        public void setIngestReadTimeout(Duration ingestReadTimeout) {
+            this.ingestReadTimeout = ingestReadTimeout;
         }
 
         public int getMaxAttempts() {

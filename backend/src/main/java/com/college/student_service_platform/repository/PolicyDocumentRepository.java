@@ -175,9 +175,41 @@ public class PolicyDocumentRepository {
     public int publish(Long id) {
         return jdbcTemplate.update("""
                 UPDATE t_policy_doc
-                SET doc_status = 'PUBLISHED', updated_at = CURRENT_TIMESTAMP
+                SET doc_status = 'PUBLISHED', ingest_status = 'PROCESSING',
+                    ingest_error = NULL, chunk_count = 0, content_hash = NULL,
+                    last_ingested_at = NULL, updated_at = CURRENT_TIMESTAMP
                 WHERE id = ?
                 """, id);
+    }
+
+    public int markIngestReady(Long id, int chunkCount, String contentHash) {
+        return jdbcTemplate.update("""
+                UPDATE t_policy_doc
+                SET ingest_status = 'READY', ingest_error = NULL,
+                    chunk_count = ?, content_hash = ?,
+                    last_ingested_at = CURRENT_TIMESTAMP, updated_at = CURRENT_TIMESTAMP
+                WHERE id = ?
+                """, chunkCount, contentHash, id);
+    }
+
+    public int markIngestFailed(Long id, String errorMessage) {
+        return jdbcTemplate.update("""
+                UPDATE t_policy_doc
+                SET ingest_status = 'FAILED', ingest_error = ?,
+                    chunk_count = 0, last_ingested_at = NULL,
+                    updated_at = CURRENT_TIMESTAMP
+                WHERE id = ?
+                """, errorMessage, id);
+    }
+
+    public int failInterruptedIngestions() {
+        return jdbcTemplate.update("""
+                UPDATE t_policy_doc
+                SET ingest_status = 'FAILED',
+                    ingest_error = '后端服务重启，原入库任务已中断，请重新发布',
+                    updated_at = CURRENT_TIMESTAMP
+                WHERE ingest_status = 'PROCESSING'
+                """);
     }
 
     public int delete(Long id) {

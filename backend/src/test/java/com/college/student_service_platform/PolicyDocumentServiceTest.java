@@ -6,6 +6,7 @@ import com.college.student_service_platform.dto.PolicyDocumentPageResponse;
 import com.college.student_service_platform.dto.PolicyDocumentSaveRequest;
 import com.college.student_service_platform.repository.PolicyDocumentRepository;
 import com.college.student_service_platform.service.PolicyDocumentService;
+import com.college.student_service_platform.service.PolicyIngestionService;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -18,10 +19,14 @@ import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.verify;
+import static org.mockito.ArgumentMatchers.any;
 
 class PolicyDocumentServiceTest {
     private JdbcTemplate jdbcTemplate;
     private PolicyDocumentService service;
+    private PolicyIngestionService policyIngestionService;
 
     @BeforeEach
     void setUp() {
@@ -83,9 +88,11 @@ class PolicyDocumentServiceTest {
                 VALUES (11, '普通附件.txt', 'text/plain', 128, 'policy')
                 """);
 
+        policyIngestionService = mock(PolicyIngestionService.class);
         service = new PolicyDocumentService(
                 new PolicyDocumentRepository(jdbcTemplate),
-                new ObjectMapper()
+                new ObjectMapper(),
+                policyIngestionService
         );
     }
 
@@ -107,6 +114,13 @@ class PolicyDocumentServiceTest {
 
         PolicyDocumentItem published = service.publish(created.id());
         assertEquals("PUBLISHED", published.docStatus());
+        assertEquals("PROCESSING", published.ingestStatus());
+        verify(policyIngestionService).ingestAsync(created.id());
+
+        jdbcTemplate.update(
+                "UPDATE t_policy_doc SET ingest_status = 'READY', chunk_count = 12 WHERE id = ?",
+                created.id()
+        );
 
         createRequest.setVersion("v2.0");
         createRequest.setRemark("更新后的备注");
@@ -116,6 +130,7 @@ class PolicyDocumentServiceTest {
         assertEquals("PENDING", updated.ingestStatus());
 
         service.delete(created.id());
+        verify(policyIngestionService).deleteVectors(any(PolicyDocumentRepository.PolicyDocumentRow.class));
         ApiException notFound = assertThrows(ApiException.class, () -> service.get(created.id()));
         assertEquals(HttpStatus.NOT_FOUND, notFound.getStatus());
     }
