@@ -11,12 +11,6 @@
         <view class="icon-circle">🤖</view>
       </view>
     </view>
-    <view class="service-item grad-2" bindtap="navTo" data-url="/pages/party/party">
-      <view class="item-content">
-        <text class="item-title">党团事务\n流程追踪</text>
-        <view class="icon-circle">🚩</view>
-      </view>
-    </view>
     <view class="service-item grad-3" bindtap="navTo" data-url="/pages/notice/notice">
       <view class="item-content">
         <text class="item-title">信息推送\n精准集成</text>

@@ -80,7 +80,6 @@ public class AuthFilter extends OncePerRequestFilter {
         String uri = request.getRequestURI();
         String method = request.getMethod();
         if (uri.startsWith("/api/student/notice/")
-                || uri.startsWith("/api/student/party/")
                 || uri.startsWith("/api/student/certificate/")
                 || uri.startsWith("/api/student/cert/")
                 || uri.equals("/api/student/info")

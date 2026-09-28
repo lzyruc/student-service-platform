@@ -239,7 +239,7 @@ type PolicyForm = {
   remark: string;
 };
 
-const categoryOptions = ["学籍管理", "奖助学金", "党团流程", "请假管理", "证明开具", "就业实习", "校历", "违纪处分", "其他"];
+const categoryOptions = ["学籍管理", "奖助学金", "请假管理", "证明开具", "就业实习", "校历", "违纪处分", "其他"];
 const tagOptions = ["全部学生", "本科", "研究生", "学籍", "休学", "复学", "毕业", "违纪处分", "校历"];
 const query = reactive<PolicyDocumentApi.PageQuery>({
   page: 1,

@@ -7,21 +7,15 @@ export namespace BackendStudent {
     idCardNo?: string;
     gender?: string;
     ethnicity?: string;
-    politicalStatus?: string;
     className: string;
     major: string;
     grade: string;
     educationLevel?: string;
     contact?: string;
-    joinLeagueDate?: string;
-    leagueMemberNo?: string;
-    joinPartyDate?: string;
-    partyBranchName?: string;
     password?: string;
     roleCode?: string;
     status?: number;
     wechatOpenid?: string;
-    partyStageId?: number;
   }
 
   export interface StudentImportResult {
@@ -35,20 +29,13 @@ export namespace BackendStudent {
     idCardNo?: string;
     gender: string;
     ethnicity: string;
-    politicalStatus: string;
     className: string;
     major: string;
     grade: string;
     educationLevel?: string;
     contact: string;
-    joinLeagueDate?: string;
-    leagueMemberNo?: string;
-    joinPartyDate?: string;
-    partyBranchName?: string;
     roleCode: string;
     status: number;
-    partyStageId?: number;
-    partyStage?: string;
     createdAt?: string;
     updatedAt?: string;
   }

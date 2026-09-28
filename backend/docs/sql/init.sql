@@ -1,5 +1,5 @@
 -- =====================================================
--- 学院学生综合服务与党团管理平台
+-- 学院学生综合服务平台
 -- 数据库初始化脚本
 -- 数据库：Kingbase
 -- 维护人：开发者 A
@@ -13,9 +13,7 @@ DROP TABLE IF EXISTS t_notification_receipt;
 DROP TABLE IF EXISTS t_notification;
 DROP TABLE IF EXISTS t_approval_task;
 DROP TABLE IF EXISTS t_certificate_apply;
-DROP TABLE IF EXISTS t_student_political_info;
 DROP TABLE IF EXISTS t_student_stage;
-DROP TABLE IF EXISTS t_process_stage;
 DROP TABLE IF EXISTS t_course;
 DROP TABLE IF EXISTS t_policy_doc;
 DROP TABLE IF EXISTS t_operation_log;
@@ -93,8 +91,6 @@ CREATE TABLE t_student (
                            id_card_no VARCHAR(18),
                            gender VARCHAR(20) DEFAULT '未知',
                            ethnicity VARCHAR(50),
-                           political_status VARCHAR(50) DEFAULT '未知',
-                           party_stage_id INTEGER DEFAULT 0,
                            class_name VARCHAR(100) NOT NULL,
                            major VARCHAR(100) NOT NULL,
                            grade VARCHAR(50) NOT NULL,
@@ -112,8 +108,6 @@ COMMENT ON COLUMN t_student.name IS '姓名';
 COMMENT ON COLUMN t_student.id_card_no IS '身份证号';
 COMMENT ON COLUMN t_student.gender IS '性别：男/女/未知';
 COMMENT ON COLUMN t_student.ethnicity IS '民族';
-COMMENT ON COLUMN t_student.political_status IS '政治面貌';
-COMMENT ON COLUMN t_student.party_stage_id IS '党团流程阶段：0未申请，1入党申请人，2入党积极分子，3发展对象，4预备党员，5正式党员';
 COMMENT ON COLUMN t_student.class_name IS '班级';
 COMMENT ON COLUMN t_student.major IS '专业';
 COMMENT ON COLUMN t_student.grade IS '年级';
@@ -123,32 +117,6 @@ COMMENT ON COLUMN t_student.status IS '学生状态：1正常，0无效';
 COMMENT ON COLUMN t_student.created_at IS '创建时间';
 COMMENT ON COLUMN t_student.updated_at IS '更新时间';
 
--- =====================================================
--- 3.1 学生党团信息表
--- 说明：
--- 存储电子证明生成所需的党团专项信息
--- 一名学生对应一条党团信息记录
--- =====================================================
-CREATE TABLE t_student_political_info (
-                                          id BIGINT PRIMARY KEY,
-                                          student_no VARCHAR(50) NOT NULL UNIQUE,
-                                          join_league_date DATE,
-                                          league_member_no VARCHAR(100),
-                                          join_party_date DATE,
-                                          party_branch_name VARCHAR(200),
-                                          created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-                                          updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
-);
-
-COMMENT ON TABLE t_student_political_info IS '学生党团专项信息表';
-COMMENT ON COLUMN t_student_political_info.id IS '记录ID';
-COMMENT ON COLUMN t_student_political_info.student_no IS '学号，对应 t_student.student_no';
-COMMENT ON COLUMN t_student_political_info.join_league_date IS '入团时间';
-COMMENT ON COLUMN t_student_political_info.league_member_no IS '团员编号';
-COMMENT ON COLUMN t_student_political_info.join_party_date IS '入党时间';
-COMMENT ON COLUMN t_student_political_info.party_branch_name IS '所属党支部';
-COMMENT ON COLUMN t_student_political_info.created_at IS '创建时间';
-COMMENT ON COLUMN t_student_political_info.updated_at IS '更新时间';
 
 -- =====================================================
 -- 4. 文件表
@@ -322,30 +290,6 @@ COMMENT ON COLUMN t_operation_log.error_message IS '错误信息';
 COMMENT ON COLUMN t_operation_log.created_at IS '创建时间';
 
 -- =====================================================
--- 9. 党团事务标准流程表
--- 说明：
--- 定义入党流程的标准阶段
--- =====================================================
-CREATE TABLE t_process_stage (
-                                 stage_id INTEGER PRIMARY KEY,
-                                 stage_name VARCHAR(100) NOT NULL,
-                                 order_num INTEGER NOT NULL,
-                                 duration INTEGER,
-                                 description VARCHAR(255)
-);
-
-COMMENT ON TABLE t_process_stage IS '党团流程标准阶段定义表';
-COMMENT ON COLUMN t_process_stage.stage_id IS '阶段ID';
-COMMENT ON COLUMN t_process_stage.stage_name IS '阶段名称';
-COMMENT ON COLUMN t_process_stage.order_num IS '阶段顺序';
-COMMENT ON COLUMN t_process_stage.duration IS '标准持续时长，单位可按业务约定为天';
-COMMENT ON COLUMN t_process_stage.description IS '阶段说明';
-
--- =====================================================
--- 10. 学生党团阶段
--- 说明：
--- 党团阶段已合并到 t_student.party_stage_id 字段，不再单独建表
--- =====================================================
 
 -- =====================================================
 -- 11. 电子证明申请表
@@ -467,17 +411,6 @@ VALUES
 -- 不再在 SQL 中内置公开的管理员密码。
 -- 首次启动前设置 ADMIN_BOOTSTRAP_PASSWORD，应用将使用 BCrypt 创建管理员账号。
 
--- =====================================================
--- 初始化党团流程标准阶段
--- =====================================================
-INSERT INTO t_process_stage (stage_id, stage_name, order_num, duration, description)
-VALUES
-    (0, '未申请', 0, NULL, '未提交入党申请书'),
-    (1, '入党申请人', 1, NULL, '提交入党申请书后的初始阶段'),
-    (2, '入党积极分子', 2, NULL, '经推荐和培养后确定为入党积极分子'),
-    (3, '发展对象', 3, NULL, '经过培养考察后确定为发展对象'),
-    (4, '预备党员', 4, NULL, '支部大会通过并经上级党组织批准后成为预备党员'),
-    (5, '正式党员', 5, NULL, '预备期满并转正后成为正式党员');
 
 -- =====================================================
 -- 可选测试数据
@@ -489,12 +422,10 @@ VALUES
 -- =====================================================
 
 -- INSERT INTO t_student (
---     id, student_no, name, gender, ethnicity, political_status,
---     party_stage_id, class_name, major, grade, contact, status
+--     id, student_no, name, gender, ethnicity, class_name, major, grade, contact, status
 -- )
 -- VALUES
---     (1, '20240001', '张三', '未知', '汉族', '未知',
---      1, '计科2401', '计算机科学与技术', '2024', '13800000000', 1);
+--     (1, '20240001', '张三', '未知', '汉族', '计科2401', '计算机科学与技术', '2024', '13800000000', 1);
 
 -- 测试账号也应通过导入接口或 ADMIN_BOOTSTRAP_PASSWORD 创建，禁止在 SQL 中保存明文密码。
 

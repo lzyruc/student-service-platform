@@ -9,20 +9,13 @@ public class StudentListItem {
     private String idCardNo;
     private String gender;
     private String ethnicity;
-    private String politicalStatus;
     private String className;
     private String major;
     private String grade;
     private String educationLevel;
     private String contact;
-    private String joinLeagueDate;
-    private String leagueMemberNo;
-    private String joinPartyDate;
-    private String partyBranchName;
     private String roleCode;
     private Integer status;
-    private Integer partyStageId;
-    private String partyStage;
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;
 
@@ -66,14 +59,6 @@ public class StudentListItem {
         this.ethnicity = ethnicity;
     }
 
-    public String getPoliticalStatus() {
-        return politicalStatus;
-    }
-
-    public void setPoliticalStatus(String politicalStatus) {
-        this.politicalStatus = politicalStatus;
-    }
-
     public String getClassName() {
         return className;
     }
@@ -114,38 +99,6 @@ public class StudentListItem {
         this.contact = contact;
     }
 
-    public String getJoinLeagueDate() {
-        return joinLeagueDate;
-    }
-
-    public void setJoinLeagueDate(String joinLeagueDate) {
-        this.joinLeagueDate = joinLeagueDate;
-    }
-
-    public String getLeagueMemberNo() {
-        return leagueMemberNo;
-    }
-
-    public void setLeagueMemberNo(String leagueMemberNo) {
-        this.leagueMemberNo = leagueMemberNo;
-    }
-
-    public String getJoinPartyDate() {
-        return joinPartyDate;
-    }
-
-    public void setJoinPartyDate(String joinPartyDate) {
-        this.joinPartyDate = joinPartyDate;
-    }
-
-    public String getPartyBranchName() {
-        return partyBranchName;
-    }
-
-    public void setPartyBranchName(String partyBranchName) {
-        this.partyBranchName = partyBranchName;
-    }
-
     public String getRoleCode() {
         return roleCode;
     }
@@ -160,22 +113,6 @@ public class StudentListItem {
 
     public void setStatus(Integer status) {
         this.status = status;
-    }
-
-    public Integer getPartyStageId() {
-        return partyStageId;
-    }
-
-    public void setPartyStageId(Integer partyStageId) {
-        this.partyStageId = partyStageId;
-    }
-
-    public String getPartyStage() {
-        return partyStage;
-    }
-
-    public void setPartyStage(String partyStage) {
-        this.partyStage = partyStage;
     }
 
     public LocalDateTime getCreatedAt() {

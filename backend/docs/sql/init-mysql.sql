@@ -1,28 +1,14 @@
 -- 学生综合服务平台 MySQL 8 初始化脚本
--- 该脚本会重建业务表，请勿在需要保留数据的数据库中直接执行。
+-- 该脚本会删除并重建 student_platform 数据库，原有数据会全部清空。
 
-CREATE DATABASE IF NOT EXISTS student_platform
+DROP DATABASE IF EXISTS student_platform;
+
+CREATE DATABASE student_platform
     CHARACTER SET utf8mb4
     COLLATE utf8mb4_unicode_ci;
 
 USE student_platform;
 SET NAMES utf8mb4;
-SET FOREIGN_KEY_CHECKS = 0;
-
-DROP TABLE IF EXISTS t_notification_receipt;
-DROP TABLE IF EXISTS t_notification;
-DROP TABLE IF EXISTS t_approval_task;
-DROP TABLE IF EXISTS t_certificate_apply;
-DROP TABLE IF EXISTS t_student_political_info;
-DROP TABLE IF EXISTS t_process_stage;
-DROP TABLE IF EXISTS t_training_plan;
-DROP TABLE IF EXISTS t_warning_record;
-DROP TABLE IF EXISTS t_policy_doc;
-DROP TABLE IF EXISTS t_operation_log;
-DROP TABLE IF EXISTS t_file;
-DROP TABLE IF EXISTS t_student;
-DROP TABLE IF EXISTS t_user;
-DROP TABLE IF EXISTS t_role;
 
 CREATE TABLE t_role (
     id BIGINT PRIMARY KEY,
@@ -55,8 +41,6 @@ CREATE TABLE t_student (
     id_card_no VARCHAR(18),
     gender VARCHAR(20) DEFAULT '未知',
     ethnicity VARCHAR(50),
-    political_status VARCHAR(50) DEFAULT '未知',
-    party_stage_id INT DEFAULT 0,
     class_name VARCHAR(100) NOT NULL,
     major VARCHAR(100) NOT NULL,
     grade VARCHAR(50) NOT NULL,
@@ -68,17 +52,6 @@ CREATE TABLE t_student (
     CONSTRAINT uk_student_no UNIQUE (student_no)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
-CREATE TABLE t_student_political_info (
-    id BIGINT PRIMARY KEY,
-    student_no VARCHAR(50) NOT NULL,
-    join_league_date DATE,
-    league_member_no VARCHAR(100),
-    join_party_date DATE,
-    party_branch_name VARCHAR(200),
-    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    CONSTRAINT uk_political_student_no UNIQUE (student_no)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 CREATE TABLE t_file (
     id BIGINT PRIMARY KEY,
@@ -175,13 +148,6 @@ CREATE TABLE t_operation_log (
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
-CREATE TABLE t_process_stage (
-    stage_id INT PRIMARY KEY,
-    stage_name VARCHAR(100) NOT NULL,
-    order_num INT NOT NULL,
-    duration INT,
-    description VARCHAR(255)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 CREATE TABLE t_certificate_apply (
     id BIGINT PRIMARY KEY,
@@ -233,17 +199,6 @@ INSERT INTO t_role (id, role_code, role_name, description)
 VALUES
     (1, 'student', '学生', '微信小程序学生端用户'),
     (2, 'admin', '管理员', 'Web 后台管理员');
-
-INSERT INTO t_process_stage (stage_id, stage_name, order_num, duration, description)
-VALUES
-    (0, '未申请', 0, NULL, '未提交入党申请书'),
-    (1, '入党申请人', 1, NULL, '提交入党申请书后的初始阶段'),
-    (2, '入党积极分子', 2, NULL, '经推荐和培养后确定为入党积极分子'),
-    (3, '发展对象', 3, NULL, '经过培养考察后确定为发展对象'),
-    (4, '预备党员', 4, NULL, '支部大会通过并经上级党组织批准后成为预备党员'),
-    (5, '正式党员', 5, NULL, '预备期满并转正后成为正式党员');
-
-SET FOREIGN_KEY_CHECKS = 1;
 
 -- 管理员账号不在 SQL 中保存明文密码。
 -- 首次启动前设置 ADMIN_BOOTSTRAP_PASSWORD，由应用使用 BCrypt 创建管理员。

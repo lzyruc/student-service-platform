@@ -5,14 +5,10 @@ import com.college.student_service_platform.common.AuthContext;
 import jakarta.servlet.http.HttpServletRequest;
 import com.college.student_service_platform.dto.CertificateApplySubmitRequest;
 import com.college.student_service_platform.service.CertificateApplyService;
-import org.springframework.http.HttpHeaders;
-import org.springframework.http.MediaType;
-import org.springframework.http.ResponseEntity;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.util.StringUtils;
 import org.springframework.web.bind.annotation.*;
 
-import java.nio.charset.StandardCharsets;
 import java.util.List;
 import java.util.Map;
 
@@ -44,10 +40,6 @@ public class CertificateController {
         if (!StringUtils.hasText(studentNo) || !StringUtils.hasText(certificateType)) {
             return Result.fail("studentNo、certificateType 不能为空");
         }
-        String type = certificateType.trim();
-        if (type.contains("党员") || type.contains("团员")) {
-            return Result.fail("该证明为自动生成类型，请使用 /api/student/certificate/auto/download 直接下载生成（不入库）");
-        }
 
         CertificateApplySubmitRequest req = new CertificateApplySubmitRequest();
         req.setStudentNo(studentNo);
@@ -69,25 +61,6 @@ public class CertificateController {
 
         List<Map<String, Object>> history = jdbcTemplate.queryForList(sql, studentNo);
         return Result.success("申请历史拉取成功", history);
-    }
-
-    @GetMapping("/auto/download")
-    public ResponseEntity<byte[]> downloadAutoCertificate(
-            @RequestParam(value = "studentNo", required = false) String requestedStudentNo,
-            @RequestParam("certificateType") String certificateType,
-            HttpServletRequest request
-    ) {
-        String studentNo = AuthContext.studentNo(request, requestedStudentNo);
-        byte[] docx = certificateApplyService.generateAutoCertificateDocx(studentNo, certificateType);
-        String safeType = certificateType == null ? "certificate" : certificateType.replaceAll("[\\\\/:*?\"<>|\\s]+", "_");
-        String safeStudentNo = studentNo == null ? "student" : studentNo.replaceAll("[\\\\/:*?\"<>|\\s]+", "_");
-        String filename = safeType + "_" + safeStudentNo + ".docx";
-
-        HttpHeaders headers = new HttpHeaders();
-        headers.setContentType(MediaType.parseMediaType("application/vnd.openxmlformats-officedocument.wordprocessingml.document"));
-        headers.setContentLength(docx.length);
-        headers.set(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename*=UTF-8''" + java.net.URLEncoder.encode(filename, StandardCharsets.UTF_8));
-        return ResponseEntity.ok().headers(headers).body(docx);
     }
 
     private String bodyValue(Map<String, Object> requestBody, String key) {
