@@ -15,9 +15,6 @@ public class NotificationSaveRequest {
     @JsonProperty("file_id")
     @JsonAlias("fileId")
     private Long fileId;
-    @JsonProperty("publisher_id")
-    @JsonAlias("publisherId")
-    private Long publisherId;
 
     public Long getId() {
         return id;
@@ -67,11 +64,4 @@ public class NotificationSaveRequest {
         this.fileId = fileId;
     }
 
-    public Long getPublisherId() {
-        return publisherId;
-    }
-
-    public void setPublisherId(Long publisherId) {
-        this.publisherId = publisherId;
-    }
 }

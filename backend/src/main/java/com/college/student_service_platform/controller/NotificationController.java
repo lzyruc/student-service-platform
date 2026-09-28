@@ -1,10 +1,13 @@
 package com.college.student_service_platform.controller;
 
+import com.college.student_service_platform.common.AuthContext;
 import com.college.student_service_platform.common.Result;
 import com.college.student_service_platform.dto.NotificationItem;
 import com.college.student_service_platform.dto.NotificationReceiptItem;
 import com.college.student_service_platform.dto.NotificationSaveRequest;
 import com.college.student_service_platform.service.NotificationService;
+import com.college.student_service_platform.service.UserIdentityService;
+import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -14,14 +17,18 @@ import java.util.List;
 public class NotificationController {
 
     private final NotificationService notificationService;
+    private final UserIdentityService userIdentityService;
 
-    public NotificationController(NotificationService notificationService) {
+    public NotificationController(NotificationService notificationService, UserIdentityService userIdentityService) {
         this.notificationService = notificationService;
+        this.userIdentityService = userIdentityService;
     }
 
     @PostMapping("/save")
-    public Result<Long> save(@RequestBody NotificationSaveRequest request) {
-        Long id = notificationService.save(request);
+    public Result<Long> save(@RequestBody NotificationSaveRequest request, HttpServletRequest servletRequest) {
+        Long publisherId = userIdentityService.requireUserId(
+                AuthContext.subject(servletRequest), AuthContext.role(servletRequest));
+        Long id = notificationService.save(request, publisherId);
         return Result.success("保存成功", id);
     }
 
@@ -46,10 +53,5 @@ public class NotificationController {
         return Result.success(notificationService.listReceipts(id));
     }
 
-    @PostMapping("/{id}/confirm")
-    public Result<Void> confirm(@PathVariable Long id, @RequestParam("studentNo") String studentNo) {
-        notificationService.confirm(id, studentNo);
-        return Result.success();
-    }
 }
 

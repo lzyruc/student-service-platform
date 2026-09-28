@@ -163,7 +163,8 @@ Content-Type：`multipart/form-data`
 | --- | --- | --- | --- |
 | file | file | 是 | 上传的文件 |
 | businessType | string | 否 | 业务类型 |
-| uploaderId | number | 否 | 上传人 ID |
+
+上传人 ID 由后端根据 JWT 中的当前登录用户自动填写，客户端不能指定。
 
 ### 返回格式
 
@@ -472,4 +473,37 @@ Content-Type：`multipart/form-data`
 ```
 
 分析成功后，Java 后端会保存成绩单文件，并把学生用户 ID、成绩单文件 ID、实际使用的培养方案 ID 和完整分析结果写入 `t_warning_record`。
+
+## 11. 管理端发布通知
+
+`POST /api/notification/save`
+
+```json
+{
+  "id": null,
+  "title": "关于选课的通知",
+  "content": "请按时完成选课",
+  "tags": "教学,选课",
+  "is_urgent": true,
+  "file_id": 1716192000000
+}
+```
+
+`id` 为空时新增，存在时修改。`file_id` 必须指向 `businessType=notice` 的文件，发布人由后端根据管理员 JWT 填写。修改通知会清空已有确认状态，学生需要重新确认。
+
+管理端列表使用 `GET /api/notification/list`，删除使用 `DELETE /api/notification/{id}`，回执明细使用 `GET /api/notification/{id}/receipts`。列表会返回 `confirmed_count` 和 `total_count`。
+
+## 12. 学生查看与确认通知
+
+学生通知列表：`GET /api/student/notice/list`。学生身份从 JWT 获取，不接受学生端代查其他学号。
+
+确认通知：`POST /api/student/notice/confirm`
+
+```json
+{
+  "notificationId": 1716192000001
+}
+```
+
+确认操作具有幂等性；重复提交不会重复新增回执。通知不存在、学生不存在或账号停用时会拒绝确认。
 

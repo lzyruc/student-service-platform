@@ -2,7 +2,7 @@
   <div class="notification-page content-box">
     <div class="card">
       <div class="header">
-        <div class="title">通知公告 / 知识库</div>
+        <div class="title">通知公告</div>
         <div class="actions">
           <el-button type="primary" @click="openCreate">新增</el-button>
           <el-button plain @click="refreshList">刷新</el-button>
@@ -24,9 +24,16 @@
           </template>
         </el-table-column>
         <el-table-column prop="created_at" label="创建时间" width="170" />
+        <el-table-column label="确认情况" width="130">
+          <template #default="{ row }">
+            <el-button link type="primary" @click="openReceipts(row)">
+              {{ row.confirmed_count }}/{{ row.total_count }} 已确认
+            </el-button>
+          </template>
+        </el-table-column>
         <el-table-column label="附件" width="120">
           <template #default="{ row }">
-            <el-button v-if="row.file_id" link type="primary" @click="download(row.file_id)">下载</el-button>
+            <el-button v-if="row.file_id" link type="primary" @click="download(row.file_id, row.original_name)">下载</el-button>
             <span v-else>—</span>
           </template>
         </el-table-column>
@@ -66,7 +73,9 @@
             >
               <el-button :loading="fileUploading">上传附件</el-button>
             </el-upload>
-            <el-button v-if="form.file_id" link type="primary" @click="download(form.file_id)">下载当前附件</el-button>
+            <el-button v-if="form.file_id" link type="primary" @click="download(form.file_id, form.original_name)">
+              下载当前附件
+            </el-button>
             <el-button v-if="form.file_id" link type="danger" @click="removeAttachment">移除附件</el-button>
           </div>
         </el-form-item>
@@ -87,11 +96,33 @@
         </div>
         <div class="detail-content" v-if="detail?.content">{{ detail?.content }}</div>
         <div class="mt12">
-          <el-button v-if="detail?.file_id" type="primary" plain @click="download(detail.file_id)">下载附件</el-button>
+          <el-button v-if="detail?.file_id" type="primary" plain @click="download(detail.file_id, detail.original_name)">
+            下载附件
+          </el-button>
         </div>
       </div>
       <template #footer>
         <el-button type="primary" @click="detailVisible = false">确定</el-button>
+      </template>
+    </el-dialog>
+
+    <el-dialog v-model="receiptsVisible" :title="`通知回执：${receiptNoticeTitle}`" width="760px">
+      <el-table :data="receipts" v-loading="receiptsLoading" height="440">
+        <el-table-column prop="student_no" label="学号" width="160" />
+        <el-table-column prop="student_name" label="姓名" min-width="140" />
+        <el-table-column label="状态" width="110">
+          <template #default="{ row }">
+            <el-tag :type="row.is_confirmed ? 'success' : 'warning'">
+              {{ row.is_confirmed ? "已确认" : "待确认" }}
+            </el-tag>
+          </template>
+        </el-table-column>
+        <el-table-column prop="confirmed_at" label="确认时间" width="180">
+          <template #default="{ row }">{{ row.confirmed_at || "—" }}</template>
+        </el-table-column>
+      </el-table>
+      <template #footer>
+        <el-button type="primary" @click="receiptsVisible = false">关闭</el-button>
       </template>
     </el-dialog>
   </div>
@@ -101,8 +132,8 @@
 import { onMounted, reactive, ref } from "vue";
 import { ElMessage, ElMessageBox } from "element-plus";
 import type { FormInstance, FormRules, UploadFile, UploadInstance } from "element-plus";
-import { deleteNotification, listNotifications, saveNotification } from "@/api/modules/notification";
-import { getDownloadUrl, uploadFile } from "@/api/modules/file";
+import { deleteNotification, listNotificationReceipts, listNotifications, saveNotification } from "@/api/modules/notification";
+import { downloadFile, uploadFile } from "@/api/modules/file";
 
 type NotificationRow = {
   id: number;
@@ -111,6 +142,9 @@ type NotificationRow = {
   content: string;
   is_urgent: boolean;
   file_id: number | null;
+  original_name: string;
+  confirmed_count: number;
+  total_count: number;
   created_at: string;
 };
 
@@ -137,6 +171,9 @@ const refreshList = async () => {
         is_urgent: Boolean((i as any).is_urgent),
         content: String((i as any).content ?? ""),
         file_id: Number.isFinite(fileId) && fileId > 0 ? fileId : null,
+        original_name: String((i as any).original_name ?? ""),
+        confirmed_count: Number((i as any).confirmed_count ?? 0),
+        total_count: Number((i as any).total_count ?? 0),
         created_at: normalizeBackendTime((i as any).created_at)
       };
     });
@@ -147,8 +184,20 @@ const refreshList = async () => {
   }
 };
 
-const download = (fileId: number) => {
-  window.open(getDownloadUrl(fileId));
+const download = async (fileId: number, originalName?: string) => {
+  try {
+    const blob = new Blob([await downloadFile(fileId)]);
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement("a");
+    link.href = url;
+    link.download = originalName || `通知附件_${fileId}`;
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+    URL.revokeObjectURL(url);
+  } catch (e: any) {
+    ElMessage.error(e?.message ?? "附件下载失败");
+  }
 };
 
 const formVisible = ref(false);
@@ -162,7 +211,8 @@ const form = reactive({
   tags: "",
   is_urgent: false,
   content: "",
-  file_id: null as number | null
+  file_id: null as number | null,
+  original_name: ""
 });
 
 const rules: FormRules = reactive({
@@ -180,6 +230,7 @@ const resetForm = () => {
   form.is_urgent = false;
   form.content = "";
   form.file_id = null;
+  form.original_name = "";
   clearUpload();
 };
 
@@ -196,11 +247,13 @@ const editRow = (row: NotificationRow) => {
   form.is_urgent = row.is_urgent;
   form.content = row.content;
   form.file_id = row.file_id;
+  form.original_name = row.original_name;
   formVisible.value = true;
 };
 
 const removeAttachment = () => {
   form.file_id = null;
+  form.original_name = "";
   clearUpload();
 };
 
@@ -216,8 +269,7 @@ const submit = async () => {
         tags: form.tags || undefined,
         is_urgent: form.is_urgent,
         content: form.content || undefined,
-        file_id: form.file_id,
-        publisher_id: 1
+        file_id: form.file_id
       });
       ElMessage.success("已保存");
       formVisible.value = false;
@@ -238,9 +290,9 @@ const onFileChange = async (file: UploadFile) => {
     const fd = new FormData();
     fd.append("file", raw);
     fd.append("businessType", "notice");
-    fd.append("uploaderId", "1");
     const res = await uploadFile(fd);
     form.file_id = res.data.id;
+    form.original_name = res.data.originalName;
     clearUpload();
     ElMessage.success("附件已上传");
   } catch (e: any) {
@@ -256,6 +308,30 @@ const detail = ref<NotificationRow | null>(null);
 const viewRow = (row: NotificationRow) => {
   detail.value = row;
   detailVisible.value = true;
+};
+
+const receiptsVisible = ref(false);
+const receiptsLoading = ref(false);
+const receiptNoticeTitle = ref("");
+const receipts = ref<any[]>([]);
+
+const openReceipts = async (row: NotificationRow) => {
+  receiptNoticeTitle.value = row.title;
+  receiptsVisible.value = true;
+  receiptsLoading.value = true;
+  try {
+    const res = await listNotificationReceipts(row.id);
+    receipts.value = (res.data || []).map(item => ({
+      ...item,
+      is_confirmed: Boolean((item as any).is_confirmed),
+      confirmed_at: normalizeBackendTime((item as any).confirmed_at)
+    }));
+  } catch (e: any) {
+    receipts.value = [];
+    ElMessage.error(e?.message ?? "回执加载失败");
+  } finally {
+    receiptsLoading.value = false;
+  }
 };
 
 const removeRow = async (row: NotificationRow) => {

@@ -9,6 +9,7 @@ public class NotificationReceiptItem {
     private Long id;
     private Long notificationId;
     private String studentNo;
+    private String studentName;
     private Boolean isConfirmed;
     private LocalDateTime confirmedAt;
     private LocalDateTime createdAt;
@@ -37,6 +38,15 @@ public class NotificationReceiptItem {
 
     public void setStudentNo(String studentNo) {
         this.studentNo = studentNo;
+    }
+
+    @JsonProperty("student_name")
+    public String getStudentName() {
+        return studentName;
+    }
+
+    public void setStudentName(String studentName) {
+        this.studentName = studentName;
     }
 
     @JsonProperty("is_confirmed")

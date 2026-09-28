@@ -22,7 +22,10 @@
     
     <view class="n-footer">
       <text class="n-status {{item.isConfirmed ? 'read' : 'unread'}}">{{item.isConfirmed ? '已阅并确认' : '待确认接收'}}</text>
-      <button class="btn-mini grad-3" wx:if="{{!item.isConfirmed}}" bindtap="confirmRead" data-id="{{item.id}}">确认接收</button>
+      <view class="n-actions">
+        <button class="btn-mini btn-detail" bindtap="viewNotice" data-id="{{item.id}}">查看详情</button>
+        <button class="btn-mini grad-3" wx:if="{{!item.isConfirmed}}" bindtap="confirmRead" data-id="{{item.id}}">确认接收</button>
+      </view>
     </view>
   </view>
 </view>

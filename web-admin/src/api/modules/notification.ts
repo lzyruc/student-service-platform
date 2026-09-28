@@ -8,7 +8,6 @@ export namespace BackendNotification {
     tags?: string;
     is_urgent?: boolean;
     file_id?: number | null;
-    publisher_id?: number | null;
   }
 
   export interface NotificationItem {
@@ -18,15 +17,20 @@ export namespace BackendNotification {
     tags?: string;
     is_urgent?: boolean;
     file_id?: number | null;
+    original_name?: string;
+    file_type?: string;
     publisher_id?: number | null;
+    confirmed_count?: number;
+    total_count?: number;
     created_at?: string;
     updated_at?: string;
   }
 
   export interface ReceiptItem {
-    id: number;
+    id?: number | null;
     notification_id: number;
     student_no: string;
+    student_name?: string;
     is_confirmed: boolean;
     confirmed_at?: string;
     created_at?: string;

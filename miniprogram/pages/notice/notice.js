@@ -28,7 +28,23 @@ Page({
     request('/api/student/notice/list', 'GET', { studentNo: getStudentNo() })
       .then(res => {
         this.setData({ notices: res || [] });
+      })
+      .catch(() => {
+        this.setData({ notices: [] });
+        wx.showToast({ title: '通知加载失败', icon: 'none' });
       });
+  },
+
+  viewNotice(e) {
+    const noticeId = String(e.currentTarget.dataset.id || '');
+    const notice = this.data.notices.find(item => String(item.id) === noticeId);
+    if (!notice) return;
+    wx.showModal({
+      title: notice.title || '通知详情',
+      content: notice.content || '暂无正文内容',
+      showCancel: false,
+      confirmText: '关闭'
+    });
   },
 
   downloadAttachment(e) {

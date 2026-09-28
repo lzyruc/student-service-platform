@@ -6,6 +6,7 @@ import jakarta.servlet.http.HttpServletRequest;
 import com.college.student_service_platform.dto.FileUploadResponse;
 import com.college.student_service_platform.entity.FileRecord;
 import com.college.student_service_platform.service.FileService;
+import com.college.student_service_platform.service.UserIdentityService;
 import org.springframework.core.io.Resource;
 import org.springframework.core.io.UrlResource;
 import org.springframework.http.*;
@@ -23,17 +24,20 @@ import java.util.List;
 public class FileController {
 
     private final FileService fileService;
+    private final UserIdentityService userIdentityService;
 
-    public FileController(FileService fileService) {
+    public FileController(FileService fileService, UserIdentityService userIdentityService) {
         this.fileService = fileService;
+        this.userIdentityService = userIdentityService;
     }
 
     @PostMapping("/upload")
     public Result<FileUploadResponse> uploadFile(
             @RequestParam("file") MultipartFile file,
             @RequestParam(value = "businessType", required = false) String businessType,
-            @RequestParam(value = "uploaderId", required = false) Long uploaderId
+            HttpServletRequest request
     ) throws IOException {
+        Long uploaderId = userIdentityService.requireUserId(AuthContext.subject(request), AuthContext.role(request));
         FileUploadResponse response = fileService.uploadFile(file, businessType, uploaderId);
         return Result.success("文件上传成功", response);
     }

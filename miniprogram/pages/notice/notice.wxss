@@ -13,4 +13,6 @@
 .n-status { font-size: 24rpx; font-weight: bold; }
 .n-status.read { color: #ccc; }
 .n-status.unread { color: var(--c-primary); }
+.n-actions { display: flex; align-items: center; gap: 12rpx; }
 .btn-mini { margin: 0; height: 50rpx; line-height: 50rpx; font-size: 24rpx; color: #fff; padding: 0 20rpx; border-radius: 25rpx; }
+.btn-detail { background: #eef4ff; color: var(--c-primary); }
