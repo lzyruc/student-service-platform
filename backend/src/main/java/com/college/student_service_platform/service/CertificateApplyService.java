@@ -13,16 +13,20 @@ import java.sql.Timestamp;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Set;
 import java.util.concurrent.atomic.AtomicLong;
 
 @Service
 public class CertificateApplyService {
+    private static final Set<String> SUPPORTED_CERTIFICATE_TYPES = Set.of("在校证明", "请假条", "用章申请");
 
     private final JdbcTemplate jdbcTemplate;
+    private final CertificateFileService certificateFileService;
     private final AtomicLong idSeq = new AtomicLong(System.currentTimeMillis());
 
-    public CertificateApplyService(JdbcTemplate jdbcTemplate) {
+    public CertificateApplyService(JdbcTemplate jdbcTemplate, CertificateFileService certificateFileService) {
         this.jdbcTemplate = jdbcTemplate;
+        this.certificateFileService = certificateFileService;
     }
 
     @Transactional
@@ -35,10 +39,27 @@ public class CertificateApplyService {
         if (studentNo.isEmpty()) {
             throw new IllegalArgumentException("学号不能为空");
         }
+        if (studentNo.length() > 50) {
+            throw new IllegalArgumentException("学号长度不能超过 50 位");
+        }
         if (certificateType.isEmpty()) {
             throw new IllegalArgumentException("证明类型不能为空");
         }
+        if (!SUPPORTED_CERTIFICATE_TYPES.contains(certificateType)) {
+            throw new IllegalArgumentException("不支持的证明类型");
+        }
+        Integer studentCount = jdbcTemplate.queryForObject(
+                "SELECT COUNT(1) FROM t_student WHERE student_no = ? AND status = 1",
+                Integer.class,
+                studentNo
+        );
+        if (studentCount == null || studentCount == 0) {
+            throw new IllegalArgumentException("学生不存在或已被禁用");
+        }
         String extraData = request.getExtraData() == null ? null : request.getExtraData().trim();
+        if (extraData != null && extraData.length() > 500) {
+            throw new IllegalArgumentException("申请信息长度不能超过 500 个字符");
+        }
 
         Timestamp now = Timestamp.valueOf(LocalDateTime.now());
         Long applyId = idSeq.incrementAndGet();
@@ -73,6 +94,16 @@ public class CertificateApplyService {
     }
 
     public List<CertificateApplyItem> list(String status, String keyword) {
+        return list(status, keyword, null);
+    }
+
+    public List<CertificateApplyItem> listByStudentNo(String studentNo) {
+        String normalized = normalize(studentNo);
+        if (normalized.isEmpty()) return List.of();
+        return list(null, null, normalized);
+    }
+
+    private List<CertificateApplyItem> list(String status, String keyword, String studentNo) {
         String s = normalize(status);
         String k = normalize(keyword).toLowerCase();
         boolean hasStatus = !s.isEmpty();
@@ -135,6 +166,10 @@ public class CertificateApplyService {
             args.add(like);
             args.add(like);
             args.add(like);
+        }
+        if (studentNo != null) {
+            wheres.add("TRIM(a.student_no) = ?");
+            args.add(studentNo);
         }
         if (!wheres.isEmpty()) {
             sql += " WHERE " + String.join(" AND ", wheres);
@@ -214,6 +249,16 @@ public class CertificateApplyService {
         Timestamp now = Timestamp.valueOf(LocalDateTime.now());
         Long generatedFileId = null;
 
+        if ("已通过".equals(applyStatus)) {
+            generatedFileId = certificateFileService.generate(
+                    existing,
+                    approverId,
+                    normalize(approverName),
+                    opinion,
+                    now
+            );
+        }
+
         Long taskId = jdbcTemplate.query(
                 """
                         SELECT id
@@ -283,8 +328,10 @@ public class CertificateApplyService {
     @Transactional
     public void delete(Long applyId) {
         if (applyId == null) return;
+        CertificateApplyItem existing = getApplyById(applyId);
         jdbcTemplate.update("DELETE FROM t_approval_task WHERE apply_id = ?", applyId);
         jdbcTemplate.update("DELETE FROM t_certificate_apply WHERE id = ?", applyId);
+        certificateFileService.delete(existing.getFileId());
     }
 
     private CertificateApplyItem getApplyById(Long applyId) {

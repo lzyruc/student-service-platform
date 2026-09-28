@@ -4,22 +4,11 @@
       <div class="header">
         <div class="title">审批中心（电子证明）</div>
         <div class="actions">
-          <el-upload
-            :auto-upload="false"
-            :multiple="false"
-            :limit="1"
-            accept=".doc,.docx,.pdf"
-            :show-file-list="false"
-            :on-change="onTemplateChange"
-          >
-            <el-button type="primary" plain :loading="templateUploading">上传模板</el-button>
-          </el-upload>
           <el-button type="primary" plain @click="refreshList">刷新列表</el-button>
-          <el-button type="primary" plain @click="seedDemo">生成测试数据</el-button>
         </div>
       </div>
       <el-alert
-        title="已对接后端：审批数据来自数据库 t_certificate_apply + t_approval_task。"
+        title="审批通过后，后端会生成电子证明文件；管理员和申请学生都可以下载。"
         type="info"
         :closable="false"
         class="mb16"
@@ -67,9 +56,10 @@
             <el-table-column prop="studentNo" label="学号" width="140" />
             <el-table-column prop="summary" label="申请内容" min-width="220" show-overflow-tooltip />
             <el-table-column prop="lastHandledAt" label="处理时间" width="170" />
-            <el-table-column label="操作" width="120" fixed="right">
+            <el-table-column label="操作" width="190" fixed="right">
               <template #default="{ row }">
                 <el-button link type="primary" @click="openDetail(row)">查看</el-button>
+                <el-button v-if="row.fileId" link type="success" @click="downloadCertificate(row)">下载</el-button>
                 <el-button link type="danger" @click="removeRow(row.id)">删除</el-button>
               </template>
             </el-table-column>
@@ -92,15 +82,6 @@
                   <el-form-item label="学号" prop="studentNo">
                     <el-input v-model.trim="createForm.studentNo" placeholder="例如：20240001" clearable />
                   </el-form-item>
-                  <el-form-item label="申请标题" prop="title">
-                    <el-input v-model.trim="createForm.title" placeholder="例如：在校证明申请" clearable />
-                  </el-form-item>
-                  <el-form-item label="姓名" prop="applicantName">
-                    <el-input v-model.trim="createForm.applicantName" placeholder="例如：张三" clearable />
-                  </el-form-item>
-                  <el-form-item label="班级" prop="className">
-                    <el-input v-model.trim="createForm.className" placeholder="例如：计科2401" clearable />
-                  </el-form-item>
                   <el-form-item label="起止时间" prop="range">
                     <el-date-picker
                       v-model="createForm.range"
@@ -112,23 +93,14 @@
                     />
                   </el-form-item>
                   <el-form-item label="原因说明" prop="reason">
-                    <el-input v-model.trim="createForm.reason" type="textarea" :rows="4" placeholder="例如：发烧就医，申请请假" />
-                  </el-form-item>
-                  <el-form-item label="附件" prop="attachments">
-                    <el-upload
-                      :auto-upload="false"
-                      :multiple="true"
-                      :limit="5"
-                      :show-file-list="true"
-                      :file-list="attachmentList"
-                      :on-change="onAttachmentChange"
-                      :on-remove="onAttachmentRemove"
-                    >
-                      <el-button type="primary" plain>选择文件</el-button>
-                      <template #tip>
-                        <div class="el-upload__tip">仅做展示：不会上传到服务器</div>
-                      </template>
-                    </el-upload>
+                    <el-input
+                      v-model.trim="createForm.reason"
+                      type="textarea"
+                      :rows="4"
+                      maxlength="300"
+                      show-word-limit
+                      placeholder="例如：发烧就医，申请请假"
+                    />
                   </el-form-item>
                   <el-form-item>
                     <el-button type="primary" :loading="submitting" @click="submitCreate">提交（进入待审核）</el-button>
@@ -148,6 +120,9 @@
                   <el-descriptions-item label="如何模拟“审批留痕”">
                     点击通过/驳回会写入审批任务（时间、审批人、意见），并进入“已处理”列表。
                   </el-descriptions-item>
+                  <el-descriptions-item label="如何获得证明文件">
+                    审批通过时后端会自动生成 DOCX，并写入文件表；驳回时不会生成文件。
+                  </el-descriptions-item>
                 </el-descriptions>
               </div>
             </el-col>
@@ -163,7 +138,6 @@
           <el-descriptions-item label="类型">{{ currentDetail.apply.certificateType }}</el-descriptions-item>
           <el-descriptions-item label="学号">{{ currentDetail.apply.studentNo }}</el-descriptions-item>
           <el-descriptions-item label="提交时间">{{ normalizeTime(currentDetail.apply.createdAt) || "—" }}</el-descriptions-item>
-          <el-descriptions-item label="申请标题" :span="2">{{ currentExtra?.title || "—" }}</el-descriptions-item>
           <el-descriptions-item label="姓名">{{ detailApplicantName || "—" }}</el-descriptions-item>
           <el-descriptions-item label="班级">{{ detailClassName || "—" }}</el-descriptions-item>
           <el-descriptions-item label="起止时间" :span="2">
@@ -189,6 +163,9 @@
         </el-timeline>
       </div>
       <template #footer>
+        <el-button v-if="currentDetail?.apply.fileId" type="success" @click="downloadCertificate(currentDetail.apply)">
+          下载证明
+        </el-button>
         <el-button type="primary" @click="detailVisible = false">关闭</el-button>
       </template>
     </el-dialog>
@@ -215,8 +192,9 @@
 <script setup lang="ts" name="collegeExamineApprove">
 import { computed, onMounted, reactive, ref, watch } from "vue";
 import { ElMessage } from "element-plus";
-import type { FormInstance, FormRules, UploadFile, UploadFiles } from "element-plus";
-import { uploadFile } from "@/api/modules/file";
+import type { FormInstance, FormRules } from "element-plus";
+import { downloadFile } from "@/api/modules/file";
+import { useDownload } from "@/hooks/useDownload";
 import {
   BackendCertificate,
   decideCertificateApply,
@@ -225,12 +203,6 @@ import {
   listCertificateApplies,
   submitCertificateApply
 } from "@/api/modules/certificate";
-
-type Attachment = {
-  name: string;
-  size: number;
-  type: string;
-};
 
 type TimelineItem = {
   id: string;
@@ -249,30 +221,6 @@ const normalizeTime = (v: any) => {
 };
 
 const activeTab = ref<"pending" | "done" | "create">("pending");
-
-const templateName = ref("");
-const templateFileId = ref<number | null>(null);
-const templateUploading = ref(false);
-const onTemplateChange = async (file: UploadFile) => {
-  const raw = file.raw as File | undefined;
-  if (!raw) return;
-  if (templateUploading.value) return;
-  templateUploading.value = true;
-  try {
-    const fd = new FormData();
-    fd.append("file", raw);
-    fd.append("businessType", "template");
-    fd.append("uploaderId", "1");
-    const res = await uploadFile(fd);
-    templateName.value = res.data.originalName || raw.name;
-    templateFileId.value = res.data.id;
-    ElMessage.success(`模板已上传：${templateName.value}`);
-  } catch (e: any) {
-    ElMessage.error(e?.message ?? "模板上传失败");
-  } finally {
-    templateUploading.value = false;
-  }
-};
 
 const requests = ref<ApplyRow[]>([]);
 const selectedIds = ref<number[]>([]);
@@ -310,57 +258,29 @@ const onSelectionChange = (rows: ApplyRow[]) => {
 };
 
 const createFormRef = ref<FormInstance>();
-const attachmentList = ref<UploadFiles>([]);
 const createForm = reactive<{
   certificateType: string;
   studentNo: string;
-  title: string;
-  applicantName: string;
-  className: string;
   range: [string, string] | [];
   reason: string;
 }>({
   certificateType: "在校证明",
   studentNo: "",
-  title: "",
-  applicantName: "",
-  className: "",
   range: [],
   reason: ""
 });
 
 const createRules: FormRules = reactive({
   certificateType: [{ required: true, message: "请选择证明类型", trigger: "change" }],
-  studentNo: [{ required: true, message: "请填写学号", trigger: "blur" }]
+  studentNo: [{ required: true, message: "请填写学号", trigger: "blur" }],
+  reason: [{ required: true, message: "请填写申请事由", trigger: "blur" }]
 });
-
-const onAttachmentChange = (_file: UploadFile, uploadFiles: UploadFiles) => {
-  attachmentList.value = uploadFiles.slice(0, 5);
-};
-
-const onAttachmentRemove = (_file: UploadFile, uploadFiles: UploadFiles) => {
-  attachmentList.value = uploadFiles;
-};
-
-const buildAttachments = (): Attachment[] => {
-  return attachmentList.value
-    .map(f => ({
-      name: f.name,
-      size: f.size ?? 0,
-      type: f.raw?.type ?? ""
-    }))
-    .filter(a => a.name);
-};
 
 const resetCreate = () => {
   createForm.certificateType = "在校证明";
   createForm.studentNo = "";
-  createForm.title = "";
-  createForm.applicantName = "";
-  createForm.className = "";
   createForm.range = [];
   createForm.reason = "";
-  attachmentList.value = [];
 };
 
 const submitting = ref(false);
@@ -374,15 +294,9 @@ const submitCreate = async () => {
     try {
       const range = createForm.range as [string, string];
       const payload = {
-        title: createForm.title,
-        applicantName: createForm.applicantName,
-        className: createForm.className,
         startAt: range?.[0] ?? "",
         endAt: range?.[1] ?? "",
-        reason: createForm.reason,
-        attachments: buildAttachments(),
-        templateFileId: templateFileId.value,
-        templateName: templateName.value
+        reason: createForm.reason
       };
       await submitCertificateApply({
         studentNo: createForm.studentNo,
@@ -519,6 +433,15 @@ const removeRow = async (id: number) => {
   }
 };
 
+const downloadCertificate = async (row: BackendCertificate.ApplyItem) => {
+  if (!row.fileId) {
+    ElMessage.warning("该申请没有可下载的证明文件");
+    return;
+  }
+  const safeType = String(row.certificateType || "电子证明").replace(/[\\/:*?"<>|]/g, "_");
+  await useDownload(() => downloadFile(row.fileId!), `${safeType}_${row.studentNo}`, {}, false, ".docx");
+};
+
 const buildSummary = (item: BackendCertificate.ApplyItem) => {
   const extra = parseExtraData(item.extraData);
   const title = String(extra?.title ?? "").trim();
@@ -543,25 +466,6 @@ const refreshList = async () => {
     ElMessage.error(e?.message ?? "拉取列表失败");
   } finally {
     listLoading.value = false;
-  }
-};
-
-const seedDemo = async () => {
-  try {
-    await submitCertificateApply({
-      studentNo: "20240001",
-      certificateType: "在校证明",
-      extraData: JSON.stringify({ title: "在校证明申请", applicantName: "张三", className: "计科2401", reason: "用于奖学金材料" })
-    });
-    await submitCertificateApply({
-      studentNo: "20240002",
-      certificateType: "请假条",
-      extraData: JSON.stringify({ title: "请假条申请", applicantName: "李四", className: "计科2401", reason: "发烧就医" })
-    });
-    ElMessage.success("已生成测试数据");
-    await refreshList();
-  } catch (e: any) {
-    ElMessage.error(e?.message ?? "生成失败");
   }
 };
 

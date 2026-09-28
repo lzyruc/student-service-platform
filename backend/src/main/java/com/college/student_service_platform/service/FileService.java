@@ -21,12 +21,11 @@ import java.util.UUID;
 public class FileService {
 
     private final JdbcTemplate jdbcTemplate;
+    private final String uploadDir;
 
-    @Value("${file.upload-dir}")
-    private String uploadDir;
-
-    public FileService(JdbcTemplate jdbcTemplate) {
+    public FileService(JdbcTemplate jdbcTemplate, @Value("${file.upload-dir:uploads}") String uploadDir) {
         this.jdbcTemplate = jdbcTemplate;
+        this.uploadDir = uploadDir;
     }
 
     public FileUploadResponse uploadFile(MultipartFile file, String businessType, Long uploaderId) throws IOException {

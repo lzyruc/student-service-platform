@@ -21,3 +21,7 @@ export const uploadFile = (params: FormData) => {
 export const getDownloadUrl = (fileId: number | string) => {
   return `/api/file/download/${fileId}`;
 };
+
+export const downloadFile = (fileId: number | string) => {
+  return http.getBlob(`/file/download/${encodeURIComponent(String(fileId))}`, { cancel: false, loading: false });
+};

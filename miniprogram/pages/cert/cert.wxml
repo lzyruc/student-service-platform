@@ -11,7 +11,7 @@
 
     <view class="form-item">
       <text class="f-label">事由（必填）</text>
-      <textarea class="f-textarea" placeholder="请填写申请事由，用于老师审批" value="{{approvalReason}}" bindinput="onApprovalReasonInput"></textarea>
+      <textarea class="f-textarea" maxlength="300" placeholder="请填写申请事由，用于老师审批" value="{{approvalReason}}" bindinput="onApprovalReasonInput"></textarea>
     </view>
 
     <view class="form-item">
@@ -30,7 +30,7 @@
       <text class="tip-text">提交后会进入待审核状态</text>
     </view>
 
-    <button class="btn-primary grad-1 mt-20" bindtap="submitApprovalCert">提交申请</button>
+    <button class="btn-primary grad-1 mt-20" bindtap="submitApprovalCert" loading="{{submitting}}" disabled="{{submitting}}">提交申请</button>
   </view>
 
   <view class="glass-card mt-30">
@@ -50,6 +50,8 @@
         <view class="reason-panel" wx:if="{{expandedCertId === item.id}}">
           <text class="reason-label">申请信息</text>
           <text class="reason-text">{{item.extraData || '无'}}</text>
+          <text class="reason-label" wx:if="{{item.lastOpinion}}">审批意见</text>
+          <text class="reason-text" wx:if="{{item.lastOpinion}}">{{item.lastOpinion}}</text>
         </view>
       </view>
       <view wx:if="{{approvalHistoryList.length === 0}}" style="text-align:center; color:#999; font-size:24rpx; padding: 20rpx 0;">暂无记录</view>

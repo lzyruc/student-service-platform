@@ -15,7 +15,6 @@ import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
-import java.util.Map;
 
 @RestController
 @RequestMapping("/api/certificate")
@@ -42,11 +41,9 @@ public class CertificateApplyController {
             @RequestParam(value = "keyword", required = false) String keyword,
             HttpServletRequest request
     ) {
-        List<CertificateApplyItem> items = certificateApplyService.list(status, keyword);
-        if (!AuthContext.isAdmin(request)) {
-            String studentNo = AuthContext.subject(request);
-            items = items.stream().filter(item -> studentNo.equals(item.getStudentNo())).toList();
-        }
+        List<CertificateApplyItem> items = AuthContext.isAdmin(request)
+                ? certificateApplyService.list(status, keyword)
+                : certificateApplyService.listByStudentNo(AuthContext.subject(request));
         return Result.success(items);
     }
 

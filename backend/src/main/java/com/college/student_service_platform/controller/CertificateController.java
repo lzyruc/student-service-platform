@@ -2,10 +2,10 @@ package com.college.student_service_platform.controller;
 
 import com.college.student_service_platform.common.Result;
 import com.college.student_service_platform.common.AuthContext;
+import com.college.student_service_platform.dto.CertificateApplyItem;
 import jakarta.servlet.http.HttpServletRequest;
 import com.college.student_service_platform.dto.CertificateApplySubmitRequest;
 import com.college.student_service_platform.service.CertificateApplyService;
-import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.util.StringUtils;
 import org.springframework.web.bind.annotation.*;
 
@@ -16,11 +16,9 @@ import java.util.Map;
 @RequestMapping({"/api/student/certificate", "/api/student/cert"})
 public class CertificateController {
 
-    private final JdbcTemplate jdbcTemplate;
     private final CertificateApplyService certificateApplyService;
 
-    public CertificateController(JdbcTemplate jdbcTemplate, CertificateApplyService certificateApplyService) {
-        this.jdbcTemplate = jdbcTemplate;
+    public CertificateController(CertificateApplyService certificateApplyService) {
         this.certificateApplyService = certificateApplyService;
     }
 
@@ -50,17 +48,11 @@ public class CertificateController {
     }
 
     @GetMapping("/history")
-    public Result<List<Map<String, Object>>> getHistory(
+    public Result<List<CertificateApplyItem>> getHistory(
             @RequestParam(value = "studentNo", required = false) String requestedStudentNo,
             HttpServletRequest request) {
         String studentNo = AuthContext.studentNo(request, requestedStudentNo);
-        String sql = "SELECT id, student_no AS \"studentNo\", certificate_type AS \"certificateType\", " +
-                "apply_status AS \"applyStatus\", extra_data AS \"extraData\", file_id AS \"fileId\", " +
-                "TO_CHAR(created_at, 'YYYY-MM-DD HH24:MI:SS') AS \"createdAt\" " +
-                "FROM t_certificate_apply WHERE student_no = ? ORDER BY created_at DESC";
-
-        List<Map<String, Object>> history = jdbcTemplate.queryForList(sql, studentNo);
-        return Result.success("申请历史拉取成功", history);
+        return Result.success("申请历史拉取成功", certificateApplyService.listByStudentNo(studentNo));
     }
 
     private String bodyValue(Map<String, Object> requestBody, String key) {
