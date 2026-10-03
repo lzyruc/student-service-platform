@@ -3,6 +3,7 @@ package com.college.student_service_platform.service.external;
 import com.college.student_service_platform.config.ExternalServiceProperties;
 import com.college.student_service_platform.dto.AiAskRequest;
 import com.college.student_service_platform.dto.RagIngestResponse;
+import com.college.student_service_platform.repository.PolicyDocumentRepository;
 import org.springframework.boot.web.client.RestTemplateBuilder;
 import org.springframework.core.io.FileSystemResource;
 import org.springframework.http.HttpEntity;
@@ -20,33 +21,34 @@ import java.nio.file.Path;
 
 @Service
 public class AiServiceClient {
-    private final RestTemplate restTemplate;
+    private final RestTemplate askRestTemplate;
     private final RestTemplate ingestionRestTemplate;
     private final ExternalServiceProperties properties;
     private final ExternalCallExecutor callExecutor;
+    private final PolicyDocumentRepository policyDocumentRepository;
 
-    public AiServiceClient(RestTemplate restTemplate, RestTemplateBuilder restTemplateBuilder,
+    public AiServiceClient(RestTemplateBuilder restTemplateBuilder,
                            ExternalServiceProperties properties,
-                           ExternalCallExecutor callExecutor) {
-        this.restTemplate = restTemplate;
+                           ExternalCallExecutor callExecutor, PolicyDocumentRepository policyDocumentRepository) {
+        this.askRestTemplate = restTemplateBuilder
+                .setConnectTimeout(properties.getConnectTimeout())
+                .setReadTimeout(properties.getAiReadTimeout())
+                .build();
         this.ingestionRestTemplate = restTemplateBuilder
                 .setConnectTimeout(properties.getConnectTimeout())
                 .setReadTimeout(properties.getIngestReadTimeout())
                 .build();
         this.properties = properties;
         this.callExecutor = callExecutor;
+        this.policyDocumentRepository = policyDocumentRepository;
     }
 
     public Object ask(AiAskRequest request) {
+        request.setPolicyIds(policyDocumentRepository.findQueryablePolicyIds());
         String url = properties.getAiService().getBaseUrl() + "/api/student/ai/ask";
-        return callExecutor.executeRetryable("AI 问答服务",
-                () -> restTemplate.postForObject(url, request, Object.class));
-    }
-
-    public Object ingestAll() {
-        String url = properties.getAiService().getBaseUrl() + "/api/admin/ai/ingest-all";
-        return callExecutor.executeOnce("知识库重建服务",
-                () -> restTemplate.postForObject(url, null, Object.class));
+        // 生成请求不自动重试，避免超时后重复生成同一答案。
+        return callExecutor.executeOnce("AI 问答服务",
+                () -> askRestTemplate.postForObject(url, request, Object.class));
     }
 
     public RagIngestResponse ingestPolicy(

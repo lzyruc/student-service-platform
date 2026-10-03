@@ -65,8 +65,18 @@ public class FileController {
                 .replaceAll("\\+", "%20");
 
         return ResponseEntity.ok()
-                .contentType(MediaType.APPLICATION_OCTET_STREAM)
+                .contentType(downloadContentType(fileRecord))
+                .contentLength(resource.contentLength())
                 .header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename*=UTF-8''" + encodedFileName)
                 .body(resource);
+    }
+
+    private MediaType downloadContentType(FileRecord file) {
+        String name = file.getOriginalName().toLowerCase(java.util.Locale.ROOT);
+        if (name.endsWith(".pdf")) return MediaType.APPLICATION_PDF;
+        if (name.endsWith(".docx")) return MediaType.parseMediaType(
+                "application/vnd.openxmlformats-officedocument.wordprocessingml.document");
+        if (name.endsWith(".doc")) return MediaType.parseMediaType("application/msword");
+        return MediaType.APPLICATION_OCTET_STREAM;
     }
 }

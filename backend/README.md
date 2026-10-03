@@ -24,29 +24,37 @@
 
 ## 启动
 
-```powershell
-cd backend
-Copy-Item src/main/resources/application-example.properties src/main/resources/application.properties
-```
+完整的本地启动顺序、环境变量、Python 服务、Web 和小程序配置以 [项目根 README](../README.md#windows-本地启动当前已跑通版本) 为准。先确认 MySQL 已运行，并分别启动政策问答服务 `8000` 和学业预警服务 `8002`。
 
-至少配置以下环境变量：
+运行 `start-local.cmd`：首次提示输入 MySQL 用户名（默认 `root`）、Workbench 连接密码和已有的 JWT 密钥，保存到本机私有的 `local-config.json`。输入密码和密钥时不显示字符；JWT 留空会生成并保存固定随机密钥，已有登录需要重新登录。以后直接运行脚本或双击该文件即可，无需重复设置环境变量。
 
-```powershell
-$env:DB_URL="jdbc:mysql://127.0.0.1:3306/student_platform?useUnicode=true&characterEncoding=UTF-8&serverTimezone=Asia/Shanghai&useSSL=false&allowPublicKeyRetrieval=true"
-$env:DB_USERNAME="your_user"
-$env:DB_PASSWORD="your_password"
-$env:JWT_SECRET="replace-with-at-least-32-random-bytes"
-$env:ADMIN_BOOTSTRAP_PASSWORD="one-time-strong-admin-password"
-```
+`DB_URL` 默认指向本机 `3306` 的 `student_platform`，`CORS_ALLOWED_ORIGINS` 默认允许管理端 `http://localhost:8848,http://127.0.0.1:8848`。如需修改，编辑 `local-config.json`；手工配置模板为 [local-config.example.json](local-config.example.json)。本机配置文件已加入 Git 忽略规则，不要分享其中的密码和密钥。首次运行可从当前终端的已有环境变量保存配置；之后以本机文件为准。
 
-先在 MySQL Workbench 执行 [init-mysql.sql](docs/sql/init-mysql.sql)，再启动：
+当前本机最新包包含之前的修复，以及成绩单上传后持久保存、直接再次分析的功能，启动命令：
 
 ```powershell
-.\mvnw.cmd package -DskipTests
-java -jar .\target\student-service-platform-0.0.1-SNAPSHOT.jar
+cd "D:\agent开发准备\简历项目\student-service-platform\backend"
+.\start-local.cmd
 ```
 
-首次启动会在不存在 admin 时以 BCrypt 创建管理员；创建成功后应删除 `ADMIN_BOOTSTRAP_PASSWORD`。不建议设置全局 `DEFAULT_STUDENT_PASSWORD`，批量导入新账号时直接提供各自初始密码更安全。
+脚本自动切换到 `backend` 目录，并从 `target` 及子目录选择修改时间最新的应用 JAR；当前最新包位于 `target/transcript-build`。构建产物不随 Git 分发，重新克隆或修改 Java 代码后，停止旧后端并重新构建：
+
+```powershell
+.\mvnw.cmd package
+.\start-local.cmd
+```
+
+已有数据库和配置可直接使用，不要日常重跑 [init-mysql.sql](docs/sql/init-mysql.sql)：该脚本会删除并重建整个数据库。仅首次创建空环境时执行它；`application.properties` 不存在时才从示例复制。
+
+首次创建管理员时在 `local-config.json` 增加 `ADMIN_BOOTSTRAP_PASSWORD` 字符串字段，后端会在不存在 admin 时以 BCrypt 创建账号；创建成功后删除该字段。重启时保持相同的 JWT 密钥，否则旧 Token 失效。不建议设置全局 `DEFAULT_STUDENT_PASSWORD`，批量导入新账号时直接提供各自初始密码更安全。
+
+可用以下命令检查配置格式、Java 和 JAR，而不启动任何服务或连接数据库：
+
+```powershell
+powershell.exe -NoProfile -ExecutionPolicy Bypass -File .\start-local.ps1 -CheckConfig
+```
+
+需要指定运行包时，使用 `powershell.exe -NoProfile -ExecutionPolicy Bypass -File .\start-local.ps1 -JarPath .\target\student-service-platform-0.0.1-SNAPSHOT.jar`。脚本固定启用本地 `dev` Profile。
 
 在 Windows + JDK 17 下，如果项目路径包含中文，`spring-boot:run` 的类路径参数文件可能发生编码错误；运行可执行 jar 可避免该问题。
 
@@ -57,7 +65,13 @@ java -jar .\target\student-service-platform-0.0.1-SNAPSHOT.jar
 - 管理员修改密码：`POST /api/geeker/user/change_password`（需登录，校验原密码，新密码为 6-72 位）
 - 登录后使用 `Authorization: Bearer <token>` 或兼容头 `x-access-token`
 
+`/api/test/db` 和 `/api/test/user-count` 仅在 `dev` Profile 下提供，当前在认证过滤器中放行；其余业务接口仍需登录。正式环境不要启用 `dev`。健康检查成功不等于数据库和 Python 服务已经联通。
+
 两个 Python 服务默认是 `http://127.0.0.1:8000` 和 `http://127.0.0.1:8002`，可通过 `AI_SERVICE_BASE_URL`、`WARNING_SERVICE_BASE_URL` 修改。
+
+成绩单按表格列读取最终成绩，核心课程包含部类基础课、部类共同课和思想政治理论课，按计划开课学期区分缺课与未到开课学期。实测及字段说明见 [成绩单解析与学业预警](docs/academic-warning.md)。
+
+成绩单支持上传后持久复用：`POST /api/student/transcript` 保存，`GET /api/student/transcript` 读取本人最新文件，`POST /api/student/warning/analyze-saved` 使用该文件重新分析。复用现有 `t_file` 与 `t_warning_record`，无需数据库迁移；原 PDF 保存在 `uploads`。
 
 ## 测试
 
@@ -65,7 +79,7 @@ java -jar .\target\student-service-platform-0.0.1-SNAPSHOT.jar
 .\mvnw.cmd test
 ```
 
-当前自动化测试不依赖 MySQL，重点验证安全组件。完整业务联调仍需要 MySQL 和两个 Python 服务；这部分应作为本地/CI 集成环境单独运行，不能把“Java 单元测试通过”等同于四端系统已经全部联通。
+当前自动化测试覆盖安全组件及部分业务链路，使用 Mock 或内存测试数据库，不依赖运行中的 MySQL。完整业务联调仍需要 MySQL 和两个 Python 服务；不能把 Java 单元测试通过等同于四端系统已经全部联通。
 
 ## 权限边界
 
@@ -75,7 +89,7 @@ java -jar .\target\student-service-platform-0.0.1-SNAPSHOT.jar
 | 提交/查看本人证明申请 | ✅ | ✅ |
 | 查看或删除他人证明申请 | ❌ | ✅ |
 | 导入、查询、删除学生 | ❌ | ✅ |
-| 发布通知、维护培养方案、重建知识库 | ❌ | ✅ |
+| 发布通知、维护培养方案、维护政策知识库 | ❌ | ✅ |
 | 下载通知公共附件或本人证明 | ✅ | ✅ |
 
 ## 技术设计摘要

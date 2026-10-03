@@ -40,6 +40,8 @@ public class ExternalCallExecutor {
     public <T> T executeOnce(String operation, Supplier<T> action) {
         try {
             return action.get();
+        } catch (ResourceAccessException exception) {
+            throw new ExternalServiceException(operation + "超时或不可用，请稍后重试", exception);
         } catch (RuntimeException exception) {
             throw new ExternalServiceException(operation + "调用失败", exception);
         }

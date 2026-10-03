@@ -70,6 +70,33 @@ class TrainingPlanServiceTest {
     }
 
     @Test
+    void acceptsPoliticalAndCommonCoursesAndNormalizesStoredLegacyCategory() throws Exception {
+        Long id = service.save(request("v1.0", """
+                {"courses":[
+                  {"category":"部类核心课","courseName":"高等数学Ⅰ","credits":5,"offeredAt":"1"},
+                  {"category":"思想政治理论课","courseName":"思想道德与法治","credits":3,"offeredAt":"1"}
+                ]}
+                """));
+        TrainingPlanItem stored = service.getById(id);
+        assertTrue(stored.getJsonContent().contains("部类共同课"));
+        assertTrue(!stored.getJsonContent().contains("部类核心课"));
+        assertEquals(2, stored.getCourseCount());
+
+        Long politicalOnly = service.save(request("v2.0", """
+                {"courses":[{"category":"思想政治理论课","courseName":"思想道德与法治","credits":3}]}
+                """));
+        assertEquals(1, service.getById(politicalOnly).getCourseCount());
+        Long commonOnly = service.save(request("v3.0", """
+                {"courses":[{"category":"部类共同课","courseName":"高等数学Ⅰ","credits":5}]}
+                """));
+        assertEquals(1, service.getById(commonOnly).getCourseCount());
+        Long basicOnly = service.save(request("v4.0", """
+                {"courses":[{"category":"部类基础课","courseName":"程序设计","credits":4,"offeredAt":"1"}]}
+                """));
+        assertEquals(1, service.getById(basicOnly).getCourseCount());
+    }
+
+    @Test
     void rejectsPlanThatCannotDriveCoreCourseAnalysis() {
         IllegalArgumentException error = assertThrows(
                 IllegalArgumentException.class,

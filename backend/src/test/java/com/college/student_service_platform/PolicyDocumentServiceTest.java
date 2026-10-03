@@ -7,15 +7,20 @@ import com.college.student_service_platform.dto.PolicyDocumentSaveRequest;
 import com.college.student_service_platform.repository.PolicyDocumentRepository;
 import com.college.student_service_platform.service.PolicyDocumentService;
 import com.college.student_service_platform.service.PolicyIngestionService;
+import com.college.student_service_platform.service.FileService;
+import com.college.student_service_platform.config.LegacyPolicyImport;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.io.TempDir;
 import org.springframework.http.HttpStatus;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.datasource.DriverManagerDataSource;
 
 import java.time.LocalDate;
 import java.util.List;
+import java.nio.file.Path;
+import java.nio.file.Files;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
@@ -24,6 +29,8 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.ArgumentMatchers.any;
 
 class PolicyDocumentServiceTest {
+    @TempDir
+    Path tempDir;
     private JdbcTemplate jdbcTemplate;
     private PolicyDocumentService service;
     private PolicyIngestionService policyIngestionService;
@@ -46,6 +53,10 @@ class PolicyDocumentServiceTest {
                 CREATE TABLE t_file (
                     id BIGINT PRIMARY KEY,
                     original_name VARCHAR(255) NOT NULL,
+                    stored_name VARCHAR(255),
+                    file_path VARCHAR(1000),
+                    uploader_id BIGINT,
+                    created_at TIMESTAMP,
                     file_type VARCHAR(100),
                     file_size BIGINT,
                     business_type VARCHAR(100)
@@ -107,6 +118,8 @@ class PolicyDocumentServiceTest {
         assertEquals(List.of("本科", "学籍"), created.tags());
         assertEquals("本科生学籍管理规定.pdf", created.fileName());
         assertEquals(1L, created.createdBy());
+        PolicyDocumentRepository repository = new PolicyDocumentRepository(jdbcTemplate);
+        assertEquals(List.of(), repository.findQueryablePolicyIds());
 
         PolicyDocumentPageResponse page = service.list(1, 10, "学籍", null, null, null, "pending");
         assertEquals(1L, page.total());
@@ -116,11 +129,13 @@ class PolicyDocumentServiceTest {
         assertEquals("PUBLISHED", published.docStatus());
         assertEquals("PROCESSING", published.ingestStatus());
         verify(policyIngestionService).ingestAsync(created.id());
+        assertEquals(List.of(), repository.findQueryablePolicyIds());
 
         jdbcTemplate.update(
                 "UPDATE t_policy_doc SET ingest_status = 'READY', chunk_count = 12 WHERE id = ?",
                 created.id()
         );
+        assertEquals(List.of(created.id().toString()), repository.findQueryablePolicyIds());
 
         createRequest.setVersion("v2.0");
         createRequest.setRemark("更新后的备注");
@@ -128,11 +143,59 @@ class PolicyDocumentServiceTest {
         assertEquals("v2.0", updated.version());
         assertEquals("DRAFT", updated.docStatus());
         assertEquals("PENDING", updated.ingestStatus());
+        assertEquals(List.of(), repository.findQueryablePolicyIds());
 
         service.delete(created.id());
         verify(policyIngestionService).deleteVectors(any(PolicyDocumentRepository.PolicyDocumentRow.class));
         ApiException notFound = assertThrows(ApiException.class, () -> service.get(created.id()));
         assertEquals(HttpStatus.NOT_FOUND, notFound.getStatus());
+    }
+
+    @Test
+    void migratesLegacyPdfAndCalendarWithoutLosingFilesOrDuplicatingRecords() throws Exception {
+        Path source = Files.createDirectory(tempDir.resolve("政策文件库"));
+        Path pdf = Files.writeString(source.resolve("本科政策.pdf"), "legacy PDF bytes");
+        Path image = Files.writeString(source.resolve("校历.png"), "legacy calendar bytes");
+        PolicyDocumentRepository repository = new PolicyDocumentRepository(jdbcTemplate);
+        FileService fileService = new FileService(jdbcTemplate, tempDir.resolve("uploads").toString());
+        LegacyPolicyImport importer = new LegacyPolicyImport(repository, service, fileService, source.toString());
+
+        importer.migrate();
+
+        assertEquals(false, Files.exists(source));
+        Path backup = tempDir.resolve("政策文件库.imported");
+        assertEquals("legacy PDF bytes", Files.readString(backup.resolve(pdf.getFileName())));
+        assertEquals("legacy calendar bytes", Files.readString(backup.resolve(image.getFileName())));
+        List<PolicyDocumentItem> policies = service.list(1, 20, null, null, null, null, null).records();
+        assertEquals(2, policies.size());
+        for (PolicyDocumentItem policy : policies) {
+            assertEquals("PUBLISHED", policy.docStatus());
+            assertEquals("PROCESSING", policy.ingestStatus());
+            Path stored = fileService.getFilePath(fileService.getFileById(policy.fileId()));
+            assertEquals(-1L, Files.mismatch(backup.resolve(policy.fileName()), stored));
+            repository.markIngestReady(policy.id(), 1, "a".repeat(64));
+        }
+
+        // 模拟注册完成后归档前中断；重试通过文件内容识别已有政策。
+        Files.move(backup, source);
+        importer.migrate();
+        assertEquals(2L, service.list(1, 20, null, null, null, null, null).total());
+        assertEquals(2, repository.findQueryablePolicyIds().size());
+    }
+
+    @Test
+    void failedLegacyRegistrationPreservesOriginalFileForRetry() throws Exception {
+        Path source = Files.createDirectory(tempDir.resolve("legacy-failed"));
+        Path pdf = Files.writeString(source.resolve("policy.pdf"), "original file");
+        PolicyDocumentRepository repository = new PolicyDocumentRepository(jdbcTemplate);
+        FileService unavailableFiles = mock(FileService.class);
+        org.mockito.Mockito.when(unavailableFiles.importPolicyFile(any(Path.class), any(Long.class)))
+                .thenThrow(new java.io.IOException("disk unavailable"));
+
+        new LegacyPolicyImport(repository, service, unavailableFiles, source.toString()).migrate();
+
+        assertEquals("original file", Files.readString(pdf));
+        assertEquals(0L, service.list(1, 20, null, null, null, null, null).total());
     }
 
     @Test

@@ -1,0 +1,32 @@
+<view class="agent-page">
+  <view class="agent-header">
+    <view class="agent-heading-row">
+      <text class="agent-heading">学业智能助手</text>
+      <button class="reset-button" bindtap="clearConversation" disabled="{{asking}}">新对话</button>
+    </view>
+    <text class="agent-description">根据已保存的成绩单，了解学习情况与课程表现</text>
+    <view class="transcript-link" bindtap="manageTranscript">上传或更新成绩单 <text>›</text></view>
+  </view>
+
+  <scroll-view class="agent-chat" scroll-y="true" scroll-into-view="{{bottomId}}" scroll-with-animation="true">
+    <view class="chat-content">
+      <view class="suggestions" wx:if="{{messages.length === 1}}">
+        <text class="suggestions-title">你可以这样问</text>
+        <button wx:for="{{suggestions}}" wx:key="*this" class="suggestion-button" data-question="{{item}}" bindtap="askSuggested" disabled="{{asking}}">{{item}}</button>
+      </view>
+      <view wx:for="{{messages}}" wx:key="id" id="{{item.id}}" class="agent-message {{item.role === 'user' ? 'message-user' : 'message-assistant'}}">
+        <view class="message-bubble">
+          <text class="message-notice" wx:if="{{item.notice}}">{{item.notice}}</text>
+          <text class="message-text" selectable="true">{{item.content}}</text>
+        </view>
+      </view>
+      <view class="thinking" wx:if="{{asking}}" id="agent-thinking">正在分析，请稍候…</view>
+      <view class="chat-end"></view>
+    </view>
+  </scroll-view>
+
+  <view class="agent-composer">
+    <textarea class="question-input" value="{{inputValue}}" bindinput="onInput" maxlength="2000" disabled="{{asking}}" placeholder="说说你想了解的学业问题…" auto-height="true" adjust-position="true" cursor-spacing="24" />
+    <button class="agent-send" bindtap="sendMessage" disabled="{{asking || !inputValue}}" loading="{{asking}}">{{asking ? '分析中' : '发送'}}</button>
+  </view>
+</view>

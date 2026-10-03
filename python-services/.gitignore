@@ -4,3 +4,6 @@ __pycache__/
 *.py[cod]
 chroma_db/
 uploaded_transcripts/
+
+# Local archive created after one-time policy migration
+/政策文件库.imported/

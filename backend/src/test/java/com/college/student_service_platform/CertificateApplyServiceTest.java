@@ -1,6 +1,9 @@
 package com.college.student_service_platform;
 
 import com.college.student_service_platform.common.ApiException;
+import com.college.student_service_platform.common.AuthContext;
+import com.college.student_service_platform.controller.FileController;
+import com.college.student_service_platform.service.UserIdentityService;
 import com.college.student_service_platform.dto.CertificateApplyDetail;
 import com.college.student_service_platform.dto.CertificateApplyItem;
 import com.college.student_service_platform.dto.CertificateApplySubmitRequest;
@@ -16,6 +19,9 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.io.TempDir;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.datasource.DriverManagerDataSource;
+import org.springframework.mock.web.MockHttpServletRequest;
+import org.springframework.http.ResponseEntity;
+import org.springframework.core.io.Resource;
 
 import java.io.InputStream;
 import java.nio.file.Files;
@@ -164,6 +170,20 @@ class CertificateApplyServiceTest {
         assertTrue(Files.exists(generatedPath));
         assertEquals("certificate", file.getBusinessType());
         assertTrue(file.getOriginalName().endsWith(".docx"));
+
+        MockHttpServletRequest downloadRequest = new MockHttpServletRequest();
+        downloadRequest.setAttribute(AuthContext.SUBJECT_ATTRIBUTE, "20260001");
+        downloadRequest.setAttribute(AuthContext.ROLE_ATTRIBUTE, "student");
+        FileController files = new FileController(fileService, org.mockito.Mockito.mock(UserIdentityService.class));
+        ResponseEntity<Resource> download = files.downloadFile(fileId, downloadRequest);
+        assertEquals("application/vnd.openxmlformats-officedocument.wordprocessingml.document",
+                download.getHeaders().getContentType().toString());
+        assertEquals(Files.size(generatedPath), download.getHeaders().getContentLength());
+        assertTrue(download.getHeaders().getFirst("Content-Disposition").contains(".docx"));
+        try (InputStream input = download.getBody().getInputStream();
+             XWPFDocument downloaded = new XWPFDocument(input)) {
+            assertTrue(downloaded.getParagraphs().stream().anyMatch(p -> p.getText().contains("张三")));
+        }
 
         try (InputStream input = Files.newInputStream(generatedPath);
              XWPFDocument document = new XWPFDocument(input)) {

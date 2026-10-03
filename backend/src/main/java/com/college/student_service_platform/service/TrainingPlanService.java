@@ -45,6 +45,11 @@ public class TrainingPlanService {
             throw new IllegalArgumentException("jsonContent 不能为空");
         }
 
+        try {
+            jsonContent = TrainingPlanCourseRules.normalizeJson(objectMapper, jsonContent);
+        } catch (java.io.IOException e) {
+            throw new IllegalArgumentException("培养方案 JSON 格式不正确");
+        }
         PlanSummary summary = parseAndValidatePlan(jsonContent);
         String remark = normalize(request.getRemark());
         Integer courseCount = summary.courseCount();
@@ -177,7 +182,11 @@ public class TrainingPlanService {
         item.setGrade(rs.getString("grade"));
         item.setVersion(rs.getString("version"));
         item.setRemark(rs.getString("remark"));
-        item.setJsonContent(rs.getString("json_content"));
+        try {
+            item.setJsonContent(TrainingPlanCourseRules.normalizeJson(objectMapper, rs.getString("json_content")));
+        } catch (java.io.IOException e) {
+            throw new IllegalArgumentException("培养方案 JSON 格式不正确");
+        }
         int count = rs.getInt("course_count");
         item.setCourseCount(rs.wasNull() ? null : count);
         item.setTotalCredits(rs.getBigDecimal("total_credits"));
@@ -204,7 +213,7 @@ public class TrainingPlanService {
                 if (courseName.isEmpty()) continue;
                 count++;
                 String category = normalizeObject(course.get("category"));
-                if (category.contains("核心")) hasCoreCourse = true;
+                if (TrainingPlanCourseRules.isCoreCourse(category)) hasCoreCourse = true;
                 Object creditValue = course.get("credits");
                 if (creditValue != null) {
                     BigDecimal credit = new BigDecimal(String.valueOf(creditValue));
@@ -213,7 +222,7 @@ public class TrainingPlanService {
                 }
             }
             if (count == 0) throw new IllegalArgumentException("培养方案至少需要一门有效课程");
-            if (!hasCoreCourse) throw new IllegalArgumentException("培养方案至少需要一门课程类别包含“核心”的课程");
+            if (!hasCoreCourse) throw new IllegalArgumentException("培养方案至少需要一门核心课程（含部类基础课、部类共同课和思想政治理论课）");
             return new PlanSummary(count, credits);
         } catch (IllegalArgumentException e) {
             throw e;

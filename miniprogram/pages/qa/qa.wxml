@@ -13,6 +13,6 @@
 
   <view class="input-area glass-card">
     <input class="chat-input" value="{{inputValue}}" bindinput="onInput" placeholder="询问奖学金、政策..." confirm-type="send" bindconfirm="askAI" />
-    <button class="send-btn grad-1" bindtap="askAI"><text class="send-icon">➤</text><text class="send-text">发送</text></button>
+    <button class="send-btn grad-1" bindtap="askAI" disabled="{{asking}}" loading="{{asking}}"><text class="send-text">{{asking ? '回答中' : '发送'}}</text></button>
   </view>
 </view>

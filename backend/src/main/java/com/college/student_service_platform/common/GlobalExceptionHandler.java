@@ -20,6 +20,9 @@ public class GlobalExceptionHandler {
 
     @ExceptionHandler(ApiException.class)
     public ResponseEntity<Result<Void>> handleApiException(ApiException exception) {
+        if (exception instanceof ExternalServiceException) {
+            log.warn("External service call failed", exception);
+        }
         return response(exception.getStatus(), exception.getMessage());
     }
 

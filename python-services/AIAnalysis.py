@@ -1,12 +1,9 @@
 import os
-import glob
-import re
-import shutil
 import hashlib
 import tempfile
 import threading
 from dotenv import load_dotenv
-from fastapi import FastAPI, HTTPException, BackgroundTasks, File, Form, UploadFile
+from fastapi import FastAPI, HTTPException, File, Form, UploadFile
 
 # 始终从脚本所在目录加载 .env，避免因启动目录不同而找不到配置。
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
@@ -39,6 +36,8 @@ class RAGEngine:
             model=deepseek_model,
             api_key=deepseek_api_key,
             base_url=deepseek_api_base,
+            timeout=float(os.getenv("LLM_TIMEOUT", "60")),
+            max_retries=0,
         )
         self.embeddings = HuggingFaceEmbeddings(
             model_name=embedding_model,
@@ -48,7 +47,20 @@ class RAGEngine:
         self.persist_directory = persist_directory or os.path.join(BASE_DIR, "chroma_db")
         self.vector_lock = threading.RLock()
         self.vectorstore = self._init_vectorstore()
+        self._remove_unmanaged_vectors()
         self.ocr = RapidOCR() # 初始化 OCR 引擎用于处理图片
+
+    def _remove_unmanaged_vectors(self):
+        """清除旧文件夹导入的无政策 ID 向量，保留管理端发布的文档。"""
+        existing = self.vectorstore.get(include=["metadatas"])
+        legacy_ids = [
+            vector_id
+            for vector_id, metadata in zip(existing.get("ids", []), existing.get("metadatas", []))
+            if not metadata or metadata.get("managed") != "true" or not metadata.get("policy_id")
+        ]
+        if legacy_ids:
+            self.vectorstore.delete(ids=legacy_ids)
+            print(f"已清理 {len(legacy_ids)} 个旧文件夹向量，知识库统一由管理端发布维护。")
 
     def _init_vectorstore(self):
         """初始化 Chroma 本地向量数据库"""
@@ -139,14 +151,6 @@ class RAGEngine:
 
         return sorted(docs, key=score, reverse=True)[:4]
 
-    def rebuild_from_folder(self, folder_path):
-        """重建知识库，避免重复向量污染结果"""
-        with self.vector_lock:
-            if os.path.exists(self.persist_directory):
-                shutil.rmtree(self.persist_directory, ignore_errors=True)
-            self.vectorstore = self._init_vectorstore()
-            return self.ingest_folder(folder_path)
-
     def _load_documents(self, file_path):
         ext = os.path.splitext(file_path)[-1].lower()
         if ext == '.pdf':
@@ -175,16 +179,6 @@ class RAGEngine:
             separators=["\n\n", "\n", "。", "；", "，", " "]
         )
         return text_splitter.split_documents(docs)
-
-    def ingest_document(self, file_path):
-        """将政策文件录入知识库"""
-        docs = self._load_documents(file_path)
-        if not docs:
-            return "文件为空或无法解析"
-        splits = self._split_documents(docs)
-        with self.vector_lock:
-            self.vectorstore.add_documents(splits)
-        return f"成功录入 {len(splits)} 个文本块 (来源: {os.path.basename(file_path)})"
 
     def ingest_managed_document(self, file_path, policy_id, original_name, title, category, audience, version):
         """替换单个数据库政策对应的向量，并返回可回写数据库的入库结果。"""
@@ -234,8 +228,8 @@ class RAGEngine:
         for vector_id, metadata in zip(existing.get("ids", []), existing.get("metadatas", [])):
             metadata = metadata or {}
             existing_policy_id = str(metadata.get("policy_id", ""))
-            existing_source = os.path.basename(str(metadata.get("source", "")).replace("\\", "/"))
-            if existing_policy_id == str(policy_id) or (existing_source and existing_source == source_name):
+            # 同名文件可能属于不同政策或版本，只按数据库政策 ID 删除。
+            if existing_policy_id == str(policy_id):
                 ids_to_delete.append(vector_id)
         if ids_to_delete:
             self.vectorstore.delete(ids=ids_to_delete)
@@ -271,27 +265,24 @@ class RAGEngine:
                 digest.update(chunk)
         return digest.hexdigest()
 
-    def ingest_folder(self, folder_path):
-        """批量录入整个文件夹的文件"""
-        if not os.path.exists(folder_path):
-            return "文件夹不存在"
-        
-        results = []
-        for root, dirs, files in os.walk(folder_path):
-            for file in files:
-                file_path = os.path.join(root, file)
-                try:
-                    res = self.ingest_document(file_path)
-                    results.append(res)
-                except Exception as e:
-                    results.append(f"解析失败 {file}: {str(e)}")
-        return results
-
-    def ask(self, question):
-        """基于知识库回答学生问题"""
+    def retrieve(self, question, policy_ids=None):
+        """仅检索管理端政策；Java 白名单进一步排除草稿和入库失败记录。"""
+        if policy_ids is not None:
+            policy_ids = list(dict.fromkeys(str(policy_id) for policy_id in policy_ids))
+            if not policy_ids:
+                return []
+            metadata_filter = {"$and": [{"managed": "true"}, {"policy_id": {"$in": policy_ids}}]}
+        else:
+            metadata_filter = {"managed": "true"}
         with self.vector_lock:
-            candidates = self.vectorstore.similarity_search(question, k=8)
-        docs = self._rerank_docs(question, candidates)
+            candidates = self.vectorstore.similarity_search(question, k=8, filter=metadata_filter)
+        return self._rerank_docs(question, candidates)
+
+    def ask(self, question, policy_ids=None):
+        """基于知识库回答学生问题"""
+        docs = self.retrieve(question, policy_ids)
+        if not docs:
+            return {"answer": "根据现有政策文件暂无相关信息，请联系辅导员或教务处咨询。", "sources": []}
         context = "\n\n".join([
             f"[来源: {os.path.basename(doc.metadata.get('source', '未知'))} | 页码: {doc.metadata.get('page_range', '未知')}]\n{doc.page_content}"
             for doc in docs
@@ -336,20 +327,7 @@ rag_engine = RAGEngine()
 class QuestionRequest(BaseModel):
     question: str
     studentNo: Optional[str] = None
-
-@app.post("/api/admin/ingest_all")
-def api_ingest_all(background_tasks: BackgroundTasks):
-    """
-    [Web管理端 API] 批量扫描并录入 '政策文件库' 文件夹中的所有文件。
-    使用后台任务避免请求超时。
-    """
-    folder = os.path.join(BASE_DIR, "政策文件库")
-    background_tasks.add_task(rag_engine.rebuild_from_folder, folder)
-    return {"status": "success", "message": f"已启动后台任务，正在重建知识库并解析 {folder} 中的文件及校历图片。"}
-
-@app.post("/api/admin/ai/ingest-all")
-def api_ingest_all_alias(background_tasks: BackgroundTasks):
-    return api_ingest_all(background_tasks)
+    policyIds: Optional[list[str]] = None
 
 @app.post("/api/admin/ai/documents/{policy_id}/ingest")
 def api_ingest_policy_document(
@@ -361,17 +339,18 @@ def api_ingest_policy_document(
     version: str = Form("v1.0"),
     originalName: str = Form("")
 ):
-    """接收 Java 后端发送的单个政策 PDF，替换该政策在 Chroma 中的向量。"""
+    """接收 Java 发送的政策 PDF 或校历图片，替换该政策的 Chroma 向量。"""
     if policy_id <= 0:
         raise HTTPException(status_code=400, detail="policy_id 必须大于 0")
 
     source_name = (originalName or file.filename or "policy.pdf").replace("\\", "/").split("/")[-1]
-    if not source_name.lower().endswith(".pdf"):
-        raise HTTPException(status_code=400, detail="政策文件必须是 PDF")
+    extension = os.path.splitext(source_name)[1].lower()
+    if extension not in {".pdf", ".png", ".jpg", ".jpeg"}:
+        raise HTTPException(status_code=400, detail="政策文件必须是 PDF、PNG 或 JPG")
 
     temporary_path = None
     try:
-        descriptor, temporary_path = tempfile.mkstemp(prefix=f"policy-{policy_id}-", suffix=".pdf")
+        descriptor, temporary_path = tempfile.mkstemp(prefix=f"policy-{policy_id}-", suffix=extension)
         total_size = 0
         with os.fdopen(descriptor, "wb") as target:
             while True:
@@ -430,7 +409,7 @@ def api_student_ask(req: QuestionRequest):
         raise HTTPException(status_code=400, detail="问题不能为空")
     
     try:
-        result = rag_engine.ask(req.question)
+        result = rag_engine.ask(req.question, req.policyIds)
         return {
             "status": "success",
             "data": {

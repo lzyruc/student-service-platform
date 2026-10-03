@@ -32,7 +32,7 @@ def source_name(doc):
 
 
 def retrieve(question):
-    candidates = rag_engine.vectorstore.similarity_search(question, k=8)
+    candidates = rag_engine.vectorstore.similarity_search(question, k=8, filter={"managed": "true"})
     selected = rag_engine._rerank_docs(question, candidates)
     return candidates, selected
 

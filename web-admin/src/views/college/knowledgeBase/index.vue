@@ -13,7 +13,7 @@
       </div>
 
       <el-alert
-        title="发布后系统会在后台解析 PDF 并写入向量库；状态变为“已就绪”后，学生问答才能检索到该文档。"
+        title="原文件由后端统一保存。发布后解析 PDF 或识别校历图片，只有“已发布、已就绪”的文档参与学生问答。"
         type="info"
         :closable="false"
         class="mb16"
@@ -126,20 +126,20 @@
       @closed="resetForm"
     >
       <el-form ref="formRef" :model="form" :rules="formRules" label-width="100px" label-suffix=" :">
-        <el-form-item label="PDF 文件" prop="file">
+        <el-form-item label="政策文件" prop="file">
           <el-upload
             :auto-upload="false"
             :multiple="false"
             :limit="1"
-            accept=".pdf,application/pdf"
+            accept=".pdf,.png,.jpg,.jpeg,application/pdf,image/png,image/jpeg"
             :file-list="uploadFileList"
             :on-change="handleFileChange"
             :on-remove="handleFileRemove"
           >
-            <el-button type="primary" plain>{{ form.fileId ? "替换 PDF" : "选择 PDF" }}</el-button>
+            <el-button type="primary" plain>{{ form.fileId ? "替换文件" : "选择文件" }}</el-button>
             <template #tip>
               <div class="el-upload__tip">
-                {{ form.fileId ? `当前文件：${form.existingFileName}；不重新选择则保留原文件` : "仅支持 PDF，最大 20MB" }}
+                {{ form.fileId ? `当前文件：${form.existingFileName}；不重新选择则保留原文件` : "支持 PDF、PNG、JPG，最大 20MB；图片通过 OCR 识别" }}
               </div>
             </template>
           </el-upload>
@@ -277,7 +277,7 @@ const form = reactive<PolicyForm>(emptyForm());
 const uploadFileList = ref<UploadFiles>([]);
 const formRules = computed<FormRules>(() => ({
   file: [
-    { validator: (_r, _v, done) => (!form.file && !form.fileId ? done(new Error("请选择 PDF 文件")) : done()), trigger: "change" }
+    { validator: (_r, _v, done) => (!form.file && !form.fileId ? done(new Error("请选择政策文件")) : done()), trigger: "change" }
   ],
   title: [{ required: true, message: "请填写政策标题", trigger: "blur" }],
   category: [{ required: true, message: "请选择或填写分类", trigger: "change" }],
@@ -351,19 +351,19 @@ const openEditDialog = (row: PolicyDocumentApi.Item) => {
 const handleFileChange = (upload: UploadFile, files: UploadFiles) => {
   const raw = upload.raw as File | undefined;
   if (!raw) return;
-  if (raw.type !== "application/pdf" && !raw.name.toLowerCase().endsWith(".pdf")) {
-    ElMessage.error("仅支持 PDF 文件");
+  if (!/\.(pdf|png|jpe?g)$/i.test(raw.name)) {
+    ElMessage.error("仅支持 PDF、PNG、JPG 文件");
     handleFileRemove();
     return;
   }
   if (raw.size > 20 * 1024 * 1024) {
-    ElMessage.error("PDF 文件不能超过 20MB");
+    ElMessage.error("政策文件不能超过 20MB");
     handleFileRemove();
     return;
   }
   form.file = raw;
   uploadFileList.value = files.slice(-1);
-  if (!form.title) form.title = raw.name.replace(/\.pdf$/i, "");
+  if (!form.title) form.title = raw.name.replace(/\.(pdf|png|jpe?g)$/i, "");
   formRef.value?.validateField("file");
 };
 const handleFileRemove = () => {

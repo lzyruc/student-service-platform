@@ -6,7 +6,8 @@
     "pages/academic/academic",
     "pages/qa/qa",
     "pages/notice/notice",
-    "pages/cert/cert"
+    "pages/cert/cert",
+    "pages/agent/agent"
   ],
   "window": {
     "navigationBarBackgroundColor": "#ffffff",
@@ -28,9 +29,7 @@
       },
       {
         "pagePath": "pages/profile/profile",
-        "text": "个人中心",
-        "iconPath": "assets/profile-tab.png",
-        "selectedIconPath": "assets/profile-tab-active.png"
+        "text": "个人中心"
       }
     ]
   },

@@ -1,4 +1,4 @@
-const { request, BASE_URL } = require('../../utils/request.js');
+const { request, downloadDocument } = require('../../utils/request.js');
 
 const getStudentNo = () => wx.getStorageSync('studentNo') || wx.getStorageSync('account');
 
@@ -12,6 +12,7 @@ Page({
     approvalHistoryList: [],
     expandedCertId: null,
     submitting: false,
+    downloading: false,
   },
 
   onShow() {
@@ -98,22 +99,23 @@ Page({
     });
   },
 
-  downloadCert(e) {
+  async downloadCert(e) {
+    if (this.data.downloading) return;
     const fileId = e.currentTarget.dataset.fileid;
+    if (!fileId) {
+      wx.showToast({ title: '证明尚未生成，请刷新记录', icon: 'none' });
+      return;
+    }
+    this.setData({ downloading: true });
     wx.showLoading({ title: '正在获取文件...' });
-    wx.downloadFile({
-      url: `${BASE_URL}/api/file/download/${fileId}`,
-      header: { Authorization: wx.getStorageSync('token') },
-      success: (res) => {
-        if (res.statusCode === 200) {
-          wx.openDocument({ filePath: res.tempFilePath, showMenu: true });
-        } else {
-          wx.showToast({ title: '文件下载失败', icon: 'none' });
-        }
-      },
-      fail: () => wx.showToast({ title: '文件下载失败', icon: 'none' }),
-      complete: () => wx.hideLoading()
-    });
+    try {
+      await downloadDocument(`/api/file/download/${fileId}`);
+    } catch (error) {
+      wx.showModal({ title: '无法下载证明', content: error.message || '文件下载失败', showCancel: false });
+    } finally {
+      wx.hideLoading();
+      this.setData({ downloading: false });
+    }
   },
 
   normalizeTime(value) {

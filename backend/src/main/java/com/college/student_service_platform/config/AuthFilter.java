@@ -84,7 +84,10 @@ public class AuthFilter extends OncePerRequestFilter {
                 || uri.startsWith("/api/student/cert/")
                 || uri.equals("/api/student/info")
                 || uri.equals("/api/student/ai/ask")
+                || (uri.equals("/api/student/agent/chat") && HttpMethod.POST.matches(method))
                 || uri.equals("/api/student/warning/analyze")
+                || (uri.equals("/api/student/transcript") && (HttpMethod.GET.matches(method) || HttpMethod.POST.matches(method)))
+                || (uri.equals("/api/student/warning/analyze-saved") && HttpMethod.POST.matches(method))
                 || uri.startsWith("/api/file/download/")) {
             return true;
         }

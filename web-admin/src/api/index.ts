@@ -90,8 +90,25 @@ class RequestHttp {
         // 请求超时 && 网络错误单独判断，没有 response
         if (error.message.indexOf("timeout") !== -1) ElMessage.error("请求超时！请您稍后重试");
         if (error.message.indexOf("Network Error") !== -1) ElMessage.error("网络错误！请您稍后重试");
-        // 根据服务器响应的错误状态码，做不同的处理
-        if (response) checkStatus(response.status);
+        // HTTP 401 也必须清除本地登录状态。否则失效 Token 会让路由守卫
+        // 一直把用户挡在登录页之外，退出接口本身也会因为 401 而无法完成。
+        if (response?.status === 401) {
+          const userStore = useUserStore();
+          const responseData = response.data as { message?: string; msg?: string } | undefined;
+          const requestUrl = response.config.url || "";
+          const isLoginRequest = requestUrl.includes("/geeker/login");
+
+          userStore.setToken("");
+          ElMessage.error(
+            responseData?.message || responseData?.msg || (isLoginRequest ? "账号或密码错误" : "登录已失效，请重新登录")
+          );
+          if (!isLoginRequest && router.currentRoute.value.path !== LOGIN_URL) {
+            await router.replace(LOGIN_URL);
+          }
+        } else if (response) {
+          // 根据服务器响应的错误状态码，做不同的处理
+          checkStatus(response.status);
+        }
         // 服务器结果都没有返回(可能服务器错误可能客户端断网)，断网处理:可以跳转到断网页面
         if (!window.navigator.onLine) router.replace("/500");
         return Promise.reject(error);

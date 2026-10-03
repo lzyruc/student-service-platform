@@ -2,6 +2,7 @@ package com.college.student_service_platform.dto;
 
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Size;
+import java.util.List;
 
 public class AiAskRequest {
 
@@ -9,6 +10,16 @@ public class AiAskRequest {
     @Size(max = 4000, message = "question 不能超过 4000 字")
     private String question;
     private String studentNo;
+    // 由 Java 根据数据库状态覆盖，客户端不能指定可检索政策。
+    private List<String> policyIds;
+
+    public List<String> getPolicyIds() {
+        return policyIds;
+    }
+
+    public void setPolicyIds(List<String> policyIds) {
+        this.policyIds = policyIds;
+    }
 
     public String getQuestion() {
         return question;

@@ -139,6 +139,26 @@ public class PolicyDocumentRepository {
         return rows.stream().findFirst();
     }
 
+    public List<String> findQueryablePolicyIds() {
+        return jdbcTemplate.query("""
+                SELECT id FROM t_policy_doc
+                WHERE doc_status = 'PUBLISHED' AND ingest_status = 'READY'
+                ORDER BY id
+                """, (rs, rowNum) -> Long.toString(rs.getLong("id")));
+    }
+
+    public List<PolicyDocumentRow> findByOriginalName(String originalName) {
+        return jdbcTemplate.query(DETAIL_SELECT + " WHERE f.original_name = ?",
+                this::mapRow, originalName);
+    }
+
+    public Optional<String> findFirstAdminUsername() {
+        return jdbcTemplate.query(
+                "SELECT username FROM t_user WHERE role_code = 'admin' AND status = 1 ORDER BY id LIMIT 1",
+                (rs, rowNum) -> rs.getString("username")
+        ).stream().findFirst();
+    }
+
     public List<PolicyDocumentRow> findPage(
             String keyword,
             String category,

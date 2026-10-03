@@ -185,9 +185,9 @@ public class PolicyDocumentService {
             throw new ApiException(HttpStatus.BAD_REQUEST, "关联文件的businessType必须是policy");
         }
         String fileName = normalizeOptional(file.originalName()).toLowerCase(Locale.ROOT);
-        String fileType = normalizeOptional(file.fileType()).toLowerCase(Locale.ROOT);
-        if (!fileName.endsWith(".pdf") && !fileType.contains("pdf")) {
-            throw new ApiException(HttpStatus.BAD_REQUEST, "知识库政策文件必须是PDF");
+        if (!fileName.endsWith(".pdf") && !fileName.endsWith(".png")
+                && !fileName.endsWith(".jpg") && !fileName.endsWith(".jpeg")) {
+            throw new ApiException(HttpStatus.BAD_REQUEST, "知识库支持PDF、PNG和JPG文件");
         }
         if (repository.isFileLinked(request.getFileId(), excludedDocumentId)) {
             throw new ApiException(HttpStatus.CONFLICT, "该文件已经登记为政策文档");

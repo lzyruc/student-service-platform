@@ -1,0 +1,7 @@
+{
+  "DB_URL": "jdbc:mysql://127.0.0.1:3306/student_platform?useUnicode=true&characterEncoding=UTF-8&serverTimezone=Asia/Shanghai&useSSL=false&allowPublicKeyRetrieval=true",
+  "DB_USERNAME": "your_mysql_user",
+  "DB_PASSWORD": "your_mysql_password",
+  "JWT_SECRET": "replace-with-your-existing-32-byte-or-longer-secret",
+  "CORS_ALLOWED_ORIGINS": "http://localhost:8848,http://127.0.0.1:8848"
+}

@@ -9,12 +9,14 @@ import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.atomic.AtomicLong;
 
 @Service
 public class WarningRecordService {
 
     private final JdbcTemplate jdbcTemplate;
     private final ObjectMapper objectMapper;
+    private final AtomicLong idSequence = new AtomicLong(System.currentTimeMillis());
 
     public WarningRecordService(JdbcTemplate jdbcTemplate, ObjectMapper objectMapper) {
         this.jdbcTemplate = jdbcTemplate;
@@ -83,7 +85,7 @@ public class WarningRecordService {
         int failedCourseCount = failedCourses == null ? 0 : failedCourses.size();
         int missingCourseCount = missingCourses == null ? 0 : missingCourses.size();
 
-        Long id = System.currentTimeMillis();
+        Long id = idSequence.updateAndGet(previous -> Math.max(previous + 1, System.currentTimeMillis()));
 
         String sql = """
                 INSERT INTO t_warning_record

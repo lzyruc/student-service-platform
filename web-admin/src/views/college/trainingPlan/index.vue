@@ -85,7 +85,7 @@
               <el-table-column label="课程类别" width="160">
                 <template #default="{ row }">
                   <el-select v-model="row.category" placeholder="请选择" clearable>
-                    <el-option label="部类核心课" value="部类核心课" />
+                    <el-option label="部类共同课" value="部类共同课" />
                     <el-option label="部类基础课" value="部类基础课" />
                     <el-option label="专业核心课" value="专业核心课" />
                     <el-option label="思想政治理论课" value="思想政治理论课" />
@@ -425,7 +425,7 @@ const fillDemoCourses = () => {
   if (planCourses.value.length > 0) return;
   planCourses.value = [
     { id: genId(), category: "部类基础课", courseName: "高等数学", credits: 5, offeredAt: "1" },
-    { id: genId(), category: "部类核心课", courseName: "程序设计基础", credits: 4, offeredAt: "2" },
+    { id: genId(), category: "部类共同课", courseName: "程序设计基础", credits: 4, offeredAt: "2" },
     { id: genId(), category: "专业核心课", courseName: "数据结构", credits: 4, offeredAt: "3" }
   ];
 };

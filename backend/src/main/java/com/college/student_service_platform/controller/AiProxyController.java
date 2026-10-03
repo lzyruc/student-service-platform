@@ -28,9 +28,4 @@ public class AiProxyController {
         return Result.success("AI ask succeeded", response);
     }
 
-    @PostMapping("/admin/ai/ingest-all")
-    public Result<Object> ingestAll() {
-        Object response = aiServiceClient.ingestAll();
-        return Result.success("Knowledge base ingest succeeded", response);
-    }
 }

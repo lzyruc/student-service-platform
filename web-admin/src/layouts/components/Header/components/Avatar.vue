@@ -31,22 +31,26 @@ const router = useRouter();
 const userStore = useUserStore();
 
 // 退出登录
-const logout = () => {
-  ElMessageBox.confirm("您是否确认退出登录?", "温馨提示", {
-    confirmButtonText: "确定",
-    cancelButtonText: "取消",
-    type: "warning"
-  }).then(async () => {
-    // 1.执行退出登录接口
+const logout = async () => {
+  try {
+    await ElMessageBox.confirm("您是否确认退出登录?", "温馨提示", {
+      confirmButtonText: "确定",
+      cancelButtonText: "取消",
+      type: "warning"
+    });
+  } catch {
+    return;
+  }
+
+  try {
     await logoutApi();
-
-    // 2.清除 Token
+  } catch {
+    // Token 过期或后端暂时不可用时，仍然必须完成本地退出。
+  } finally {
     userStore.setToken("");
-
-    // 3.重定向到登陆页
-    router.replace(LOGIN_URL);
+    await router.replace(LOGIN_URL);
     ElMessage.success("退出登录成功！");
-  });
+  }
 };
 
 // 打开修改密码和个人信息弹窗

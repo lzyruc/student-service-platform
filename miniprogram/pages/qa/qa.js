@@ -17,7 +17,8 @@ Page({
     inputValue: '',
     bottomId: '',
     chatList: [{ role: 'ai', content: '同学你好，我是智能助手，已连接政策数据库。' }],
-    templates: []
+    templates: [],
+    asking: false
   },
 
   onLoad() {
@@ -28,7 +29,7 @@ Page({
     request('/api/file/list', 'GET', { businessType: 'template' })
       .then(res => {
         this.setData({ templates: Array.isArray(res) ? res : [] });
-      });
+      }).catch(() => this.setData({ templates: [] }));
   },
 
   onInput(e) {
@@ -36,26 +37,32 @@ Page({
   },
 
   askAI() {
+    if (this.data.asking) return;
     const question = this.data.inputValue.trim();
     if (!question) return;
     const studentNo = getStudentNo();
 
     const newChatList = [...this.data.chatList, { role: 'user', content: question }];
-    this.setData({ chatList: newChatList, inputValue: '', bottomId: 'scroll-bottom' });
+    this.setData({ chatList: newChatList, inputValue: '', bottomId: 'scroll-bottom', asking: true });
 
     wx.showNavigationBarLoading();
-    request('/api/student/ai/ask', 'POST', { question, studentNo }).then(res => {
+    request('/api/student/ai/ask', 'POST', { question, studentNo }, { timeout: 120000 }).then(res => {
       const answer = pickAnswer(res) || '未获取到答复。';
       this.setData({
         chatList: [...this.data.chatList, { role: 'ai', content: answer }],
         bottomId: 'scroll-bottom'
       });
     }).catch(err => {
+      const timedOut = /timeout/i.test(err.errMsg || '');
+      const message = timedOut
+        ? '回答等待超时，请稍后重试。'
+        : err.message || (err.data && err.data.message) || '无法连接问答服务，请检查网络或稍后重试。';
       this.setData({
-        chatList: [...this.data.chatList, { role: 'ai', content: '知识库服务连接异常。' }],
+        chatList: [...this.data.chatList, { role: 'ai', content: message }],
         bottomId: 'scroll-bottom'
       });
     }).finally(() => {
+      this.setData({ asking: false });
       wx.hideNavigationBarLoading();
     });
   },

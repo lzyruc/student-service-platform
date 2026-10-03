@@ -41,6 +41,7 @@ target/
 
 # Local config
 src/main/resources/application.properties
+local-config.json
 
 # Logs
 *.log

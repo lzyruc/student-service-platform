@@ -6,22 +6,26 @@ import com.college.student_service_platform.common.ApiException;
 import org.springframework.http.HttpStatus;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.jdbc.core.JdbcTemplate;
+import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
+import java.io.InputStream;
 import java.nio.file.*;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.UUID;
+import java.util.concurrent.atomic.AtomicLong;
 
 @Service
 public class FileService {
 
     private final JdbcTemplate jdbcTemplate;
     private final String uploadDir;
+    private final AtomicLong idSequence = new AtomicLong(System.currentTimeMillis());
 
     public FileService(JdbcTemplate jdbcTemplate, @Value("${file.upload-dir:uploads}") String uploadDir) {
         this.jdbcTemplate = jdbcTemplate;
@@ -38,6 +42,25 @@ public class FileService {
             throw new IllegalArgumentException("文件名不能为空");
         }
 
+        try (InputStream input = file.getInputStream()) {
+            return storeFile(originalName, file.getContentType(), file.getSize(), input, businessType, uploaderId);
+        }
+    }
+
+    public FileUploadResponse importPolicyFile(Path source, Long uploaderId) throws IOException {
+        long size = Files.size(source);
+        if (size == 0 || size > 20 * 1024 * 1024) {
+            throw new IllegalArgumentException("政策文件大小必须在0到20MB之间");
+        }
+        String type = Files.probeContentType(source);
+        if (type == null) type = "application/octet-stream";
+        try (InputStream input = Files.newInputStream(source)) {
+            return storeFile(source.getFileName().toString(), type, size, input, "policy", uploaderId);
+        }
+    }
+
+    private FileUploadResponse storeFile(String originalName, String fileType, long fileSize,
+                                         InputStream input, String businessType, Long uploaderId) throws IOException {
         originalName = Paths.get(originalName).getFileName().toString();
         Path uploadPath = Paths.get(uploadDir).toAbsolutePath().normalize();
         Files.createDirectories(uploadPath);
@@ -49,13 +72,11 @@ public class FileService {
         if (!targetPath.startsWith(uploadPath)) {
             throw new ApiException(HttpStatus.BAD_REQUEST, "非法文件名");
         }
-        Files.copy(file.getInputStream(), targetPath, StandardCopyOption.REPLACE_EXISTING);
+        Files.copy(input, targetPath, StandardCopyOption.REPLACE_EXISTING);
 
-        Long id = System.currentTimeMillis();
+        Long id = idSequence.updateAndGet(previous -> Math.max(previous + 1, System.currentTimeMillis()));
 
         String filePath = uploadDir + "/" + storedName;
-        String fileType = file.getContentType();
-        Long fileSize = file.getSize();
 
         String sql = """
                 INSERT INTO t_file
@@ -95,6 +116,20 @@ public class FileService {
                 """;
 
         return jdbcTemplate.queryForObject(sql, this::mapFileRecord, fileId);
+    }
+
+    public FileRecord findLatestFileByUploader(Long uploaderId, String businessType) {
+        try {
+            return jdbcTemplate.queryForObject("""
+                    SELECT id, original_name, stored_name, file_path, file_type, file_size, uploader_id, business_type, created_at
+                    FROM t_file
+                    WHERE uploader_id = ? AND business_type = ?
+                    ORDER BY created_at DESC, id DESC
+                    LIMIT 1
+                    """, this::mapFileRecord, uploaderId, businessType);
+        } catch (EmptyResultDataAccessException e) {
+            return null;
+        }
     }
 
     public List<FileRecord> listFiles(String businessType) {

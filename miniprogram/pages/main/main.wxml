@@ -23,11 +23,19 @@
         <view class="icon-circle">📄</view>
       </view>
     </view>
-    <view class="service-item grad-1 full-width" bindtap="navTo" data-url="/pages/academic/academic">
-      <view class="item-content row-content">
-        <text class="item-title">学业情况分析与预警</text>
+    <view class="service-item grad-1" bindtap="navTo" data-url="/pages/academic/academic">
+      <view class="item-content">
+        <text class="item-title">学业分析\n风险预警</text>
         <view class="icon-circle">🎓</view>
       </view>
     </view>
+  </view>
+  <view class="agent-entry" bindtap="navTo" data-url="/pages/agent/agent" hover-class="agent-entry-pressed">
+    <view class="agent-entry-icon">✦</view>
+    <view class="agent-entry-content">
+      <text class="agent-entry-title">学业智能助手</text>
+      <text class="agent-entry-subtitle">聊聊学习情况、课程表现和成绩趋势</text>
+    </view>
+    <text class="agent-entry-arrow">›</text>
   </view>
 </view>
