@@ -6,8 +6,8 @@
       "name": "home",
       "component": "/home/index",
       "meta": {
-        "icon": "HomeFilled",
-        "title": "首页",
+        "icon": "DataAnalysis",
+        "title": "数据概览",
         "isLink": "",
         "isHide": false,
         "isFull": false,
@@ -20,8 +20,8 @@
       "name": "collegeNotification",
       "component": "/college/notification/index",
       "meta": {
-        "icon": "Menu",
-        "title": "通知公告",
+        "icon": "Bell",
+        "title": "通知管理",
         "isLink": "",
         "isHide": false,
         "isFull": false,
@@ -34,8 +34,8 @@
       "name": "collegeKnowledgeBase",
       "component": "/college/knowledgeBase/index",
       "meta": {
-        "icon": "Menu",
-        "title": "知识库",
+        "icon": "Collection",
+        "title": "政策知识库",
         "isLink": "",
         "isHide": false,
         "isFull": false,
@@ -48,7 +48,7 @@
       "name": "collegeTrainingPlan",
       "component": "/college/trainingPlan/index",
       "meta": {
-        "icon": "Menu",
+        "icon": "Reading",
         "title": "培养方案",
         "isLink": "",
         "isHide": false,
@@ -62,8 +62,8 @@
       "name": "collegeExamineApprove",
       "component": "/college/examineandapprove/index",
       "meta": {
-        "icon": "Menu",
-        "title": "审批中心",
+        "icon": "DocumentChecked",
+        "title": "证明审批",
         "isLink": "",
         "isHide": false,
         "isFull": false,
@@ -76,8 +76,8 @@
       "name": "collegeStudentInformation",
       "component": "/college/studentinformation/index",
       "meta": {
-        "icon": "Menu",
-        "title": "学生信息",
+        "icon": "User",
+        "title": "学生档案",
         "isLink": "",
         "isHide": false,
         "isFull": false,

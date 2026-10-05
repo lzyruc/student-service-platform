@@ -1,27 +1,63 @@
-<view class="container">
+<view class="container"
+  ><text class="page-eyebrow">ACADEMIC RECORDS</text
+  ><text class="page-title">课程分析</text
+  ><text class="page-description">保存成绩单，对照培养方案了解学业进度。</text>
   <view class="glass-card upload-section">
     <view class="upload-info">
-      <view class="u-title">学业进度诊断</view>
+      <view class="u-title">你的成绩单</view>
       <view class="u-sub">成绩单上传一次即可保存，后续直接进行课程分析</view>
-      <view wx:if="{{loadingTranscript}}" class="transcript-status">正在读取已保存的成绩单...</view>
+      <view wx:if="{{loadingTranscript}}" class="transcript-status"
+        ><view class="skeleton"></view><view class="skeleton skeleton-sm"></view
+      ></view>
       <view wx:elif="{{transcript}}" class="transcript-status">
         <view>已保存：{{transcript.originalName}}</view>
         <view class="transcript-time">上传时间：{{transcript.uploadedAt}}</view>
-        <view wx:if="{{!transcript.available}}" class="transcript-error">原文件不可用，请重新上传成绩单</view>
+        <view wx:if="{{!transcript.available}}" class="transcript-error"
+          >原文件不可用，请重新上传成绩单</view
+        >
       </view>
-      <view wx:elif="{{!transcriptError}}" class="transcript-status">尚未上传成绩单，请先上传 PDF</view>
-      <view wx:if="{{transcriptError}}" class="transcript-error">{{transcriptError}}</view>
+      <view wx:elif="{{!transcriptError}}" class="transcript-status"
+        >尚未上传成绩单，请先上传 PDF</view
+      >
+      <view wx:if="{{transcriptError}}" class="transcript-error"
+        >{{transcriptError}}</view
+      >
     </view>
-    <button class="btn-primary" bindtap="analyzeSavedTranscript" loading="{{analyzing}}"
-      disabled="{{!transcript || !transcript.available || loadingTranscript || uploading || analyzing}}">课程分析</button>
-    <button class="btn-upload" bindtap="uploadTranscript" loading="{{uploading}}"
-      disabled="{{loadingTranscript || uploading || analyzing}}">{{transcript ? '更新成绩单' : '上传成绩单'}}</button>
-    <button wx:if="{{transcriptError}}" class="btn-reload" bindtap="loadTranscript"
-      disabled="{{loadingTranscript || uploading || analyzing}}">重新加载</button>
+    <button
+      class="btn-primary"
+      bindtap="analyzeSavedTranscript"
+      loading="{{analyzing}}"
+      disabled="{{!transcript || !transcript.available || loadingTranscript || uploading || analyzing}}"
+    >
+      课程分析
+    </button>
+    <button
+      class="btn-upload"
+      bindtap="uploadTranscript"
+      loading="{{uploading}}"
+      disabled="{{loadingTranscript || uploading || analyzing}}"
+    >
+      {{transcript ? '更新成绩单' : '上传成绩单'}}
+    </button>
+    <button
+      wx:if="{{transcriptError}}"
+      class="btn-reload"
+      bindtap="loadTranscript"
+      disabled="{{loadingTranscript || uploading || analyzing}}"
+    >
+      重新加载
+    </button>
   </view>
 
+  <view wx:if="{{analyzing}}" class="glass-card"
+    ><text class="u-title">正在生成课程报告</text
+    ><view class="skeleton skeleton-lg"></view><view class="skeleton"></view
+    ><view class="skeleton skeleton-sm"></view
+  ></view>
   <view class="glass-card report-section" wx:if="{{report}}">
-    <view class="risk-badge {{report.riskLevel === 'high' ? 'danger' : (report.riskLevel === 'medium' ? 'warning' : 'safe')}}">
+    <view
+      class="risk-badge {{report.riskLevel === 'high' ? 'danger' : (report.riskLevel === 'medium' ? 'warning' : (report.riskLevel === 'low' ? 'safe' : 'unknown'))}}"
+    >
       风险等级：{{report.warningLevel}}
     </view>
     <view class="divider"></view>
@@ -30,8 +66,10 @@
       <text class="i-value">{{report.courseCount}} 门</text>
     </view>
     <view class="info-row">
-      <text class="i-label">已获学分 / 平均绩点：</text>
-      <text class="i-value">{{report.earnedCredits}} / {{report.officialGpa}}</text>
+      <text class="i-label">已获学分 / 官方 GPA：</text>
+      <text class="i-value"
+        >{{report.earnedCredits}} / {{report.officialGpa}}</text
+      >
     </view>
     <view class="info-row">
       <text class="i-label">已通过核心课程：</text>
@@ -41,14 +79,21 @@
       <text class="i-label">待核实缺课 / 未通过课程：</text>
       <text class="i-value danger-text">{{report.issueCount}} 门</text>
     </view>
-    
+
     <view class="suggestion-box grad-4">
-      <view class="s-title">💡 选课与学业建议：</view>
+      <view class="s-title">课程关注与下一步</view>
       <view wx:if="{{report.suggestions && report.suggestions.length > 0}}">
-        <view wx:for="{{report.suggestions}}" wx:key="*this" class="s-text">• {{item}}</view>
+        <view wx:for="{{report.suggestions}}" wx:key="*this" class="s-text"
+          >• {{item}}</view
+        >
       </view>
-      <view wx:else class="s-text">• 按已识别的最终成绩和开课学期，未发现已到计划学期的缺课或未通过课程。</view>
-      <view wx:for="{{report.notes}}" wx:key="*this" class="s-text">• {{item}}</view>
+      <view wx:else class="s-text"
+        >•
+        按已识别的最终成绩和开课学期，未发现已到计划学期的缺课或未通过课程。</view
+      >
+      <view wx:for="{{report.notes}}" wx:key="*this" class="s-text"
+        >• {{item}}</view
+      >
     </view>
   </view>
 </view>

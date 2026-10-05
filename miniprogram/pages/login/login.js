@@ -3,7 +3,7 @@ const { request } = require('../../utils/request.js');
 Page({
   data: {
     account: '',
-    password: ''
+    password: '', loggingIn: false
   },
 
   onAccountInput(e) {
@@ -15,11 +15,12 @@ Page({
   },
 
   handleLogin() {
+    if (this.data.loggingIn) return;
     const { account, password } = this.data;
     if (!account) return wx.showToast({ title: '请输入学号', icon: 'none' });
     if (!password) return wx.showToast({ title: '请输入密码', icon: 'none' });
 
-    wx.showLoading({ title: '数据库校验中...' });
+    this.setData({ loggingIn: true });
 
     request('/api/auth/login', 'POST', {
       username: account,
@@ -45,6 +46,6 @@ Page({
       if (err && err.message) errMsg = err.message;
       if (err && err.errMsg) errMsg = err.errMsg;
       wx.showToast({ title: errMsg, icon: 'none' });
-    });
+    }).finally(() => this.setData({ loggingIn: false }));
   }
 });

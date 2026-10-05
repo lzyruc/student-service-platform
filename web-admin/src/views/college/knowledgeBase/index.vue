@@ -1,19 +1,16 @@
 <template>
   <div class="knowledge-base content-box">
+    <PageHeader
+      title="政策知识库"
+      description="从文件上传、发布到知识库就绪，让政策问答有据可查。"
+      eyebrow="KNOWLEDGE OPERATIONS"
+    >
+      <el-button @click="loadDocuments()">刷新</el-button>
+      <el-button type="primary" @click="openCreateDialog">新增政策</el-button>
+    </PageHeader>
     <div class="card">
-      <div class="header">
-        <div>
-          <div class="title">政策知识库</div>
-          <div class="subtitle">统一管理政策文件、发布状态和 RAG 向量入库状态</div>
-        </div>
-        <div class="actions">
-          <el-button @click="loadDocuments()">刷新</el-button>
-          <el-button type="primary" @click="openCreateDialog">新增政策</el-button>
-        </div>
-      </div>
-
       <el-alert
-        title="原文件由后端统一保存。发布后解析 PDF 或识别校历图片，只有“已发布、已就绪”的文档参与学生问答。"
+        title="只有已发布且已就绪的文档参与学生问答。新建或修改后，请发布并等待入库完成。"
         type="info"
         :closable="false"
         class="mb16"
@@ -56,7 +53,9 @@
         </el-form-item>
       </el-form>
 
-      <el-table v-loading="loading" :data="documents" row-key="id" empty-text="暂无政策文档">
+      <DataState :loading="loading" :error="listError" label="政策文档" @retry="loadDocuments()" />
+      <el-table v-show="!loading && !listError" v-loading="loading" :data="documents" row-key="id" empty-text="暂无政策文档">
+        <template #empty><el-empty description="暂无政策文档，可点击新增政策开始" :image-size="58" /></template>
         <el-table-column label="政策文件" min-width="250">
           <template #default="{ row }">
             <div class="document-title">{{ row.title }}</div>
@@ -139,7 +138,11 @@
             <el-button type="primary" plain>{{ form.fileId ? "替换文件" : "选择文件" }}</el-button>
             <template #tip>
               <div class="el-upload__tip">
-                {{ form.fileId ? `当前文件：${form.existingFileName}；不重新选择则保留原文件` : "支持 PDF、PNG、JPG，最大 20MB；图片通过 OCR 识别" }}
+                {{
+                  form.fileId
+                    ? `当前文件：${form.existingFileName}；不重新选择则保留原文件`
+                    : "支持 PDF、PNG、JPG，最大 20MB；图片通过 OCR 识别"
+                }}
               </div>
             </template>
           </el-upload>
@@ -208,6 +211,8 @@
 </template>
 
 <script setup lang="ts" name="collegeKnowledgeBase">
+import PageHeader from "@/components/product/PageHeader.vue";
+import DataState from "@/components/product/DataState.vue";
 import { computed, nextTick, onBeforeUnmount, onMounted, reactive, ref } from "vue";
 import { ElMessage, ElMessageBox } from "element-plus";
 import type { FormInstance, FormRules, UploadFile, UploadFiles } from "element-plus";
@@ -285,13 +290,17 @@ const formRules = computed<FormRules>(() => ({
   version: [{ required: true, message: "请填写版本号", trigger: "blur" }]
 }));
 
+const listError = ref(false);
 const loadDocuments = async (silent = false) => {
+  listError.value = false;
   if (!silent) loading.value = true;
   try {
     const response = await listPolicyDocuments({ ...query });
     documents.value = response.data.records;
     total.value = response.data.total;
     schedulePolling();
+  } catch {
+    listError.value = true;
   } finally {
     loading.value = false;
   }

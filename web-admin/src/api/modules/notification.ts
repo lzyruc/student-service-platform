@@ -41,8 +41,12 @@ export const saveNotification = (params: BackendNotification.SaveRequest) => {
   return http.post<number>("/notification/save", params, { cancel: false });
 };
 
-export const listNotifications = (params?: { keyword?: string }) => {
-  return http.get<BackendNotification.NotificationItem[]>("/notification/list", params, { cancel: false, loading: false });
+export const listNotifications = (params?: { keyword?: string }, options: { silent?: boolean } = {}) => {
+  return http.get<BackendNotification.NotificationItem[]>("/notification/list", params, {
+    cancel: false,
+    loading: false,
+    ...options
+  });
 };
 
 export const deleteNotification = (id: number | string) => {

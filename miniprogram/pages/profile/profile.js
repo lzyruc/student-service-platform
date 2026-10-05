@@ -9,13 +9,13 @@ Page({
     userInfo: {},
     earnedCredits: 0,
     showCourses: false,
-    myCourses: []
+    myCourses: [], loading: false, loadError: false, initial: '学'
   },
 
   onShow() {
     this.setData({
-      account: wx.getStorageSync('account') || '20240001',
-      studentNo: wx.getStorageSync('studentNo') || wx.getStorageSync('account') || '20240001',
+      account: wx.getStorageSync('account') || '',
+      studentNo: wx.getStorageSync('studentNo') || wx.getStorageSync('account') || '',
       role: wx.getStorageSync('role') || 'student'
     });
     this.fetchRealData();
@@ -26,26 +26,30 @@ Page({
   },
 
   fetchRealData() {
+    if (this.data.loading) return;
+    this.setData({ loading: true, loadError: false });
     request('/api/student/info', 'GET', { account: this.data.studentNo })
       .then(res => {
         this.setData({
           studentNo: this.data.studentNo,
-          name: (res.userInfo && res.userInfo.name) || '未知',
-          userInfo: res.userInfo || { name: '未知', major: '信息学院' },
+          name: (res.userInfo && res.userInfo.name) || '学生',
+          initial: ((res.userInfo && res.userInfo.name) || '学').slice(0, 1),
+          userInfo: res.userInfo || {},
           myCourses: res.courses || [],
           earnedCredits: res.totalCredits || 0
         });
       })
       .catch(err => {
+        this.setData({ loadError: true });
         console.log('/api/student/info 查询失败：', err);
         wx.showToast({ title: '学业数据读取失败', icon: 'none' });
         this.setData({
           name: '未知',
-          userInfo: { name: '未知', major: '信息学院' },
+          userInfo: {},
           myCourses: [],
           earnedCredits: 0
         });
-      });
+      }).finally(() => this.setData({ loading: false }));
   },
 
   handleLogout() {
@@ -55,7 +59,7 @@ Page({
       confirmColor: '#ff4d4f',
       success: (res) => {
         if (res.confirm) {
-          wx.clearStorageSync();
+          ['token', 'account', 'studentNo', 'username', 'role'].forEach(key => wx.removeStorageSync(key));
           wx.reLaunch({ url: '/pages/login/login' });
         }
       }

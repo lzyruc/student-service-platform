@@ -33,11 +33,14 @@ const buildRequestUrl = (url) => {
 const request = (url, method = "GET", data = {}, options = {}) => {
   const doRequest = (fullUrl) => {
     return new Promise((resolve, reject) => {
+      const reader = options.stream ? require('./agent-stream.js').createReader(options.onEvent) : null;
+      let receivedChunks = false;
       const task = wx.request({
         url: fullUrl,
         method: method,
         data: data,
         timeout: options.timeout || 15000,
+        ...(reader ? { enableChunked: true, dataType: "text" } : {}),
         header: {
           "Content-Type": "application/json",
           Authorization: wx.getStorageSync("token") || "",
@@ -55,6 +58,13 @@ const request = (url, method = "GET", data = {}, options = {}) => {
             });
             return;
           }
+          if (reader && !(res.data && res.data.code === 200)) {
+            try {
+              if (!receivedChunks) reader.feed(res.data);
+              resolve(reader.finish());
+            } catch (error) { reject(error); }
+            return;
+          }
           if (res.data && res.data.code === 200) {
             resolve(res.data.data);
           } else {
@@ -67,6 +77,12 @@ const request = (url, method = "GET", data = {}, options = {}) => {
         },
         fail: (err) => reject(err),
       });
+      if (reader && task && typeof task.onChunkReceived === 'function') {
+        task.onChunkReceived(chunk => {
+          try { receivedChunks = true; reader.feed(chunk.data); }
+          catch (error) { reject(error); if (typeof task.abort === 'function') task.abort(); }
+        });
+      }
       if (typeof options.onTask === "function") options.onTask(task);
     });
   };

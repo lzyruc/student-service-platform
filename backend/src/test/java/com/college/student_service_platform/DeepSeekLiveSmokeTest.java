@@ -4,6 +4,8 @@ import com.college.student_service_platform.agent.AgentProperties;
 import com.college.student_service_platform.agent.DeepSeekClient;
 import com.college.student_service_platform.agent.SingleAgentService;
 import com.college.student_service_platform.agent.AgentChatRequest;
+import com.college.student_service_platform.agent.AgentIdentityContext;
+import com.college.student_service_platform.service.AgentConversationService;
 import com.college.student_service_platform.service.AcademicAnalysisReadContext;
 import org.springframework.mock.web.MockHttpServletRequest;
 import com.college.student_service_platform.agent.academic.*;
@@ -60,14 +62,18 @@ class DeepSeekLiveSmokeTest {
         var tools = mock(AcademicToolExecutor.class);
         var context = mock(AcademicAnalysisReadContext.class);
         var request = new MockHttpServletRequest();
-        when(tools.beginRequest(request)).thenReturn(context);
+        var identity = new AgentIdentityContext(101,"synthetic-test-student");
+        when(context.studentNo()).thenReturn(identity.studentNo());
+        when(tools.beginRequest(identity)).thenReturn(context);
         when(tools.definitions()).thenReturn(List.of(
                 new GetAcademicContextTool(projection).definition(),
                 new GetAcademicAssessmentTool(projection).definition(),
                 new GetRecentCoursePerformanceTool(statistics, projection).definition(),
                 new GetAcademicTrendTool(statistics, projection).definition()));
         var service = new SingleAgentService(client, tools, properties, mapper, new AcademicSkill(properties));
-        var result = service.chat(new AgentChatRequest("帮我查一下其他同学的成绩", List.of()), request);
+        var prepared = service.prepareRequest(new AgentConversationService.ChatInput(1,identity,0,
+                new AgentChatRequest("帮我查一下其他同学的成绩",List.of())),System.nanoTime());
+        var result = service.chat(prepared,event -> { });
         assertEquals("REFUSED", result.status());
         assertTrue(result.answer().contains("不能查看其他同学的成绩"));
         assertEquals(0, result.toolRounds());

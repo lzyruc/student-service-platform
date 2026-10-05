@@ -62,7 +62,15 @@ public class AcademicAnalysisService {
         if (!"student".equals(AuthContext.role(request))) {
             throw new ApiException(HttpStatus.FORBIDDEN, "学业 Agent 仅支持学生查询本人数据");
         }
-        return new AcademicAnalysisReadContext(() -> analyzeReadOnly(studentNo), () -> readContext(studentNo));
+        return readContextForIdentity(studentNo);
+    }
+
+    /** Called only with identity already captured by the JWT/owned conversation boundary. */
+    public AcademicAnalysisReadContext createReadContext(com.college.student_service_platform.agent.AgentIdentityContext identity) {
+        return readContextForIdentity(identity.studentNo());
+    }
+    private AcademicAnalysisReadContext readContextForIdentity(String studentNo) {
+        return new AcademicAnalysisReadContext(studentNo, () -> analyzeReadOnly(studentNo), () -> readContext(studentNo));
     }
 
     private AcademicContextSnapshot readContext(String studentNo) {

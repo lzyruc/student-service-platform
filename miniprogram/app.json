@@ -16,20 +16,22 @@
     "backgroundColor": "#F4F7FD"
   },
   "tabBar": {
-    "color": "#A0B2C6",
-    "selectedColor": "#157DEC",
+    "color": "#8f9bb1",
+    "selectedColor": "#425bd8",
     "backgroundColor": "#ffffff",
     "borderStyle": "white",
     "list": [
       {
         "pagePath": "pages/main/main",
         "text": "服务大厅",
-        "iconPath": "assets/fuwu.jpg",
-        "selectedIconPath": "assets/fuwu.jpg"
+        "iconPath": "assets/service.png",
+        "selectedIconPath": "assets/service-active.png"
       },
       {
         "pagePath": "pages/profile/profile",
-        "text": "个人中心"
+        "text": "个人中心",
+        "iconPath": "assets/account.png",
+        "selectedIconPath": "assets/account-active.png"
       }
     ]
   },

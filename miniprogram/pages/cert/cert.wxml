@@ -1,27 +1,52 @@
-<view class="container">
+<view class="container"
+  ><text class="page-eyebrow">STUDENT SERVICES</text
+  ><text class="page-title">电子证明</text
+  ><text class="page-description">提交申请、查看审批，完成后直接下载。</text>
   <view class="glass-card">
     <view class="form-title">电子证明申请</view>
 
     <view class="form-item">
       <text class="f-label">证明类型</text>
-      <picker bindchange="bindApprovalTypeChange" value="{{approvalTypeIndex}}" range="{{approvalCertTypes}}">
+      <picker
+        bindchange="bindApprovalTypeChange"
+        value="{{approvalTypeIndex}}"
+        range="{{approvalCertTypes}}"
+      >
         <view class="f-picker">{{approvalCertTypes[approvalTypeIndex]}} ▼</view>
       </picker>
     </view>
 
     <view class="form-item">
       <text class="f-label">事由（必填）</text>
-      <textarea class="f-textarea" maxlength="300" placeholder="请填写申请事由，用于老师审批" value="{{approvalReason}}" bindinput="onApprovalReasonInput"></textarea>
+      <textarea
+        class="f-textarea"
+        maxlength="300"
+        placeholder="请填写申请事由，用于老师审批"
+        value="{{approvalReason}}"
+        bindinput="onApprovalReasonInput"
+      ></textarea>
     </view>
 
     <view class="form-item">
       <text class="f-label">时间范围（可选）</text>
       <view class="date-row">
-        <picker mode="date" value="{{approvalStartDate}}" bindchange="onApprovalStartDateChange">
-          <view class="f-picker date-picker">{{approvalStartDate ? approvalStartDate : '开始日期'}}</view>
+        <picker
+          mode="date"
+          value="{{approvalStartDate}}"
+          bindchange="onApprovalStartDateChange"
+        >
+          <view class="f-picker date-picker"
+            >{{approvalStartDate ? approvalStartDate : '开始日期'}}</view
+          >
         </picker>
-        <picker mode="date" value="{{approvalEndDate}}" bindchange="onApprovalEndDateChange">
-          <view class="f-picker date-picker">{{approvalEndDate ? approvalEndDate : '结束日期'}}</view>
+        <picker
+          mode="date"
+          value="{{approvalEndDate}}"
+          bindchange="onApprovalEndDateChange"
+        >
+          <view class="f-picker date-picker"
+            >{{approvalEndDate ? approvalEndDate : '结束日期'}}</view
+          >
         </picker>
       </view>
     </view>
@@ -30,12 +55,28 @@
       <text class="tip-text">提交后会进入待审核状态</text>
     </view>
 
-    <button class="btn-primary grad-1 mt-20" bindtap="submitApprovalCert" loading="{{submitting}}" disabled="{{submitting}}">提交申请</button>
+    <button
+      class="btn-primary grad-1 mt-20"
+      bindtap="submitApprovalCert"
+      loading="{{submitting}}"
+      disabled="{{submitting}}"
+    >
+      提交申请
+    </button>
   </view>
 
   <view class="glass-card mt-30">
-    <view class="form-title" style="margin-bottom: 20rpx; font-size: 30rpx;">📜 我的证明记录</view>
-    <view class="history-list">
+    <view class="form-title" style="margin-bottom: 20rpx; font-size: 30rpx"
+      >我的申请记录</view
+    >
+    <view wx:if="{{historyLoading}}"
+      ><view class="skeleton skeleton-lg"></view
+      ><view class="skeleton"></view></view
+    ><view wx:if="{{historyError}}" class="error-state"
+      >暂时无法读取申请记录<button bindtap="fetchHistory">
+        重新加载
+      </button></view
+    ><view class="history-list" wx:if="{{!historyLoading && !historyError}}">
       <view class="history-block" wx:for="{{approvalHistoryList}}" wx:key="id">
         <view class="history-item" bindtap="toggleReason" data-id="{{item.id}}">
           <view class="h-left">
@@ -43,18 +84,40 @@
             <text class="h-time">{{item.createdAt}}</text>
           </view>
           <view class="h-right">
-            <text class="h-status {{item.applyStatus === '已通过' || item.applyStatus === '已生成' ? 'passed' : (item.applyStatus === '待审核' ? 'pending' : 'rejected')}}">{{item.applyStatus}}</text>
-            <text class="h-download" wx:if="{{(item.applyStatus === '已通过' || item.applyStatus === '已生成') && item.fileId}}" catchtap="downloadCert" data-fileid="{{item.fileId}}">下载证明</text>
+            <text
+              class="h-status {{item.applyStatus === '已通过' || item.applyStatus === '已生成' ? 'passed' : (item.applyStatus === '待审核' ? 'pending' : 'rejected')}}"
+              >{{item.applyStatus}}</text
+            >
+            <text
+              class="h-download"
+              wx:if="{{(item.applyStatus === '已通过' || item.applyStatus === '已生成') && item.fileId}}"
+              catchtap="downloadCert"
+              data-fileid="{{item.fileId}}"
+              >下载证明</text
+            >
           </view>
         </view>
         <view class="reason-panel" wx:if="{{expandedCertId === item.id}}">
           <text class="reason-label">申请信息</text>
           <text class="reason-text">{{item.extraData || '无'}}</text>
-          <text class="reason-label" wx:if="{{item.lastOpinion}}">审批意见</text>
-          <text class="reason-text" wx:if="{{item.lastOpinion}}">{{item.lastOpinion}}</text>
+          <text class="reason-label" wx:if="{{item.lastOpinion}}"
+            >审批意见</text
+          >
+          <text class="reason-text" wx:if="{{item.lastOpinion}}"
+            >{{item.lastOpinion}}</text
+          >
         </view>
       </view>
-      <view wx:if="{{approvalHistoryList.length === 0}}" style="text-align:center; color:#999; font-size:24rpx; padding: 20rpx 0;">暂无记录</view>
+      <view
+        wx:if="{{approvalHistoryList.length === 0}}"
+        style="
+          text-align: center;
+          color: #999;
+          font-size: 24rpx;
+          padding: 20rpx 0;
+        "
+        >暂无记录</view
+      >
     </view>
   </view>
 </view>

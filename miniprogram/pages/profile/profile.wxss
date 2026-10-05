@@ -1,67 +1,109 @@
-.profile-container { padding: 30rpx; background-color: #F4F7FD; min-height: 100vh; }
-
-/* 头部卡片重构：采用最深的蓝色 #157DEC */
-.profile-header {
-  position: relative;
-  background-color: #157DEC; /* 精确锁定最深蓝色 */
-  border-radius: 40rpx;
-  padding: 60rpx 40rpx;
-  overflow: hidden;
-  box-shadow: 0 20rpx 40rpx rgba(21, 125, 236, 0.25);
-  margin-bottom: 40rpx;
+.profile-identity {
+  display: flex;
+  gap: 24rpx;
+  align-items: center;
 }
-.header-bg-mask {
-  position: absolute;
-  top: -50%; right: -20%;
-  width: 300rpx; height: 300rpx;
-  background: rgba(255, 255, 255, 0.1);
-  border-radius: 50%;
+.profile-monogram {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 96rpx;
+  height: 96rpx;
+  border-radius: 24rpx;
+  background: #eef2ff;
+  color: #526ccd;
+  font-size: 42rpx;
+  font-weight: 600;
+  flex-shrink: 0;
 }
-.header-content { display: flex; align-items: center; position: relative; z-index: 2; }
-.avatar { width: 130rpx; height: 130rpx; border-radius: 65rpx; border: 6rpx solid rgba(255,255,255,0.28); margin-right: 32rpx; box-shadow: 0 8rpx 16rpx rgba(0,0,0,0.1); background: rgba(255,255,255,0.18); overflow: hidden; }
-.name-row { display: flex; align-items: center; margin-bottom: 12rpx; }
-.name { font-size: 44rpx; font-weight: bold; color: #ffffff; }
-.identity-badge { font-size: 20rpx; background: rgba(255,255,255,0.25); color: #fff; padding: 4rpx 14rpx; border-radius: 30rpx; margin-left: 16rpx; font-weight: 600; }
-.student-no { font-size: 26rpx; color: rgba(255,255,255,0.85); font-weight: 300; }
-
-/* 看板数据区美化 */
-.info-board-card { padding: 40rpx 30rpx; }
-.board-title { font-size: 30rpx; font-weight: bold; color: #333; margin-bottom: 30rpx; padding-left: 10rpx; }
-.stats-grid { display: flex; justify-content: space-between; }
-.stat-item { flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 24rpx 10rpx; border-radius: 20rpx; transition: all 0.3s ease; }
-.stat-item:active { background: rgba(21, 125, 236, 0.05); }
-.stat-item-active { background: rgba(21, 125, 236, 0.08) !important; border: 1rpx solid rgba(21, 125, 236, 0.2); }
-.stat-num { font-size: 46rpx; font-weight: 800; color: #157DEC; margin-bottom: 8rpx; }
-.stat-name { font-size: 24rpx; color: #7f8c9d; font-weight: 500; }
-
-/* 艺术化下拉折叠修读课程明细 */
-.course-dropdown {
+.name-row {
+  display: flex;
+  align-items: center;
+  gap: 16rpx;
+}
+.name {
+  font-size: 34rpx;
+  font-weight: 600;
+}
+.identity-badge {
+  font-size: 18rpx;
+  color: #778ace;
+  background: #f0f3ff;
+  padding: 5rpx 12rpx;
+  border-radius: 6rpx;
+}
+.student-no {
+  display: block;
+  font-size: 22rpx;
+  color: #9ca6b7;
+  margin: 12rpx 0 8rpx;
+}
+.profile-major {
+  font-size: 22rpx;
+  color: #7c8da5;
+}
+.board-title {
+  font-size: 28rpx;
+  font-weight: 600;
+  margin-bottom: 16rpx;
+}
+.board-caption {
+  font-size: 20rpx;
+  color: #9ba6b8;
+  line-height: 1.7;
+}
+.stats-grid {
   display: grid;
-  grid-template-rows: 0fr;
-  transition: grid-template-rows 0.3s ease-out;
-  overflow: hidden;
-  margin-top: 20rpx;
-  background: #f8fafc;
-  border-radius: 20rpx;
+  grid-template-columns: 1fr 1fr;
+  padding: 30rpx 0 12rpx;
 }
-.dropdown-expand { grid-template-rows: 1fr; margin-top: 30rpx; border: 1rpx solid #e2e8f0; }
-.dropdown-inner { min-height: 0; padding: 0 30rpx; transition: padding 0.3s ease; }
-.dropdown-expand .dropdown-inner { padding: 30rpx; }
-
-.course-list-title { font-size: 26rpx; font-weight: bold; color: #4a5568; margin-bottom: 16rpx; }
-.course-row { display: flex; justify-content: space-between; align-items: center; padding: 16rpx 0; border-bottom: 1px dashed #e2e8f0; }
-.course-row:last-child { border-bottom: none; }
-.c-info { display: flex; align-items: center; }
-.c-dot { color: #56A5EC; font-size: 20rpx; margin-right: 12rpx; }
-.c-name { font-size: 28rpx; color: #334155; }
-.c-credit { font-size: 26rpx; color: #1589FF; font-weight: bold; }
-
-/* 功能列表区 */
-.menu-list-card { padding: 10rpx 30rpx; }
-.menu-item { display: flex; justify-content: space-between; align-items: center; padding: 36rpx 10rpx; border-bottom: 1px solid #f1f5f9; }
-.menu-item:last-child { border-bottom: none; }
-.menu-left { display: flex; align-items: center; }
-.menu-text { font-size: 30rpx; color: #334155; margin-left: 16rpx; font-weight: 500; }
-.arrow { color: #cbd5e1; font-size: 26rpx; }
-
-.logout-btn { background: #ffffff; color: #ff4d4f; border-radius: 50rpx; font-size: 30rpx; font-weight: bold; margin-top: 50rpx; border: 2rpx solid #ff4d4f; box-shadow: 0 10rpx 20rpx rgba(255, 77, 79, 0.08); }
+.stat-item {
+  display: flex;
+  flex-direction: column;
+  gap: 12rpx;
+  padding-left: 16rpx;
+}
+.stat-item + .stat-item {
+  border-left: 1rpx solid #e9edf4;
+  padding-left: 40rpx;
+}
+.stat-num {
+  font-size: 44rpx;
+  color: #334967;
+  font-weight: 600;
+}
+.stat-name {
+  font-size: 22rpx;
+  color: #9ca6b7;
+}
+.course-dropdown {
+  margin-top: 22rpx;
+  border-top: 1rpx solid #e9edf4;
+}
+.course-row {
+  display: flex;
+  justify-content: space-between;
+  gap: 16rpx;
+  font-size: 23rpx;
+  padding: 18rpx 0;
+  border-bottom: 1rpx solid #eff2f7;
+  color: #71809a;
+}
+.c-credit {
+  color: #9ca8b9;
+}
+.logout-btn {
+  margin-top: 36rpx;
+  background: #fff;
+  color: #9c6666;
+  border: 1rpx solid #ece2e2;
+  line-height: 84rpx;
+  font-size: 26rpx;
+}
+.profile-privacy {
+  display: block;
+  text-align: center;
+  color: #a4adbd;
+  font-size: 20rpx;
+  margin-top: 24rpx;
+}

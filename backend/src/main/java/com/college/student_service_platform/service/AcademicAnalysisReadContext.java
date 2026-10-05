@@ -13,6 +13,7 @@ import java.util.function.Supplier;
  * Never store it in a conversation, HTTP session, or singleton; the next request creates a new instance.
  */
 public final class AcademicAnalysisReadContext {
+    private final String studentNo;
     private final Supplier<AcademicAnalysisSnapshot> loader;
     private final Supplier<AcademicContextSnapshot> contextLoader;
     private AcademicAnalysisSnapshot snapshot;
@@ -20,11 +21,14 @@ public final class AcademicAnalysisReadContext {
     private RuntimeException contextFailure;
     private RuntimeException failure;
 
-    AcademicAnalysisReadContext(Supplier<AcademicAnalysisSnapshot> loader,
+    AcademicAnalysisReadContext(String studentNo, Supplier<AcademicAnalysisSnapshot> loader,
                                 Supplier<AcademicContextSnapshot> contextLoader) {
+        this.studentNo = Objects.requireNonNull(studentNo);
         this.loader = Objects.requireNonNull(loader);
         this.contextLoader = Objects.requireNonNull(contextLoader);
     }
+
+    public String studentNo() { return studentNo; }
 
     /** A preliminary availability check; once analyzed, metadata comes from that exact snapshot. */
     public synchronized AcademicContextSnapshot getAcademicContext() {
@@ -46,7 +50,9 @@ public final class AcademicAnalysisReadContext {
         if (failure != null) throw failure;
         if (snapshot == null) {
             try {
-                snapshot = Objects.requireNonNull(loader.get());
+                var loaded = Objects.requireNonNull(loader.get());
+                if (!studentNo.equals(loaded.studentNo())) throw new IllegalStateException("分析结果与当前学生身份不一致");
+                snapshot = loaded;
             } catch (RuntimeException e) {
                 failure = e;
                 throw e;

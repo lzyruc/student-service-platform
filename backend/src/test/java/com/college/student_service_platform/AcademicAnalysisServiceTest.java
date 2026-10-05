@@ -226,4 +226,21 @@ class AcademicAnalysisServiceTest {
         verifyNoInteractions(records);
         verify(transcripts, never()).save(anyString(), any());
     }
+    @Test
+    void concurrentFailedSnapshotLoadsOnlyOnceAndFreshRequestCanRecover() throws Exception {
+        var failure=new IllegalStateException("temporary Python failure");
+        when(client.analyzeStoredTranscript(eq(pdf),eq("grades.pdf"),eq("20260001"),anyString())).thenThrow(failure).thenReturn(response);
+        var failed=service.createReadContext(request);
+        var workers=Executors.newFixedThreadPool(4);
+        try {
+            Callable<RuntimeException> task=() -> assertThrows(IllegalStateException.class,failed::getSnapshot);
+            for(var result:workers.invokeAll(List.of(task,task,task,task),5,TimeUnit.SECONDS)) assertSame(failure,result.get());
+            verify(client,times(1)).analyzeStoredTranscript(eq(pdf),eq("grades.pdf"),eq("20260001"),anyString());
+            assertSame(failure,assertThrows(IllegalStateException.class,failed::getSnapshot));
+            var next=service.createReadContext(request);assertNotSame(failed,next);assertNotNull(next.getSnapshot());
+            verify(client,times(2)).analyzeStoredTranscript(eq(pdf),eq("grades.pdf"),eq("20260001"),anyString());
+            verifyNoInteractions(records);
+        } finally { workers.shutdownNow(); }
+    }
+
 }

@@ -1,20 +1,18 @@
 <template>
   <div class="notification-page content-box">
+    <PageHeader title="通知管理" description="发布通知、管理附件，并跟进学生确认情况。" eyebrow="STUDENT AFFAIRS">
+      <el-button type="primary" @click="openCreate">新增</el-button>
+      <el-button plain @click="refreshList">刷新</el-button>
+    </PageHeader>
     <div class="card">
-      <div class="header">
-        <div class="title">通知公告</div>
-        <div class="actions">
-          <el-button type="primary" @click="openCreate">新增</el-button>
-          <el-button plain @click="refreshList">刷新</el-button>
-        </div>
-      </div>
-
       <div class="toolbar mb12">
         <el-input v-model.trim="keyword" placeholder="搜索：标题/标签" clearable class="w280" @keyup.enter="refreshList" />
         <el-button type="primary" plain @click="refreshList">查询</el-button>
       </div>
 
-      <el-table :data="list" row-key="id" height="610" v-loading="loading">
+      <DataState :loading="loading" :error="listError" label="通知列表" @retry="refreshList()" />
+      <el-table v-show="!loading && !listError" :data="pagedRows" row-key="id" height="610" v-loading="loading">
+        <template #empty><el-empty description="暂无通知，发布后将在这里展示" :image-size="58" /></template>
         <el-table-column prop="title" label="标题" min-width="220" show-overflow-tooltip />
         <el-table-column prop="tags" label="标签" width="180" show-overflow-tooltip />
         <el-table-column prop="is_urgent" label="紧急" width="90">
@@ -45,6 +43,7 @@
           </template>
         </el-table-column>
       </el-table>
+      <ListPagination v-show="!loading && !listError" v-model:page="page" v-model:page-size="pageSize" :total="list.length" />
     </div>
 
     <el-dialog v-model="formVisible" :title="form.id ? '编辑' : '新增'" width="820px">
@@ -129,6 +128,10 @@
 </template>
 
 <script setup lang="ts" name="collegeNotification">
+import PageHeader from "@/components/product/PageHeader.vue";
+import ListPagination from "@/components/product/ListPagination.vue";
+import { useTablePagination } from "@/hooks/useTablePagination";
+import DataState from "@/components/product/DataState.vue";
 import { onMounted, reactive, ref } from "vue";
 import { ElMessage, ElMessageBox } from "element-plus";
 import type { FormInstance, FormRules, UploadFile, UploadInstance } from "element-plus";
@@ -152,13 +155,17 @@ const keyword = ref("");
 const loading = ref(false);
 const list = ref<NotificationRow[]>([]);
 
+const { page, pageSize, pagedRows } = useTablePagination(list);
+
 const normalizeBackendTime = (v: any) => {
   const s = String(v ?? "").trim();
   if (!s) return "";
   return s.includes("T") ? s.replace("T", " ").slice(0, 16) : s;
 };
 
+const listError = ref(false);
 const refreshList = async () => {
+  listError.value = false;
   loading.value = true;
   try {
     const res = await listNotifications({ keyword: keyword.value.trim() || undefined });
@@ -178,6 +185,7 @@ const refreshList = async () => {
       };
     });
   } catch (e: any) {
+    listError.value = true;
     ElMessage.error(e?.message ?? "加载失败");
   } finally {
     loading.value = false;

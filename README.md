@@ -205,9 +205,11 @@ Python 代码修改后重启对应 Python 终端；Web 开发服务器通常会�
 
 ## Agent 开发
 
-采用可扩展的 Single Agent 架构，第一版开发 Academic Analysis Skill。目前已完成业务 Service、共享快照、确定性统计、4 个只读 Tool、专用 DTO、DeepSeek 客户端、简单调用循环、学生聊天接口和独立 Skill 提示词。当前 108 项本地回归测试通过，2 项真实模型测试默认跳过；此前真实模型协议测试只使用虚构数据。小程序首页四个功能下方已增加“学业智能助手”入口，支持提问和追问，33 项小程序回归测试通过；真实成绩单问答和真机体验验收正在继续。实际开发思路、实现与测试记录见 [Agent 开发记录与复盘](./AGENT_DEVELOPMENT.md)。
+采用可扩展的 Single Agent 架构，第一版开发 Academic Analysis Skill。目前已完成业务 Service、共享快照、确定性统计、4 个只读 Tool、专用 DTO、DeepSeek 客户端、简单调用循环、学生聊天接口和独立 Skill 提示词。当前后端全量 150 项测试中 148 项通过，2 项真实模型测试默认跳过；此前真实模型协议测试只使用虚构数据。小程序首页四个功能下方已增加“学业智能助手”入口，支持提问和追问，42 项小程序回归测试通过；真实成绩单问答和真机体验验收正在继续。实际开发思路、实现与测试记录见 [Agent 开发记录与复盘](./AGENT_DEVELOPMENT.md)。
 
-分析上下文仅在一次 Agent HTTP 请求及其整个 Tool Calling Loop 内共享，最多解析一次 PDF；同一会话下一轮请求仍创建新上下文。当前没有跨请求缓存，未来对话消息持久化与这个请求内分析机制分开设计。
+分析上下文仅在一次 Agent HTTP 请求及其整个 Tool Calling Loop 内共享，最多解析一次 PDF；同一会话下一轮请求仍创建新上下文。当前没有跨请求分析缓存。对话消息已单独持久化到 MySQL，读取本人历史不会复用旧分析 Snapshot。Identity／Conversation／Request／Business 四类上下文现已明确分开，次数、deadline、调用 ID 和执行状态归本次 Request Context。历史只帮助理解指代和话题，当前成绩必须以本轮 Tool／Service 为准，详见 [可信上下文说明](./backend/docs/agent-contexts.md)。
+
+已补充真实 JWT + 共享 Spring 单例 + JDBC 的多用户并发回归：8 个工作线程交错发送 80 次聊天，检查身份、会话历史、Tool DTO、响应和流式证据隔离；越权在 Agent 执行前拒绝，同请求分析一次、下请求读取新数据，普通查询不写正式预警。新增 7 个场景全部通过。本轮只增加测试和文档，无新 SQL 或部署操作。完整矩阵与验证范围见 [并发隔离说明](./backend/docs/agent-concurrency-isolation.md)。
 
 政策问答和学业 Agent **共用 `python-services/.env` 中的 `DEEPSEEK_API_KEY`、`DEEPSEEK_BASE_URL`、`DEEPSEEK_MODEL`**，已有配置可直接使用。修改这三项后重启对应的 Java／Python 服务。Agent 超时和工具调用上限在 [backend/agent-config.properties](./backend/agent-config.properties) 修改，真实 Key 不要写入公开配置文件。
 
@@ -220,17 +222,19 @@ cd "D:\agent开发准备\简历项目\student-service-platform\backend"
 .\start-local.cmd -JarPath ".\target\student-service-platform-0.0.1-SNAPSHOT.jar"
 ```
 
-保留数据库及新版 `8002` 服务。新接口为 `POST /api/student/agent/chat`，使用学生 JWT，请求示例：
+**2026-10-04 会话持久化升级：现有数据库先执行 [增量建表脚本](./backend/docs/sql/migrations/2026-10-04-agent-conversations.sql)，再重启新版 Java 并重新编译小程序。不要重跑会清空数据的初始化 SQL。** Python 启动方式不变；完整 API、归属设计、失败处理和验收步骤见 [会话持久化说明](./backend/docs/agent-conversations.md)。
+
+使用学生 JWT 先 `POST /api/student/agent/conversations`，请求 `{}`，取得返回的 `data.id`；随后向 `POST /api/student/agent/chat` 或 `/chat/stream` 提交：
 
 ```json
-{"message":"帮我分析一下最近的学习情况，有哪些课程需要重点关注？"}
+{"conversationId":123,"message":"帮我分析一下最近的学习情况，有哪些课程需要重点关注？"}
 ```
 
 2026-10-03 实测修复：`P/通过` 课程不参与学期 GPA，但仍保留已获学分；成绩单春季 GPA 已由 3.5185 修正为 3.72。启用这次修复需重启 `8002` 和新版 Java（加载统计解释提示词），无需重传成绩单或重建数据库。详情见 [学业统计修复记录](./backend/docs/academic-warning.md#2026-10-03-实际-agent-对话p-课程导致-gpa-趋势错误)。
 
-小程序重新编译后，登录并点击服务大厅四个功能下方的“学业智能助手”即可提问和追问。页面有五个快捷问题、“新对话”和成绩单管理入口；当前对话只保存在页面内存，关闭页面或切换账号后清空。仅新增这个小程序入口时无需重启 Java；应用上文的 GPA 统计修复时，按要求重启 `8002` 和新版 Java。真机需要重新生成预览，连接地址仍按前面的局域网配置。
+小程序重新编译后，登录并点击服务大厅四个功能下方的“学业智能助手”即可提问和追问。页面有五个快捷问题、“新对话”、历史会话、改名／删除和成绩单管理入口；关闭页面后对话仍保存在服务端，下次进入恢复本人最近会话。切换账号只加载新账号自己的历史，点击“新对话”不会删除旧会话。应用上文的 GPA 统计修复时，仍需保持 `8002` 为新版。真机需要重新生成预览，连接地址仍按前面的局域网配置。
 
-返回 `data.answer` 和工具调用状态。查询他人成绩会返回 `REFUSED`，未支持业务返回 `OUT_OF_SCOPE`，需要明确问题返回 `NEEDS_CLARIFICATION`，不再统一显示数据不足。本轮拒绝提示修复需要重启已打包的新版 Java，并重新编译小程序；Python 和数据库无需因此重启。追问时可携带仅含 `user/assistant` 的 `history`；不能传学号或系统／工具消息。完整 PowerShell 调用、限制和失败处理见 [第四步说明](./AGENT_DEVELOPMENT.md#七第四步接入-deepseek让模型选择工具)。
+返回 `data.answer` 和工具调用状态。查询他人成绩会返回 `REFUSED`，未支持业务返回 `OUT_OF_SCOPE`，需要明确问题返回 `NEEDS_CLARIFICATION`，不再统一显示数据不足。服务端只信任当前 JWT 确定的学生归属和数据库历史；客户端不再发送 `history`，也不能传 studentId／studentNo。普通查询继续复用只读学业 Tool，不新增正式预警记录。
 
 ## 测试与构建
 
@@ -261,7 +265,7 @@ cd python-services
 
 ```powershell
 cd "D:\agent开发准备\简历项目\student-service-platform"
-node --test miniprogram/tests/agent.test.js miniprogram/tests/download.test.js miniprogram/tests/qa.test.js miniprogram/tests/academic.test.js miniprogram/tests/transcript.test.js
+node --test miniprogram/tests/agent.test.js miniprogram/tests/agent-stream.test.js miniprogram/tests/download.test.js miniprogram/tests/qa.test.js miniprogram/tests/academic.test.js miniprogram/tests/transcript.test.js
 ```
 
 以上测试使用本地测试数据库、测试向量和微信 API 模拟，不调用付费模型，也不修改运行中的知识库。
@@ -289,10 +293,18 @@ pnpm build:dev
 ## 当前边界
 
 - 当前关系数据库基线为 MySQL 8；历史 Kingbase 初始化脚本仅用于迁移核对，新环境使用 `init-mysql.sql`。
-- Web 管理端仍保留原 Geeker-Admin 的 MIT License 和署名。
+- Web 管理端保留原 Geeker-Admin 的 MIT License 与许可证中的版权声明。
 - 当前已完成本地业务联调；实际模型响应速度和真机文档预览仍受网络、模型服务及微信客户端环境影响。
 - 生产部署前还应补充登录限流、依赖漏洞扫描，以及基于独立 MySQL 测试库的接口集成测试。
 
 ## 许可证与第三方组件
 
 Web 管理端基于 Geeker-Admin，相关许可证位于 [`web-admin/LICENSE`](./web-admin/LICENSE)。其他模块和数据文件在公开发布前应补充顶层许可证，并确认数据库驱动、字体及政策文档的再分发权限。
+
+## 当前界面与 Agent 进度
+
+Web 管理端与小程序已统一为灰蓝背景、白色卡片和 Indigo 主色。首页展示真实业务概览；学生和培养方案编辑使用抽屉，管理列表提供明确的加载、空数据、错误和分页状态。
+
+小程序学业助手使用新增的 `/api/student/agent/chat/stream` 接收真实执行步骤和工具数据，完成后可展开本次过程。原 `/chat` 路由仍保留，两者请求体现在统一为 `conversationId` 和 `message`。启用需先执行上面的会话增量 SQL，再重新启动新版 Java 包并编译小程序，数据库不需要重建；8000/8002 的启动方式不变。
+
+详细改造范围、数据来源、验证结果和启用步骤见 [前端产品化改造记录](./UI_REFACTOR.md)。真实微信客户端的分包、键盘和安全区效果仍需开发者工具/真机验收。

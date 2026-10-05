@@ -45,8 +45,8 @@ export const importStudents = (students: BackendStudent.StudentImportItem[]) => 
   return http.post<BackendStudent.StudentImportResult>("/student/import", { students }, { cancel: false });
 };
 
-export const listStudents = (params?: { keyword?: string }) => {
-  return http.get<BackendStudent.StudentListItem[]>("/student/list", params, { cancel: false, loading: false });
+export const listStudents = (params?: { keyword?: string }, options: { silent?: boolean } = {}) => {
+  return http.get<BackendStudent.StudentListItem[]>("/student/list", params, { cancel: false, loading: false, ...options });
 };
 
 export const deleteStudent = (studentNo: string) => {

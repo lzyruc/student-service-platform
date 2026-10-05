@@ -1,0 +1,39 @@
+<view class="evidence" wx:for="{{items}}" wx:key="kind"
+  ><view wx:if="{{item.kind==='overview'}}" class="metric-grid"
+    ><view
+      class="metric"
+      wx:for="{{item.metrics}}"
+      wx:for-item="metric"
+      wx:key="label"
+      ><text class="metric-label">{{metric.label}}</text
+      ><text class="metric-value">{{metric.value}}</text></view
+    ></view
+  ><view wx:elif="{{item.kind==='trend'}}" class="trend-card"
+    ><text class="evidence-title">学期 GPA 趋势</text
+    ><text class="evidence-caption">课程学分加权 · P/通过课程不计入</text
+    ><view
+      wx:for="{{item.semesters}}"
+      wx:for-item="semester"
+      wx:key="semester"
+      class="trend-row"
+      ><text class="semester-label">{{semester.semester}}</text
+      ><view class="bar-track"
+        ><view class="bar-fill" style="width:{{semester.width}}%"></view></view
+      ><text class="semester-value">{{semester.value}}</text></view
+    ><text class="evidence-caption"
+      >来自本次成绩统计，课程覆盖情况见分析说明</text
+    ></view
+  ><view
+    wx:elif="{{item.kind==='recent' && item.courses.length}}"
+    class="course-card"
+    ><text class="evidence-title">关注课程 · {{item.semester}}</text
+    ><view
+      class="focus-course"
+      wx:for="{{item.courses}}"
+      wx:for-item="course"
+      wx:key="name"
+      ><text>{{course.name}}</text
+      ><text class="course-score">{{course.score}}</text></view
+    ></view
+  ></view
+>

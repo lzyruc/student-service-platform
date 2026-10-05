@@ -1,32 +1,233 @@
 <view class="agent-page">
   <view class="agent-header">
     <view class="agent-heading-row">
-      <text class="agent-heading">学业智能助手</text>
-      <button class="reset-button" bindtap="clearConversation" disabled="{{asking}}">新对话</button>
-    </view>
-    <text class="agent-description">根据已保存的成绩单，了解学习情况与课程表现</text>
-    <view class="transcript-link" bindtap="manageTranscript">上传或更新成绩单 <text>›</text></view>
-  </view>
-
-  <scroll-view class="agent-chat" scroll-y="true" scroll-into-view="{{bottomId}}" scroll-with-animation="true">
-    <view class="chat-content">
-      <view class="suggestions" wx:if="{{messages.length === 1}}">
-        <text class="suggestions-title">你可以这样问</text>
-        <button wx:for="{{suggestions}}" wx:key="*this" class="suggestion-button" data-question="{{item}}" bindtap="askSuggested" disabled="{{asking}}">{{item}}</button>
+      <view class="assistant-identity">
+        <text class="assistant-symbol">✦</text>
+        <view
+          ><text class="agent-heading">学业智能助手</text
+          ><text class="agent-header-label"
+            >ACADEMIC ASSISTANT · 学生专属</text
+          ></view
+        >
       </view>
-      <view wx:for="{{messages}}" wx:key="id" id="{{item.id}}" class="agent-message {{item.role === 'user' ? 'message-user' : 'message-assistant'}}">
+      <button
+        class="reset-button"
+        bindtap="newConversation"
+        disabled="{{asking || loadingMessages || conversationLoading}}"
+      >
+        新对话
+      </button>
+    </view>
+    <text class="agent-description"
+      >基于你的成绩单与培养方案，读懂课程表现。</text
+    >
+    <view class="context-bar"
+      ><text class="context-dot"></text
+      ><text class="active-conversation-title"
+        >{{conversationTitle}} · 只读分析</text
+      ><text class="transcript-link" bindtap="manageTranscript"
+        >管理成绩单 ›</text
+      ></view
+    >
+  </view>
+  <view class="conversation-toolbar">
+    <button
+      bindtap="openConversations"
+      disabled="{{asking || loadingMessages || conversationLoading}}"
+    >
+      历史会话
+    </button>
+    <text>对话保存到你的账号</text>
+    <button
+      wx:if="{{activeConversationId}}"
+      bindtap="refreshCurrentConversation"
+      disabled="{{asking || loadingMessages || conversationLoading}}"
+    >
+      刷新会话
+    </button>
+  </view>
+  <view wx:if="{{loadingMessages}}" class="history-loading"
+    ><view class="skeleton"></view><view class="skeleton skeleton-sm"></view
+  ></view>
+  <scroll-view
+    class="agent-chat"
+    scroll-y="true"
+    scroll-into-view="{{bottomId}}"
+    scroll-with-animation="true"
+  >
+    <view class="chat-content">
+      <button
+        wx:if="{{historyHasMore}}"
+        class="earlier-messages"
+        bindtap="loadEarlierMessages"
+        disabled="{{loadingMessages || asking}}"
+      >
+        加载更早的消息
+      </button>
+      <view
+        class="suggestions"
+        wx:if="{{messages.length===1 && messages[0].id==='greeting'}}"
+      >
+        <text class="suggestions-title">从一个问题开始</text>
+        <view class="question-grid"
+          ><button
+            wx:for="{{suggestions}}"
+            wx:key="*this"
+            class="suggestion-button"
+            data-question="{{item}}"
+            bindtap="askSuggested"
+            disabled="{{asking || loadingMessages || conversationLoading}}"
+          >
+            <text>{{item}}</text><text class="suggestion-arrow">↗</text>
+          </button></view
+        >
+      </view>
+      <view
+        wx:for="{{messages}}"
+        wx:key="id"
+        id="{{item.id}}"
+        class="agent-message {{item.role==='user'?'message-user':'message-assistant'}}"
+      >
+        <text class="message-byline" wx:if="{{item.role==='assistant'}}"
+          >✦ 学业助手</text
+        >
         <view class="message-bubble">
-          <text class="message-notice" wx:if="{{item.notice}}">{{item.notice}}</text>
-          <text class="message-text" selectable="true">{{item.content}}</text>
+          <text class="message-notice" wx:if="{{item.notice}}"
+            >{{item.notice}}</text
+          >
+          <analysis-evidence
+            wx:if="{{item.evidence.length}}"
+            items="{{item.evidence}}"
+          />
+          <rich-text
+            wx:if="{{item.nodes && item.role==='assistant'}}"
+            class="message-text"
+            nodes="{{item.nodes}}"
+            selectable="true"
+          ></rich-text>
+          <text wx:else class="message-text" selectable="true"
+            >{{item.content}}</text
+          >
+          <view wx:if="{{item.steps.length}}" class="execution-summary">
+            <view
+              class="execution-toggle"
+              bindtap="toggleExecution"
+              data-id="{{item.id}}"
+              ><text>查看本次分析过程 · {{item.steps.length}} 个步骤</text
+              ><text
+                >{{item.expanded?'收起':'展开'}} {{item.expanded?'⌃':'⌄'}}</text
+              ></view
+            >
+            <execution-timeline
+              wx:if="{{item.expanded}}"
+              steps="{{item.steps}}"
+            />
+          </view>
         </view>
       </view>
-      <view class="thinking" wx:if="{{asking}}" id="agent-thinking">正在分析，请稍候…</view>
+      <view class="running-card" wx:if="{{asking}}" id="agent-thinking">
+        <view class="running-heading"
+          ><text class="running-mark">✦</text
+          ><text>{{currentStage}}</text></view
+        >
+        <text class="running-caption"
+          >{{realtimeAvailable?'实时展示本次分析的执行步骤':'等待结果，完成后查看执行记录'}}</text
+        >
+        <execution-timeline
+          wx:if="{{executionSteps.length}}"
+          steps="{{executionSteps}}"
+        />
+        <view wx:else class="connecting-lines"
+          ><view class="skeleton"></view
+          ><view class="skeleton skeleton-sm"></view
+        ></view>
+        <analysis-evidence items="{{evidence}}" />
+      </view>
       <view class="chat-end"></view>
     </view>
   </scroll-view>
-
   <view class="agent-composer">
-    <textarea class="question-input" value="{{inputValue}}" bindinput="onInput" maxlength="2000" disabled="{{asking}}" placeholder="说说你想了解的学业问题…" auto-height="true" adjust-position="true" cursor-spacing="24" />
-    <button class="agent-send" bindtap="sendMessage" disabled="{{asking || !inputValue}}" loading="{{asking}}">{{asking ? '分析中' : '发送'}}</button>
+    <view class="composer-box">
+      <textarea
+        class="question-input"
+        value="{{inputValue}}"
+        bindinput="onInput"
+        maxlength="2000"
+        disabled="{{asking || loadingMessages || conversationLoading}}"
+        placeholder="问问学习情况、课程表现或成绩趋势…"
+        auto-height="true"
+        adjust-position="true"
+        cursor-spacing="24"
+      /><button
+        class="agent-send"
+        bindtap="sendMessage"
+        disabled="{{asking || conversationLoading || loadingMessages || !inputValue}}"
+        loading="{{asking}}"
+      >
+        {{asking?'分析中':'发送'}}
+      </button></view
+    >
+    <text class="composer-footnote"
+      >重要结论请核对成绩单；学业建议不替代教务决定</text
+    >
+  </view>
+  <view wx:if="{{showConversations}}" class="conversation-overlay">
+    <view class="conversation-backdrop" bindtap="closeConversations"></view>
+    <view class="conversation-sheet">
+      <view class="sheet-header"
+        ><text>我的会话</text
+        ><button bindtap="closeConversations">关闭</button></view
+      >
+      <text class="sheet-description">仅显示当前登录账号的会话</text>
+      <view wx:if="{{conversationLoading}}" class="skeleton"></view>
+      <view wx:if="{{conversationError}}" class="error-state"
+        >会话列表暂时不可用<button bindtap="retryConversations">
+          重试
+        </button></view
+      >
+      <scroll-view scroll-y="true" class="conversation-scroll">
+        <view
+          wx:for="{{conversationList}}"
+          wx:key="id"
+          class="conversation-row {{item.id===activeConversationId?'selected':''}}"
+        >
+          <view
+            class="conversation-row-body"
+            bindtap="selectConversation"
+            data-id="{{item.id}}"
+            ><text>{{item.title}}</text
+            ><text class="conversation-date">{{item.updatedAt}}</text></view
+          >
+          <view class="conversation-row-actions"
+            ><button
+              bindtap="renameConversation"
+              data-id="{{item.id}}"
+              disabled="{{asking || conversationLoading || loadingMessages}}"
+            >
+              改名</button
+            ><button
+              bindtap="deleteConversation"
+              data-id="{{item.id}}"
+              disabled="{{asking || conversationLoading || loadingMessages}}"
+            >
+              删除
+            </button></view
+          >
+        </view>
+        <view
+          wx:if="{{!conversationLoading && !conversationError && !conversationList.length}}"
+          class="empty-state"
+          >还没有已保存的会话，从一个学业问题开始。</view
+        >
+        <button
+          wx:if="{{conversationHasMore}}"
+          class="earlier-messages"
+          bindtap="loadMoreConversations"
+          disabled="{{conversationLoading}}"
+        >
+          加载更多会话
+        </button>
+      </scroll-view>
+    </view>
   </view>
 </view>

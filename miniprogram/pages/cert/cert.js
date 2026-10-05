@@ -12,7 +12,7 @@ Page({
     approvalHistoryList: [],
     expandedCertId: null,
     submitting: false,
-    downloading: false,
+    downloading: false, historyLoading: false, historyError: false,
   },
 
   onShow() {
@@ -42,6 +42,8 @@ Page({
   },
 
   fetchHistory() {
+    if (this.data.historyLoading) return;
+    this.setData({ historyLoading: true, historyError: false });
     request('/api/student/certificate/history', 'GET', { studentNo: getStudentNo() })
       .then(res => {
         const approvalHistoryList = Array.isArray(res)
@@ -57,7 +59,8 @@ Page({
           : [];
         this.setData({ approvalHistoryList });
       })
-      .catch(() => this.setData({ approvalHistoryList: [] }));
+      .catch(() => this.setData({ historyError: true }))
+      .finally(() => this.setData({ historyLoading: false }));
   },
 
   submitApprovalCert() {

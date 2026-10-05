@@ -17,7 +17,7 @@ const getOpenFileType = (fileType) => {
 
 Page({
   data: {
-    notices: []
+    notices: [], loading: false, loadError: false
   },
 
   onShow() {
@@ -25,14 +25,17 @@ Page({
   },
 
   fetchNotices() {
+    if (this.data.loading) return;
+    this.setData({ loading: true, loadError: false });
     request('/api/student/notice/list', 'GET', { studentNo: getStudentNo() })
       .then(res => {
         this.setData({ notices: res || [] });
       })
       .catch(() => {
+        this.setData({ loadError: true });
         this.setData({ notices: [] });
         wx.showToast({ title: '通知加载失败', icon: 'none' });
-      });
+      }).finally(() => this.setData({ loading: false }));
   },
 
   viewNotice(e) {

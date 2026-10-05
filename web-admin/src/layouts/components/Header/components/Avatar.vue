@@ -1,7 +1,7 @@
 <template>
   <el-dropdown trigger="click">
     <div class="avatar">
-      <img src="@/assets/images/avatar.gif" alt="avatar" />
+      <span class="product-avatar" aria-label="管理员菜单">{{ (userStore.userInfo.name || "A").slice(0, 1).toUpperCase() }}</span>
     </div>
     <template #dropdown>
       <el-dropdown-menu>
@@ -71,5 +71,19 @@ const openDialog = (ref: string) => {
     width: 100%;
     height: 100%;
   }
+}
+</style>
+
+<style scoped>
+.product-avatar {
+  display: grid;
+  place-items: center;
+  width: 34px;
+  height: 34px;
+  border-radius: 10px;
+  background: var(--product-soft);
+  color: var(--product-primary);
+  font-size: 14px;
+  font-weight: 600;
 }
 </style>

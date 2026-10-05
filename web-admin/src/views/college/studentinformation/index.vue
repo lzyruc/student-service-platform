@@ -1,141 +1,46 @@
 <template>
   <div class="student-information content-box">
+    <PageHeader title="学生档案" description="维护学生基本信息、账号状态与所属专业，支持批量导入。" eyebrow="STUDENT RECORDS"
+      ><el-button
+        type="primary"
+        @click="
+          resetForm();
+          editorVisible = true;
+        "
+        >新增学生</el-button
+      >
+      <el-button plain @click="refreshList">刷新列表</el-button>
+      <el-button type="primary" plain @click="downloadTemplate">下载 Excel 模板</el-button>
+      <el-upload
+        :auto-upload="false"
+        :multiple="false"
+        :limit="1"
+        accept=".xls,.xlsx,application/vnd.ms-excel,application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
+        :show-file-list="false"
+        :on-change="onExcelChange"
+      >
+        <el-button plain :loading="importLoading">Excel 导入</el-button>
+      </el-upload>
+      <el-button type="primary" plain :disabled="students.length === 0" @click="exportJson">导出 JSON</el-button>
+    </PageHeader>
     <div class="card">
-      <div class="header">
-        <div class="title">学生信息管理（已对接后端）</div>
-        <div class="actions">
-          <el-button plain @click="refreshList">刷新列表</el-button>
-          <el-button type="primary" plain @click="downloadTemplate">下载 Excel 模板</el-button>
-          <el-upload
-            :auto-upload="false"
-            :multiple="false"
-            :limit="1"
-            accept=".xls,.xlsx,application/vnd.ms-excel,application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
-            :show-file-list="false"
-            :on-change="onExcelChange"
-          >
-            <el-button type="primary" :loading="importLoading">Excel 导入</el-button>
-          </el-upload>
-          <el-button type="primary" plain :disabled="students.length === 0" @click="exportJson">导出 JSON</el-button>
-        </div>
-      </div>
-      <el-alert
-        title="已对接后端：手动新增与 Excel 批量导入会写入数据库（t_student + t_user），并从后端拉取列表。"
-        type="info"
-        :closable="false"
-        class="mb16"
-      />
-
       <el-row :gutter="16">
-        <el-col :xs="24" :md="8">
-          <div class="card inner-card">
-            <div class="inner-title">手动录入</div>
-            <el-form ref="formRef" :model="form" :rules="rules" label-width="72px" label-suffix=" :" size="small">
-              <el-row :gutter="12" class="compact-form">
-                <el-col :span="12">
-                  <el-form-item label="学号" prop="studentNo">
-                    <el-input v-model.trim="form.studentNo" placeholder="20260001" clearable :disabled="isEdit" />
-                  </el-form-item>
-                </el-col>
-                <el-col :span="12">
-                  <el-form-item label="姓名" prop="name">
-                    <el-input v-model.trim="form.name" placeholder="张三" clearable />
-                  </el-form-item>
-                </el-col>
-                <el-col v-if="form.roleCode !== 'admin'" :span="12">
-                  <el-form-item label="身份证" prop="idCardNo">
-                    <el-input v-model.trim="form.idCardNo" placeholder="18 位身份证号" clearable />
-                  </el-form-item>
-                </el-col>
-                <el-col :span="12">
-                  <el-form-item label="性别" prop="gender">
-                    <el-select v-model="form.gender" placeholder="请选择">
-                      <el-option label="男" value="男" />
-                      <el-option label="女" value="女" />
-                      <el-option label="未知" value="未知" />
-                    </el-select>
-                  </el-form-item>
-                </el-col>
-                <el-col :span="12">
-                  <el-form-item label="民族" prop="ethnicity">
-                    <el-input v-model.trim="form.ethnicity" placeholder="汉族" clearable />
-                  </el-form-item>
-                </el-col>
-                <el-col v-if="form.roleCode !== 'admin'" :span="12">
-                  <el-form-item label="年级" prop="grade">
-                    <el-input v-model.trim="form.grade" placeholder="2026" clearable />
-                  </el-form-item>
-                </el-col>
-                <el-col v-if="form.roleCode !== 'admin'" :span="12">
-                  <el-form-item label="层次" prop="educationLevel">
-                    <el-select v-model="form.educationLevel" placeholder="请选择">
-                      <el-option label="本科" value="本科" />
-                      <el-option label="硕士" value="硕士" />
-                      <el-option label="博士" value="博士" />
-                    </el-select>
-                  </el-form-item>
-                </el-col>
-                <el-col v-if="form.roleCode !== 'admin'" :span="12">
-                  <el-form-item label="班级" prop="className">
-                    <el-input v-model.trim="form.className" placeholder="计科2601" clearable />
-                  </el-form-item>
-                </el-col>
-                <el-col v-if="form.roleCode !== 'admin'" :span="24">
-                  <el-form-item label="专业" prop="major">
-                    <el-input v-model.trim="form.major" placeholder="计算机科学与技术" clearable />
-                  </el-form-item>
-                </el-col>
-                <el-col :span="24">
-                  <el-form-item label="联系" prop="contact">
-                    <el-input v-model.trim="form.contact" placeholder="手机号或邮箱" clearable />
-                  </el-form-item>
-                </el-col>
-                <el-col :span="12">
-                  <el-form-item label="权限" prop="roleCode">
-                    <el-select v-model="form.roleCode" placeholder="请选择">
-                      <el-option label="管理员" value="admin" />
-                      <el-option label="学生" value="student" />
-                    </el-select>
-                  </el-form-item>
-                </el-col>
-                <el-col :span="12">
-                  <el-form-item label="状态" prop="status">
-                    <el-select v-model="form.status" placeholder="请选择">
-                      <el-option label="正常（1）" :value="1" />
-                      <el-option label="禁用（0）" :value="0" />
-                    </el-select>
-                  </el-form-item>
-                </el-col>
-                <el-col :span="24">
-                  <el-form-item label="密码" prop="password">
-                    <el-input
-                      v-model.trim="form.password"
-                      type="password"
-                      :placeholder="isEdit ? '留空表示不修改密码' : '请输入初始密码（6-72 位）'"
-                      show-password
-                      clearable
-                      autocomplete="new-password"
-                    />
-                  </el-form-item>
-                </el-col>
-                <el-col :span="24">
-                  <el-form-item class="form-actions">
-                    <el-button type="primary" @click="submitForm">{{ isEdit ? "保存修改" : "新增" }}</el-button>
-                    <el-button @click="resetForm">重置</el-button>
-                  </el-form-item>
-                </el-col>
-              </el-row>
-            </el-form>
-          </div>
-        </el-col>
-
-        <el-col :xs="24" :md="16" class="right-panel">
+        <el-col :span="24" class="right-panel">
           <div class="card inner-card">
             <div class="inner-title">学生列表</div>
             <div class="toolbar mb12">
               <el-input v-model.trim="keyword" placeholder="搜索：学号/姓名/班级/专业" clearable class="w280" />
             </div>
-            <el-table :data="filtered" row-key="studentNo" height="610" v-loading="listLoading" @row-dblclick="editRow">
+            <DataState :loading="listLoading" :error="listError" label="学生档案" @retry="refreshList()" />
+            <el-table
+              v-show="!listLoading && !listError"
+              :data="pagedRows"
+              row-key="studentNo"
+              height="610"
+              v-loading="listLoading"
+              @row-dblclick="editRow"
+            >
+              <template #empty><el-empty description="暂无匹配的学生档案" :image-size="58" /></template>
               <el-table-column prop="studentNo" label="学号" width="140" />
               <el-table-column prop="name" label="姓名" width="120" />
               <el-table-column prop="gender" label="性别" width="80" />
@@ -144,8 +49,16 @@
               <el-table-column prop="major" label="专业" min-width="160" show-overflow-tooltip />
               <el-table-column prop="grade" label="年级" width="90" />
               <el-table-column prop="contact" label="联系方式" min-width="160" show-overflow-tooltip />
-              <el-table-column prop="roleCode" label="权限" width="110" />
-              <el-table-column prop="status" label="状态" width="90" />
+              <el-table-column label="角色" width="100"
+                ><template #default="{ row }">{{ row.roleCode === "admin" ? "管理员" : "学生" }}</template></el-table-column
+              >
+              <el-table-column label="状态" width="100"
+                ><template #default="{ row }"
+                  ><el-tag :type="row.status === 1 ? 'success' : 'info'">{{
+                    row.status === 1 ? "正常" : "禁用"
+                  }}</el-tag></template
+                ></el-table-column
+              >
               <el-table-column prop="updatedAt" label="更新时间" width="170" />
               <el-table-column label="操作" width="160" fixed="right">
                 <template #default="{ row }">
@@ -154,10 +67,12 @@
                 </template>
               </el-table-column>
             </el-table>
-            <div class="mt12 summary">
-              <span>总数：{{ students.length }}</span>
-              <span class="ml12">当前筛选：{{ filtered.length }}</span>
-            </div>
+            <ListPagination
+              v-show="!listLoading && !listError"
+              v-model:page="page"
+              v-model:page-size="pageSize"
+              :total="filtered.length"
+            />
           </div>
         </el-col>
       </el-row>
@@ -170,10 +85,114 @@
         <el-button type="primary" @click="copyJson">复制</el-button>
       </template>
     </el-dialog>
+    <el-drawer v-model="editorVisible" :title="isEdit ? '编辑学生档案' : '新增学生档案'" size="min(560px, 92vw)"
+      ><div class="card inner-card">
+        <el-form ref="formRef" :model="form" :rules="rules" label-width="72px" label-suffix=" :" size="small">
+          <el-row :gutter="12" class="compact-form">
+            <el-col :span="12">
+              <el-form-item label="学号" prop="studentNo">
+                <el-input v-model.trim="form.studentNo" placeholder="20260001" clearable :disabled="isEdit" />
+              </el-form-item>
+            </el-col>
+            <el-col :span="12">
+              <el-form-item label="姓名" prop="name">
+                <el-input v-model.trim="form.name" placeholder="张三" clearable />
+              </el-form-item>
+            </el-col>
+            <el-col v-if="form.roleCode !== 'admin'" :span="12">
+              <el-form-item label="身份证" prop="idCardNo">
+                <el-input v-model.trim="form.idCardNo" placeholder="18 位身份证号" clearable />
+              </el-form-item>
+            </el-col>
+            <el-col :span="12">
+              <el-form-item label="性别" prop="gender">
+                <el-select v-model="form.gender" placeholder="请选择">
+                  <el-option label="男" value="男" />
+                  <el-option label="女" value="女" />
+                  <el-option label="未知" value="未知" />
+                </el-select>
+              </el-form-item>
+            </el-col>
+            <el-col :span="12">
+              <el-form-item label="民族" prop="ethnicity">
+                <el-input v-model.trim="form.ethnicity" placeholder="汉族" clearable />
+              </el-form-item>
+            </el-col>
+            <el-col v-if="form.roleCode !== 'admin'" :span="12">
+              <el-form-item label="年级" prop="grade">
+                <el-input v-model.trim="form.grade" placeholder="2026" clearable />
+              </el-form-item>
+            </el-col>
+            <el-col v-if="form.roleCode !== 'admin'" :span="12">
+              <el-form-item label="层次" prop="educationLevel">
+                <el-select v-model="form.educationLevel" placeholder="请选择">
+                  <el-option label="本科" value="本科" />
+                  <el-option label="硕士" value="硕士" />
+                  <el-option label="博士" value="博士" />
+                </el-select>
+              </el-form-item>
+            </el-col>
+            <el-col v-if="form.roleCode !== 'admin'" :span="12">
+              <el-form-item label="班级" prop="className">
+                <el-input v-model.trim="form.className" placeholder="计科2601" clearable />
+              </el-form-item>
+            </el-col>
+            <el-col v-if="form.roleCode !== 'admin'" :span="24">
+              <el-form-item label="专业" prop="major">
+                <el-input v-model.trim="form.major" placeholder="计算机科学与技术" clearable />
+              </el-form-item>
+            </el-col>
+            <el-col :span="24">
+              <el-form-item label="联系" prop="contact">
+                <el-input v-model.trim="form.contact" placeholder="手机号或邮箱" clearable />
+              </el-form-item>
+            </el-col>
+            <el-col :span="12">
+              <el-form-item label="权限" prop="roleCode">
+                <el-select v-model="form.roleCode" placeholder="请选择">
+                  <el-option label="管理员" value="admin" />
+                  <el-option label="学生" value="student" />
+                </el-select>
+              </el-form-item>
+            </el-col>
+            <el-col :span="12">
+              <el-form-item label="状态" prop="status">
+                <el-select v-model="form.status" placeholder="请选择">
+                  <el-option label="正常" :value="1" />
+                  <el-option label="禁用" :value="0" />
+                </el-select>
+              </el-form-item>
+            </el-col>
+            <el-col :span="24">
+              <el-form-item label="密码" prop="password">
+                <el-input
+                  v-model.trim="form.password"
+                  type="password"
+                  :placeholder="isEdit ? '留空表示不修改密码' : '请输入初始密码（6-72 位）'"
+                  show-password
+                  clearable
+                  autocomplete="new-password"
+                />
+              </el-form-item>
+            </el-col>
+            <el-col :span="24">
+              <el-form-item class="form-actions">
+                <el-button type="primary" @click="submitForm">{{ isEdit ? "保存修改" : "新增" }}</el-button>
+                <el-button @click="resetForm">重置</el-button>
+              </el-form-item>
+            </el-col>
+          </el-row>
+        </el-form>
+      </div></el-drawer
+    >
   </div>
 </template>
 
 <script setup lang="ts" name="collegeStudentInformation">
+import PageHeader from "@/components/product/PageHeader.vue";
+import ListPagination from "@/components/product/ListPagination.vue";
+import { useTablePagination } from "@/hooks/useTablePagination";
+import DataState from "@/components/product/DataState.vue";
 import { computed, onMounted, reactive, ref } from "vue";
 import { ElMessage, ElMessageBox } from "element-plus";
 import type { FormInstance, FormRules, UploadFile } from "element-plus";
@@ -225,9 +244,11 @@ const filtered = computed(() => {
     return hay.includes(k);
   });
 });
+const { page, pageSize, pagedRows } = useTablePagination(filtered);
 
 const formRef = ref<FormInstance>();
 const isEdit = ref(false);
+const editorVisible = ref(false);
 const editKey = ref<string>("");
 
 const form = reactive<StudentRow>({
@@ -323,7 +344,9 @@ const normalizeBackendTime = (v: any) => {
   return s.includes("T") ? s.replace("T", " ").slice(0, 16) : s;
 };
 
+const listError = ref(false);
 const refreshList = async () => {
+  listError.value = false;
   listLoading.value = true;
   try {
     const res = await listStudents({ keyword: keyword.value.trim() || undefined });
@@ -350,6 +373,7 @@ const refreshList = async () => {
       } satisfies StudentRow;
     });
   } catch (e: any) {
+    listError.value = true;
     students.value = [];
     ElMessage.error(e?.message ?? "学生列表读取失败");
   } finally {
@@ -412,6 +436,7 @@ const saveToBackend = async (row: StudentRow) => {
       ElMessage.success(inserted > 0 ? "已新增" : updated > 0 ? "已保存" : "已提交");
     }
     resetForm();
+    editorVisible.value = false;
     await refreshList();
   } catch (e: any) {
     ElMessage.error(e?.message ?? "保存失败");
@@ -419,6 +444,7 @@ const saveToBackend = async (row: StudentRow) => {
 };
 
 const editRow = (row: StudentRow) => {
+  editorVisible.value = true;
   isEdit.value = true;
   editKey.value = row.studentNo;
   form.studentNo = row.studentNo;

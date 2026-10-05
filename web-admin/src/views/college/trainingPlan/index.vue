@@ -1,13 +1,52 @@
 <template>
   <div class="training-plan content-box">
+    <PageHeader title="培养方案" description="按专业和年级维护课程要求，为学业分析提供可靠依据。" eyebrow="ACADEMIC OPERATIONS">
+      <el-button
+        type="primary"
+        @click="
+          resetPlan();
+          planEditorVisible = true;
+        "
+        >新增培养方案</el-button
+      ><el-button @click="refreshList">刷新列表</el-button
+      ><el-button plain :disabled="trainingPlanList.length === 0" @click="exportPlanJson">导出 JSON</el-button>
+    </PageHeader>
     <div class="card">
-      <div class="header">
-        <div class="title">培养方案管理</div>
-        <div class="actions">
-          <el-button type="primary" plain @click="resetPlan">重置表单</el-button>
+      <div class="plan-list">
+        <div class="toolbar">
+          <el-input v-model.trim="planKeyword" placeholder="搜索专业、年级或版本" clearable class="w280" />
         </div>
+        <DataState :loading="listLoading" :error="listError" label="培养方案" @retry="refreshList()" />
+        <el-table v-show="!listLoading && !listError" :data="pagedRows" height="560" row-key="id" v-loading="listLoading">
+          <template #empty><el-empty description="暂无保存的培养方案" :image-size="58" /></template>
+          <el-table-column prop="major" label="专业" min-width="180" show-overflow-tooltip />
+          <el-table-column prop="grade" label="年级" width="100" />
+          <el-table-column prop="version" label="版本" width="120" />
+          <el-table-column prop="courseCount" label="课程数" width="100" />
+          <el-table-column prop="totalCredits" label="总学分" width="100" />
+          <el-table-column prop="createdAt" label="保存时间" width="160" />
+          <el-table-column label="操作" width="240" fixed="right">
+            <template #default="{ row }">
+              <el-button link type="primary" @click="viewPlanRow(row.id)">查看</el-button>
+              <el-button link type="warning" @click="editPlanRow(row.id)">修改</el-button>
+              <el-button link type="danger" @click="removePlanRow(row.id)">删除</el-button>
+            </template>
+          </el-table-column>
+        </el-table>
+        <ListPagination
+          v-show="!listLoading && !listError"
+          v-model:page="page"
+          v-model:page-size="pageSize"
+          :total="filteredPlans.length"
+        />
       </div>
-      <el-alert title="培养方案会以 JSON 形式存入数据库，后续解析也基于该 JSON。" type="info" :closable="false" class="mb16" />
+    </div>
+
+    <el-drawer
+      v-model="planEditorVisible"
+      :title="editingPlanId === null ? '新增培养方案' : '编辑培养方案'"
+      size="min(1120px, 95vw)"
+    >
       <div class="card inner-card mb16">
         <div class="inner-title">图片识别导入（OCR）</div>
         <el-alert
@@ -65,7 +104,7 @@
               </el-form-item>
               <el-form-item>
                 <el-button type="primary" @click="addCourseRow">新增课程行</el-button>
-                <el-button plain :disabled="planCourses.length === 0" @click="fillDemoCourses">填充示例</el-button>
+                <el-button plain :disabled="planCourses.length > 0" @click="fillDemoCourses">填充示例</el-button>
                 <el-button v-if="editingPlanId !== null" plain type="warning" @click="cancelEditPlan">取消修改</el-button>
               </el-form-item>
             </el-form>
@@ -129,7 +168,7 @@
               </div>
               <div class="actions">
                 <el-button type="primary" :disabled="planCourses.length === 0" @click="saveTrainingPlan">
-                  {{ editingPlanId === null ? "保存到数据库" : "保存修改" }}
+                  {{ editingPlanId === null ? "保存方案" : "保存修改" }}
                 </el-button>
                 <el-button type="primary" plain :disabled="trainingPlanList.length === 0" @click="exportPlanJson">
                   导出 JSON
@@ -138,28 +177,8 @@
             </div>
           </div>
         </el-col>
-      </el-row>
-
-      <div class="card mt16">
-        <div class="inner-title">已保存培养方案（数据库）</div>
-        <el-table :data="trainingPlanList" row-key="id" v-loading="listLoading">
-          <el-table-column prop="major" label="专业" min-width="180" show-overflow-tooltip />
-          <el-table-column prop="grade" label="年级" width="100" />
-          <el-table-column prop="version" label="版本" width="120" />
-          <el-table-column prop="courseCount" label="课程数" width="100" />
-          <el-table-column prop="totalCredits" label="总学分" width="100" />
-          <el-table-column prop="createdAt" label="保存时间" width="160" />
-          <el-table-column label="操作" width="240" fixed="right">
-            <template #default="{ row }">
-              <el-button link type="primary" @click="viewPlanRow(row.id)">查看</el-button>
-              <el-button link type="warning" @click="editPlanRow(row.id)">修改</el-button>
-              <el-button link type="danger" @click="removePlanRow(row.id)">删除</el-button>
-            </template>
-          </el-table-column>
-        </el-table>
-      </div>
-    </div>
-
+      </el-row></el-drawer
+    >
     <el-dialog v-model="jsonDialogVisible" title="导出内容（JSON）" width="780px">
       <el-input v-model="jsonDialogValue" type="textarea" :rows="16" />
       <template #footer>
@@ -176,6 +195,7 @@
           <div><span class="label">版本：</span>{{ planDetail?.version }}</div>
           <div><span class="label">总学分：</span>{{ planDetail?.totalCredits }}</div>
         </div>
+
         <el-table :data="planDetail?.courses ?? []" height="420">
           <el-table-column prop="category" label="课程类别" width="140" />
           <el-table-column prop="courseName" label="课程名称" min-width="220" show-overflow-tooltip />
@@ -192,6 +212,10 @@
 </template>
 
 <script setup lang="ts" name="collegeTrainingPlan">
+import PageHeader from "@/components/product/PageHeader.vue";
+import ListPagination from "@/components/product/ListPagination.vue";
+import { useTablePagination } from "@/hooks/useTablePagination";
+import DataState from "@/components/product/DataState.vue";
 import { computed, onMounted, reactive, ref } from "vue";
 import { ElMessage, ElMessageBox } from "element-plus";
 import type { FormInstance, FormRules, UploadFile } from "element-plus";
@@ -263,7 +287,9 @@ const normalizeBackendTime = (v: any) => {
   return s.includes("T") ? s.replace("T", " ").slice(0, 16) : s;
 };
 
+const listError = ref(false);
 const refreshList = async () => {
+  listError.value = false;
   listLoading.value = true;
   try {
     const res = await listTrainingPlans();
@@ -385,6 +411,7 @@ const onOcrImageChange = async (file: UploadFile) => {
     if (!parsed.courses.length) ElMessage.warning("未识别到课程行，可在“识别文本”里手动调整后再应用");
     else ElMessage.success(`识别完成：${parsed.courses.length} 门课程`);
   } catch (e: any) {
+    listError.value = true;
     ElMessage.error(`识别失败：${e?.message ?? "未知错误"}`);
   } finally {
     ocrLoading.value = false;
@@ -404,6 +431,15 @@ const totalCredits = computed(() => {
   const sum = planCourses.value.reduce((acc, cur) => acc + (Number(cur.credits) || 0), 0);
   return Number.isFinite(sum) ? Number(sum.toFixed(2)) : 0;
 });
+
+const planEditorVisible = ref(false);
+const planKeyword = ref("");
+const filteredPlans = computed(() =>
+  trainingPlanList.value.filter(row =>
+    `${row.major} ${row.grade} ${row.version}`.toLowerCase().includes(planKeyword.value.toLowerCase())
+  )
+);
+const { page, pageSize, pagedRows } = useTablePagination(filteredPlans);
 
 const addCourseRow = () => {
   planCourses.value.push({
@@ -460,6 +496,7 @@ const editPlanRow = async (id: number) => {
       offeredAt: String(c?.offeredAt ?? "")
     }));
     editingPlanId.value = id;
+    planEditorVisible.value = true;
     ElMessage.success("已加载到表单，可修改后保存");
   } catch {
     ElMessage.error("解析 JSON 失败");
@@ -504,6 +541,7 @@ const saveTrainingPlan = async () => {
     })
       .then(() => {
         ElMessage.success(editingPlanId.value === null ? "已保存培养方案" : "已更新培养方案");
+        planEditorVisible.value = false;
         editingPlanId.value = null;
         planForm.major = "";
         planForm.grade = "";

@@ -1,9 +1,27 @@
-<view class="container">
-  <view wx:if="{{notices.length === 0}}" class="empty-hint glass-card">目前没有需要您关注的通知哦~</view>
+<view class="container"
+  ><text class="page-eyebrow">CAMPUS UPDATES</text
+  ><text class="page-title">校园通知</text
+  ><text class="page-description">重要信息不错过，阅读后确认接收。</text
+  ><view wx:if="{{loading}}" class="glass-card"
+    ><view class="skeleton skeleton-lg"></view><view class="skeleton"></view
+    ><view class="skeleton skeleton-sm"></view></view
+  ><view wx:if="{{loadError}}" class="error-state"
+    >通知暂时无法加载<button bindtap="fetchNotices">重新加载</button></view
+  >
+  <view
+    wx:if="{{!loading && !loadError && notices.length === 0}}"
+    class="empty-hint glass-card"
+    >暂无通知，发布后会在这里展示</view
+  >
 
-  <view class="glass-card notice-item" wx:for="{{notices}}" wx:key="id">
+  <view
+    wx:if="{{!loading && !loadError}}"
+    class="glass-card notice-item"
+    wx:for="{{notices}}"
+    wx:key="id"
+  >
     <view class="n-header">
-      <view class="n-tag grad-{{index % 4 + 1}}">{{item.tags || '通知'}}</view>
+      <view class="n-tag">{{item.tags || '通知'}}</view>
       <text class="n-time">{{item.publishTime}}</text>
     </view>
     <view class="n-title">
@@ -12,19 +30,40 @@
     </view>
     <view class="n-desc">{{item.content || '暂无正文内容'}}</view>
 
-    <view class="n-attachment" wx:if="{{item.fileId}}" bindtap="downloadAttachment" data-fileid="{{item.fileId}}" data-filetype="{{item.fileType}}">
-      <text class="attach-icon">📎</text>
+    <view
+      class="n-attachment"
+      wx:if="{{item.fileId}}"
+      bindtap="downloadAttachment"
+      data-fileid="{{item.fileId}}"
+      data-filetype="{{item.fileType}}"
+    >
+      <text class="attach-icon">↳</text>
       <view class="attach-info">
         <text class="attach-name">{{item.originalName || '通知附件'}}</text>
         <text class="attach-meta">{{item.fileType || '文件'}} · 点击查看</text>
       </view>
     </view>
-    
+
     <view class="n-footer">
-      <text class="n-status {{item.isConfirmed ? 'read' : 'unread'}}">{{item.isConfirmed ? '已阅并确认' : '待确认接收'}}</text>
+      <text class="n-status {{item.isConfirmed ? 'read' : 'unread'}}"
+        >{{item.isConfirmed ? '已阅并确认' : '待确认接收'}}</text
+      >
       <view class="n-actions">
-        <button class="btn-mini btn-detail" bindtap="viewNotice" data-id="{{item.id}}">查看详情</button>
-        <button class="btn-mini grad-3" wx:if="{{!item.isConfirmed}}" bindtap="confirmRead" data-id="{{item.id}}">确认接收</button>
+        <button
+          class="btn-mini btn-detail"
+          bindtap="viewNotice"
+          data-id="{{item.id}}"
+        >
+          查看详情
+        </button>
+        <button
+          class="btn-mini grad-3"
+          wx:if="{{!item.isConfirmed}}"
+          bindtap="confirmRead"
+          data-id="{{item.id}}"
+        >
+          确认接收
+        </button>
       </view>
     </view>
   </view>

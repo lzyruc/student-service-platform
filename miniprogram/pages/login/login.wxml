@@ -1,23 +1,36 @@
-<view class="container login-container grad-1">
-  <view class="glass-card login-card">
-    <view class="logo-area">
-      <view class="logo-circle">🎓</view>
-      <text class="sys-title">综合服务平台</text>
-      <text class="sys-subtitle">学生端登录</text>
-    </view>
-
-    <view class="form-area">
-      <view class="input-group">
-        <text class="label">学号</text>
-        <input type="text" placeholder="请输入学号" value="{{account}}" bindinput="onAccountInput" class="input-box" />
-      </view>
-
-      <view class="input-group">
-        <text class="label">密码</text>
-        <input type="password" placeholder="请输入密码" value="{{password}}" bindinput="onPasswordInput" class="input-box" />
-      </view>
-
-      <button class="btn-primary login-btn" bindtap="handleLogin">登录</button>
-    </view>
-  </view>
-</view>
+<view class="container login-container"
+  ><view class="login-brand"
+    ><text class="login-symbol">✦</text><text>学生综合服务平台</text></view
+  ><view class="login-welcome"
+    ><text class="page-eyebrow">YOUR CAMPUS, CONNECTED</text
+    ><text class="login-heading">你好，同学。</text
+    ><text class="page-description"
+      >登录后，开启你的校园服务工作台。</text
+    ></view
+  ><view class="glass-card login-card"
+    ><view class="input-group"
+      ><text class="label">学号</text
+      ><input
+        type="text"
+        placeholder="请输入学号"
+        value="{{account}}"
+        bindinput="onAccountInput"
+        class="input-box" /></view
+    ><view class="input-group"
+      ><text class="label">密码</text
+      ><input
+        type="password"
+        placeholder="请输入密码"
+        value="{{password}}"
+        bindinput="onPasswordInput"
+        class="input-box" /></view
+    ><button
+      class="btn-primary login-btn"
+      bindtap="handleLogin"
+      loading="{{loggingIn}}"
+      disabled="{{loggingIn}}"
+    >
+      {{loggingIn?'正在登录':'登录学生工作台'}}</button
+    ><text class="login-note">使用学校管理员为你开通的学生账号</text></view
+  ><view class="login-footer">学生事务 · 学业支持 · 智能服务</view></view
+>

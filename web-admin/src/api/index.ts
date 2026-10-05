@@ -12,6 +12,7 @@ import router from "@/routers";
 export interface CustomAxiosRequestConfig extends InternalAxiosRequestConfig {
   loading?: boolean;
   cancel?: boolean;
+  silent?: boolean;
 }
 
 const config = {
@@ -78,7 +79,7 @@ class RequestHttp {
         if (data.code && data.code !== ResultEnum.SUCCESS) {
           const url = config.url || "";
           const message = msg || (url.includes("/geeker/login") ? "账号或密码错误" : "请求失败");
-          ElMessage.error(message);
+          if (!config.silent) ElMessage.error(message);
           return Promise.reject(data);
         }
         // 成功请求（在页面上除非特殊情况，否则不用处理失败逻辑）
@@ -86,10 +87,11 @@ class RequestHttp {
       },
       async (error: AxiosError) => {
         const { response } = error;
+        const silent = (error.config as CustomAxiosRequestConfig | undefined)?.silent;
         tryHideFullScreenLoading();
         // 请求超时 && 网络错误单独判断，没有 response
-        if (error.message.indexOf("timeout") !== -1) ElMessage.error("请求超时！请您稍后重试");
-        if (error.message.indexOf("Network Error") !== -1) ElMessage.error("网络错误！请您稍后重试");
+        if (!silent && error.message.indexOf("timeout") !== -1) ElMessage.error("请求超时！请您稍后重试");
+        if (!silent && error.message.indexOf("Network Error") !== -1) ElMessage.error("网络错误！请您稍后重试");
         // HTTP 401 也必须清除本地登录状态。否则失效 Token 会让路由守卫
         // 一直把用户挡在登录页之外，退出接口本身也会因为 401 而无法完成。
         if (response?.status === 401) {
@@ -105,7 +107,7 @@ class RequestHttp {
           if (!isLoginRequest && router.currentRoute.value.path !== LOGIN_URL) {
             await router.replace(LOGIN_URL);
           }
-        } else if (response) {
+        } else if (response && !silent) {
           // 根据服务器响应的错误状态码，做不同的处理
           checkStatus(response.status);
         }

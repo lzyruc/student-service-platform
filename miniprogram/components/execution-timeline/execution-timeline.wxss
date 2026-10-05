@@ -1,0 +1,84 @@
+.timeline {
+  padding: 8rpx 0;
+}
+.timeline-step {
+  display: flex;
+  align-items: flex-start;
+  gap: 20rpx;
+  position: relative;
+  padding: 14rpx 0;
+}
+.timeline-step:not(:last-child)::after {
+  content: "";
+  position: absolute;
+  left: 15rpx;
+  top: 48rpx;
+  bottom: -12rpx;
+  width: 1rpx;
+  background: #e4e9f3;
+}
+.step-symbol {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  width: 32rpx;
+  height: 32rpx;
+  font-size: 20rpx;
+  border-radius: 50%;
+  background: #eef2ff;
+  color: #425bd8;
+  z-index: 1;
+}
+.step-symbol.done {
+  background: #e9f6f0;
+  color: #2a9472;
+}
+.step-symbol.warning {
+  background: #fff4e3;
+  color: #b47d27;
+}
+.step-symbol.error {
+  background: #fff0f0;
+  color: #bd5a5a;
+}
+.step-symbol.running {
+  animation: pulse 1.4s ease-in-out infinite;
+}
+.step-copy {
+  flex: 1;
+  min-width: 0;
+}
+.step-label {
+  display: block;
+  font-size: 24rpx;
+  font-weight: 500;
+  color: #35425c;
+}
+.step-detail {
+  display: block;
+  font-size: 20rpx;
+  color: #9ba5b7;
+  margin-top: 6rpx;
+  line-height: 1.6;
+}
+.step-state {
+  font-size: 19rpx;
+  color: #97a3b8;
+  flex-shrink: 0;
+  line-height: 32rpx;
+}
+.step-state.running {
+  color: #425bd8;
+}
+.step-state.warning {
+  color: #b47d27;
+}
+.step-state.error {
+  color: #bd5a5a;
+}
+@keyframes pulse {
+  50% {
+    box-shadow: 0 0 0 7rpx rgba(66, 91, 216, 0.09);
+  }
+}

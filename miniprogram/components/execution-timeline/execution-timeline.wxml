@@ -1,0 +1,12 @@
+<view class="timeline"
+  ><view class="timeline-step" wx:for="{{steps}}" wx:key="id"
+    ><view class="step-symbol {{item.state}}"
+      >{{item.state==='done'?'✓':item.state==='warning'?'!':item.state==='error'?'×':'·'}}</view
+    ><view class="step-copy"
+      ><text class="step-label">{{item.label}}</text
+      ><text class="step-detail">{{item.detail}}</text></view
+    ><text class="step-state {{item.state}}"
+      >{{item.state==='done'?'完成':item.state==='warning'?'需关注':item.state==='error'?'未完成':'进行中'}}</text
+    ></view
+  ></view
+>

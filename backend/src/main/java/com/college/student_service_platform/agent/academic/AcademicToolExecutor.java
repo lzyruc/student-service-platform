@@ -45,6 +45,10 @@ public class AcademicToolExecutor {
         return analysis.createReadContext(request);
     }
 
+    public AcademicAnalysisReadContext beginRequest(com.college.student_service_platform.agent.AgentIdentityContext identity) {
+        return analysis.createReadContext(identity);
+    }
+
     public List<AcademicToolDefinition> definitions() {
         return tools.values().stream().map(AcademicTool::definition).toList();
     }

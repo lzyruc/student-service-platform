@@ -63,10 +63,11 @@ export const updatePolicyDocument = (id: number, params: PolicyDocumentApi.SaveR
   return http.put<PolicyDocumentApi.Item>(`/admin/knowledge/documents/${id}`, params, { cancel: false });
 };
 
-export const listPolicyDocuments = (params: PolicyDocumentApi.PageQuery) => {
+export const listPolicyDocuments = (params: PolicyDocumentApi.PageQuery, options: { silent?: boolean } = {}) => {
   return http.get<PolicyDocumentApi.PageResponse>("/admin/knowledge/documents", params, {
     cancel: false,
-    loading: false
+    loading: false,
+    ...options
   });
 };
 

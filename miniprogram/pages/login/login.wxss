@@ -1,9 +1,76 @@
-.login-container { height: 100vh; display: flex; align-items: center; justify-content: center; padding: 40rpx; background: var(--grad-1); }
-.login-card { width: 100%; padding: 64rpx 40rpx; text-align: center; }
-.logo-circle { font-size: 80rpx; margin-bottom: 20rpx; }
-.sys-title { font-size: 48rpx; font-weight: bold; color: var(--c-primary); display: block; margin-bottom: 10rpx; }
-.sys-subtitle { font-size: 26rpx; color: #666; display: block; margin-bottom: 54rpx; }
-.input-group { text-align: left; margin-bottom: 40rpx; }
-.label { font-size: 28rpx; color: #333; margin-bottom: 16rpx; display: block; font-weight: bold; }
-.input-box { background: #f5f7fa; height: 96rpx; border-radius: 20rpx; padding: 0 30rpx; font-size: 30rpx; border: 1rpx solid #e3e8f0; box-sizing: border-box; }
-.login-btn { width: 100%; height: 96rpx; line-height: 96rpx; border-radius: 48rpx; background: var(--grad-2); font-size: 32rpx; font-weight: bold; margin-top: 40rpx; box-shadow: 0 12rpx 24rpx rgba(21, 137, 255, 0.3); color: #fff; }
+.login-container {
+  min-height: 100vh;
+  padding: 64rpx 40rpx;
+  background: #f5f7fb;
+  box-sizing: border-box;
+}
+.login-brand {
+  display: flex;
+  align-items: center;
+  gap: 14rpx;
+  font-size: 26rpx;
+  font-weight: 600;
+}
+.login-symbol {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 52rpx;
+  height: 52rpx;
+  border-radius: 14rpx;
+  background: #425bd8;
+  color: #fff;
+  font-size: 34rpx;
+}
+.login-welcome {
+  margin: 100rpx 0 46rpx;
+}
+.login-heading {
+  font-size: 58rpx;
+  font-weight: 650;
+  letter-spacing: -2rpx;
+  color: #25334d;
+}
+.login-card {
+  padding: 40rpx 32rpx;
+}
+.input-group {
+  margin-bottom: 32rpx;
+}
+.label {
+  display: block;
+  font-size: 24rpx;
+  font-weight: 500;
+  color: #72819a;
+  margin-bottom: 16rpx;
+}
+.input-box {
+  height: 90rpx;
+  background: #f8faff;
+  border: 1rpx solid #e1e7f1;
+  border-radius: 14rpx;
+  padding: 0 24rpx;
+  font-size: 27rpx;
+}
+.login-btn {
+  margin-top: 38rpx;
+  height: 88rpx;
+  line-height: 88rpx;
+  box-shadow: none;
+  background: #425bd8;
+  border-radius: 16rpx;
+  font-size: 27rpx;
+}
+.login-note {
+  display: block;
+  text-align: center;
+  font-size: 20rpx;
+  color: #a0aabb;
+  margin-top: 26rpx;
+}
+.login-footer {
+  text-align: center;
+  font-size: 20rpx;
+  color: #a1acbd;
+  margin: 46rpx 0;
+}

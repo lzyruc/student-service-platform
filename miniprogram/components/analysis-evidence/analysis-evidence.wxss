@@ -1,0 +1,92 @@
+.evidence {
+  margin: 20rpx 0;
+}
+.metric-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  border: 1rpx solid #e3e9f4;
+  border-radius: 18rpx;
+  overflow: hidden;
+}
+.metric {
+  padding: 22rpx;
+  background: #f8faff;
+}
+.metric-label {
+  display: block;
+  color: #929eb1;
+  font-size: 20rpx;
+  margin-bottom: 8rpx;
+}
+.metric-value {
+  display: block;
+  color: #26385a;
+  font-size: 32rpx;
+  font-weight: 600;
+}
+.trend-card,
+.course-card {
+  padding: 24rpx;
+  border: 1rpx solid #e5ebf5;
+  border-radius: 18rpx;
+  background: #fafbfe;
+}
+.evidence-title {
+  display: block;
+  color: #3f4e68;
+  font-size: 24rpx;
+  font-weight: 600;
+  margin-bottom: 10rpx;
+}
+.evidence-caption {
+  display: block;
+  color: #9aa5b8;
+  font-size: 18rpx;
+  line-height: 1.7;
+}
+.trend-row {
+  display: flex;
+  align-items: center;
+  gap: 14rpx;
+  margin: 20rpx 0;
+}
+.semester-label {
+  width: 190rpx;
+  font-size: 19rpx;
+  color: #8190a9;
+  flex-shrink: 0;
+}
+.bar-track {
+  flex: 1;
+  height: 12rpx;
+  background: #e8edf8;
+  border-radius: 6rpx;
+}
+.bar-fill {
+  height: 100%;
+  background: #7d91df;
+  border-radius: 6rpx;
+}
+.semester-value {
+  width: 55rpx;
+  text-align: right;
+  font-size: 22rpx;
+  color: #3a4a69;
+  font-weight: 600;
+}
+.focus-course {
+  display: flex;
+  justify-content: space-between;
+  gap: 20rpx;
+  font-size: 24rpx;
+  color: #6e7e98;
+  padding: 16rpx 0;
+  border-bottom: 1rpx solid #edf0f6;
+}
+.focus-course:last-child {
+  border-bottom: 0;
+}
+.course-score {
+  font-weight: 600;
+  color: #435574;
+}

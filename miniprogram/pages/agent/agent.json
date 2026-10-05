@@ -1,1 +1,8 @@
-{ "navigationBarTitleText": "学业智能助手", "disableScroll": true }
+{
+  "navigationBarTitleText": "学业智能助手",
+  "disableScroll": true,
+  "usingComponents": {
+    "execution-timeline": "/components/execution-timeline/execution-timeline",
+    "analysis-evidence": "/components/analysis-evidence/analysis-evidence"
+  }
+}

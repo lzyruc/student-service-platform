@@ -1,19 +1,12 @@
 <template>
   <div class="examine-approve content-box">
+    <PageHeader title="证明审批" description="集中处理学生证明申请，审核后生成可下载文件。" eyebrow="STUDENT AFFAIRS">
+      <el-button type="primary" plain @click="refreshList">刷新列表</el-button>
+    </PageHeader>
     <div class="card">
-      <div class="header">
-        <div class="title">审批中心（电子证明）</div>
-        <div class="actions">
-          <el-button type="primary" plain @click="refreshList">刷新列表</el-button>
-        </div>
-      </div>
-      <el-alert
-        title="审批通过后，后端会生成电子证明文件；管理员和申请学生都可以下载。"
-        type="info"
-        :closable="false"
-        class="mb16"
-      />
+      <el-alert title="审批通过后自动生成电子证明，管理员与申请学生均可下载。" type="info" :closable="false" class="mb16" />
 
+      <DataState :loading="listLoading" :error="listError" label="证明申请" @retry="refreshList()" />
       <el-tabs v-model="activeTab">
         <el-tab-pane :label="`待审核（${pendingList.length}）`" name="pending">
           <div class="filters mb12">
@@ -26,7 +19,14 @@
             <el-button type="primary" plain :disabled="pendingList.length === 0" @click="batchApprove">批量通过</el-button>
           </div>
 
-          <el-table :data="pendingFiltered" row-key="id" height="560" @selection-change="onSelectionChange">
+          <el-table
+            v-show="!listLoading && !listError"
+            :data="pendingPageRows"
+            row-key="id"
+            height="560"
+            @selection-change="onSelectionChange"
+          >
+            <template #empty><el-empty description="暂无匹配的证明申请" :image-size="58" /></template>
             <el-table-column type="selection" width="55" />
             <el-table-column prop="certificateType" label="类型" width="110" />
             <el-table-column prop="studentNo" label="学号" width="140" />
@@ -40,6 +40,12 @@
               </template>
             </el-table-column>
           </el-table>
+          <ListPagination
+            v-show="!listLoading && !listError"
+            v-model:page="pendingPage"
+            v-model:page-size="pendingPageSize"
+            :total="pendingFiltered.length"
+          />
         </el-tab-pane>
 
         <el-tab-pane :label="`已处理（${doneList.length}）`" name="done">
@@ -50,8 +56,13 @@
             </el-select>
             <el-input v-model.trim="filterDone.keyword" placeholder="搜索：学号/类型/申请内容" clearable class="w260" />
           </div>
-          <el-table :data="doneFiltered" row-key="id" height="560">
-            <el-table-column prop="applyStatus" label="状态" width="90" />
+          <el-table v-show="!listLoading && !listError" :data="donePageRows" row-key="id" height="560">
+            <template #empty><el-empty description="暂无匹配的证明申请" :image-size="58" /></template>
+            <el-table-column label="状态" width="100"
+              ><template #default="{ row }"
+                ><el-tag :type="row.applyStatus === '已通过' ? 'success' : 'danger'">{{ row.applyStatus }}</el-tag></template
+              ></el-table-column
+            >
             <el-table-column prop="certificateType" label="类型" width="110" />
             <el-table-column prop="studentNo" label="学号" width="140" />
             <el-table-column prop="summary" label="申请内容" min-width="220" show-overflow-tooltip />
@@ -64,9 +75,15 @@
               </template>
             </el-table-column>
           </el-table>
+          <ListPagination
+            v-show="!listLoading && !listError"
+            v-model:page="donePage"
+            v-model:page-size="donePageSize"
+            :total="doneFiltered.length"
+          />
         </el-tab-pane>
 
-        <el-tab-pane label="模拟提交（写入数据库）" name="create">
+        <el-tab-pane label="代提交申请" name="create">
           <el-row :gutter="16">
             <el-col :xs="24" :md="12">
               <div class="card inner-card">
@@ -114,14 +131,12 @@
               <div class="card inner-card">
                 <div class="inner-title">说明</div>
                 <el-descriptions :column="1" border>
-                  <el-descriptions-item label="如何模拟“收到申请”">
-                    这里的“提交”按钮等价于学生端提交；数据会写入数据库，并进入“待审核”列表。
-                  </el-descriptions-item>
-                  <el-descriptions-item label="如何模拟“审批留痕”">
-                    点击通过/驳回会写入审批任务（时间、审批人、意见），并进入“已处理”列表。
+                  <el-descriptions-item label="代提交申请"> 填写学生学号和申请内容，提交后进入待审核列表。 </el-descriptions-item>
+                  <el-descriptions-item label="审批记录">
+                    通过或驳回时保存审批时间、审批人和意见，可在已处理列表查看。
                   </el-descriptions-item>
                   <el-descriptions-item label="如何获得证明文件">
-                    审批通过时后端会自动生成 DOCX，并写入文件表；驳回时不会生成文件。
+                    审批通过后生成电子证明，学生可在小程序下载；驳回申请不生成证明。
                   </el-descriptions-item>
                 </el-descriptions>
               </div>
@@ -190,6 +205,10 @@
 </template>
 
 <script setup lang="ts" name="collegeExamineApprove">
+import PageHeader from "@/components/product/PageHeader.vue";
+import ListPagination from "@/components/product/ListPagination.vue";
+import { useTablePagination } from "@/hooks/useTablePagination";
+import DataState from "@/components/product/DataState.vue";
 import { computed, onMounted, reactive, ref, watch } from "vue";
 import { ElMessage } from "element-plus";
 import type { FormInstance, FormRules } from "element-plus";
@@ -245,6 +264,7 @@ const pendingFiltered = computed(() => {
     return matchKeyword(r, filter.keyword);
   });
 });
+const { page: pendingPage, pageSize: pendingPageSize, pagedRows: pendingPageRows } = useTablePagination(pendingFiltered);
 
 const doneFiltered = computed(() => {
   return doneList.value.filter(r => {
@@ -252,6 +272,7 @@ const doneFiltered = computed(() => {
     return matchKeyword(r, filterDone.keyword);
   });
 });
+const { page: donePage, pageSize: donePageSize, pagedRows: donePageRows } = useTablePagination(doneFiltered);
 
 const onSelectionChange = (rows: ApplyRow[]) => {
   selectedIds.value = rows.map(r => r.id);
@@ -452,7 +473,9 @@ const buildSummary = (item: BackendCertificate.ApplyItem) => {
   return raw ? raw.slice(0, 80) : "—";
 };
 
+const listError = ref(false);
 const refreshList = async () => {
+  listError.value = false;
   listLoading.value = true;
   try {
     const res = await listCertificateApplies();
@@ -463,6 +486,7 @@ const refreshList = async () => {
       summary: buildSummary(i)
     }));
   } catch (e: any) {
+    listError.value = true;
     ElMessage.error(e?.message ?? "拉取列表失败");
   } finally {
     listLoading.value = false;

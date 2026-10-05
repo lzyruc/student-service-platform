@@ -2,6 +2,7 @@ package com.college.student_service_platform;
 
 import com.college.student_service_platform.agent.academic.*;
 import com.college.student_service_platform.agent.AgentChatRequest;
+import com.college.student_service_platform.agent.*;
 import com.college.student_service_platform.agent.AgentProperties;
 import com.college.student_service_platform.agent.DeepSeekClient;
 import com.college.student_service_platform.agent.DeepSeekReply;
@@ -413,17 +414,19 @@ class AcademicToolExecutorTest {
         var properties = new AgentProperties();
         var agent = new SingleAgentService(model, executor, properties, mapper, new com.college.student_service_platform.agent.academic.AcademicSkill(properties));
         var jwt = new JwtUtil("0123456789abcdef0123456789abcdef", "test", Duration.ofHours(1));
-        var mvc = MockMvcBuilders.standaloneSetup(new AgentChatController(agent))
+        var conversationFixture = ConversationTestSupport.create();
+        long conversationId = conversationFixture.service().create(request, null).id();
+        var mvc = MockMvcBuilders.standaloneSetup(new AgentChatController(new ConversationChatService(conversationFixture.service(), agent)))
                 .setControllerAdvice(new GlobalExceptionHandler()).addFilters(new AuthFilter(jwt, mapper)).build();
         String token = "Bearer " + jwt.createToken("20260001", "student");
         mvc.perform(post("/api/student/agent/chat").header("Authorization", token).contentType(MediaType.APPLICATION_JSON)
-                .content("{\"message\":\"分析最近学习情况\"}"))
+                .content("{\"conversationId\":" + conversationId + ",\"message\":\"分析最近学习情况\"}"))
                 .andExpect(status().isOk()).andExpect(jsonPath("$.data.status").value("COMPLETED"))
                 .andExpect(jsonPath("$.data.toolRounds").value(2)).andExpect(jsonPath("$.data.toolCalls.length()").value(4));
         verify(client, times(1)).analyzeStoredTranscript(eq(pdf), anyString(), eq("20260001"), anyString());
-        // Same conversation text, new HTTP request: do not reuse the previous request's analysis.
+        // Owned persisted conversation, new HTTP request: do not reuse the previous request's analysis.
         mvc.perform(post("/api/student/agent/chat").header("Authorization", token).contentType(MediaType.APPLICATION_JSON)
-                .content("{\"message\":\"再看一下\",\"history\":[{\"role\":\"assistant\",\"content\":\"旧回答\"}]}"))
+                .content("{\"conversationId\":" + conversationId + ",\"message\":\"再看一下\"}"))
                 .andExpect(status().isOk());
         verify(client, times(2)).analyzeStoredTranscript(eq(pdf), anyString(), eq("20260001"), anyString());
         for (var batch : sent) for (var message : batch) if ("tool".equals(message.path("role").asText())) {
@@ -434,11 +437,97 @@ class AcademicToolExecutorTest {
             assertFalse(content.contains("private raw data"));
         }
         mvc.perform(post("/api/student/agent/chat").header("Authorization", "Bearer " + jwt.createToken("admin", "admin"))
-                .contentType(MediaType.APPLICATION_JSON).content("{\"message\":\"分析\"}"))
+                .contentType(MediaType.APPLICATION_JSON).content("{\"conversationId\":" + conversationId + ",\"message\":\"分析\"}"))
                 .andExpect(status().isForbidden());
         assertEquals(5, steps.get());
         verifyNoInteractions(records);
         verify(transcripts, never()).save(anyString(), any());
+    }
+
+
+    @Test
+    void ownedDatabaseHistoryCannotOverrideCurrentPythonGpaAndNextRequestGetsFreshSnapshot() throws Exception {
+        var fixture=ConversationTestSupport.create();long id=fixture.service().create(request,null).id();
+        fixture.service().saveExchange(fixture.service().prepareChat(request,id,"我的 GPA 是 4.0"),
+                new AgentChatResponse("上轮自述 GPA=4.0，不是当前核验结果","COMPLETED",0,List.of()));
+        ((ObjectNode)response.path("data").path("report")).put("official_gpa_available",true).put("official_gpa",2.8);
+        var model=mock(DeepSeekClient.class);var sent=new ArrayList<com.fasterxml.jackson.databind.node.ArrayNode>();
+        when(model.complete(any(),anyList(),anyString())).thenAnswer(call -> {
+            var messages=((com.fasterxml.jackson.databind.node.ArrayNode)call.getArgument(0)).deepCopy();sent.add(messages);
+            boolean hasTool=java.util.stream.StreamSupport.stream(messages.spliterator(),false).anyMatch(m -> "tool".equals(m.path("role").asText()));
+            var message=mapper.createObjectNode().put("role","assistant");
+            if(hasTool) return new DeepSeekReply(message.put("content","你的 GPA 是 4.0，没有问题"),"stop");
+            message.putArray("tool_calls").addObject().put("id","same-request-local-id").put("type","function")
+                    .putObject("function").put("name","get_academic_assessment").put("arguments","{}");
+            return new DeepSeekReply(message,"tool_calls");
+        });
+        var properties=new AgentProperties();var agent=new SingleAgentService(model,executor,properties,mapper,new AcademicSkill(properties));
+        var chats=new ConversationChatService(fixture.service(),agent);
+        var first=chats.prepare(new ConversationChatRequest(id,"那我情况怎么样？"),request);
+        assertTrue(first.requestContext().business().results().isEmpty());verifyNoInteractions(client);
+        var firstResult=chats.chat(first,event -> { });
+        assertTrue(firstResult.answer().contains("2.8"));assertFalse(firstResult.answer().contains("4.0"));
+        assertTrue(sent.get(0).get(2).path("content").asText().contains("4.0"));
+        assertEquals(1,first.requestContext().toolCallCount());
+        ((ObjectNode)response.path("data").path("report")).put("official_gpa",3.1);
+        var second=chats.prepare(new ConversationChatRequest(id,"现在呢？"),request);
+        assertNotSame(first.requestContext(),second.requestContext());
+        assertNotSame(first.requestContext().business().analysis(),second.requestContext().business().analysis());
+        assertEquals(0,second.requestContext().toolCallCount());
+        var secondResult=chats.chat(second,event -> { });assertTrue(secondResult.answer().contains("3.1"));
+        assertEquals(2.8,first.requestContext().business().analysis().getSnapshot().report().path("official_gpa").asDouble());
+        assertEquals(3.1,second.requestContext().business().analysis().getSnapshot().report().path("official_gpa").asDouble());
+        verify(client,times(2)).analyzeStoredTranscript(eq(pdf),anyString(),eq("20260001"),anyString());
+        verifyNoInteractions(records);
+    }
+
+    @Test
+    void severalToolsInFailedRequestDoNotRetryPythonButNextRequestCanRecover() throws Exception {
+        when(client.analyzeStoredTranscript(eq(pdf),anyString(),eq("20260001"),anyString()))
+                .thenThrow(new IllegalStateException("temporary failure")).thenReturn(response);
+        var fixture=ConversationTestSupport.create();long id=fixture.service().create(request,null).id();
+        var model=mock(DeepSeekClient.class);
+        when(model.complete(any(),anyList(),anyString())).thenAnswer(call -> {
+            var messages=(com.fasterxml.jackson.databind.node.ArrayNode)call.getArgument(0);
+            boolean hasTool=java.util.stream.StreamSupport.stream(messages.spliterator(),false).anyMatch(m -> "tool".equals(m.path("role").asText()));
+            var message=mapper.createObjectNode().put("role","assistant");
+            if(hasTool) return new DeepSeekReply(message.put("content","当前 GPA 是 4.0"),"stop");
+            var calls=message.putArray("tool_calls");
+            for(String name:List.of("get_academic_assessment","get_recent_course_performance","get_academic_trend"))
+                calls.addObject().put("id",name).put("type","function").putObject("function").put("name",name).put("arguments","{}");
+            return new DeepSeekReply(message,"tool_calls");
+        });
+        var properties=new AgentProperties();var agent=new SingleAgentService(model,executor,properties,mapper,new AcademicSkill(properties));
+        var chats=new ConversationChatService(fixture.service(),agent);
+        var failed=chats.prepare(new ConversationChatRequest(id,"分析"),request);
+        var failedResult=chats.chat(failed,event -> { });assertEquals("DATA_UNAVAILABLE",failedResult.status());
+        assertFalse(failedResult.answer().contains("4.0"));assertEquals(3,failed.requestContext().toolCallCount());
+        verify(client,times(1)).analyzeStoredTranscript(eq(pdf),anyString(),eq("20260001"),anyString());
+        var recovered=chats.prepare(new ConversationChatRequest(id,"重试"),request);
+        assertEquals("COMPLETED",chats.chat(recovered,event -> { }).status());
+        verify(client,times(2)).analyzeStoredTranscript(eq(pdf),anyString(),eq("20260001"),anyString());
+        verifyNoInteractions(records);
+    }
+
+
+    @Test
+    void conversationRequestContextsCannotBeMixedAndFailedPersistenceMarksRequestFailed() throws Exception {
+        var fixture=ConversationTestSupport.create();long leftId=fixture.service().create(request,null).id();long rightId=fixture.service().create(request,null).id();
+        var model=mock(DeepSeekClient.class);var properties=new AgentProperties();
+        var agent=new SingleAgentService(model,executor,properties,mapper,new AcademicSkill(properties));
+        var chats=new ConversationChatService(fixture.service(),agent);
+        var left=chats.prepare(new ConversationChatRequest(leftId,"左侧会话"),request);
+        var right=chats.prepare(new ConversationChatRequest(rightId,"右侧会话"),request);
+        assertEquals(HttpStatus.FORBIDDEN,assertThrows(ApiException.class,() -> new ConversationChatService.Prepared(left.input(),right.requestContext())).getStatus());
+        verifyNoInteractions(model,client);
+        // Another completed exchange makes the prepared history stale before the model finishes.
+        fixture.service().saveExchange(fixture.service().prepareChat(request,leftId,"先完成的问题"),new AgentChatResponse("先完成的回答","COMPLETED",0,List.of()));
+        when(model.complete(any(),anyList(),anyString())).thenReturn(new DeepSeekReply(mapper.createObjectNode().put("role","assistant")
+                .put("content","{\"responseType\":\"NON_ANALYSIS\",\"reason\":\"NEEDS_CLARIFICATION\"}"),"stop"));
+        assertEquals(HttpStatus.CONFLICT,assertThrows(ApiException.class,() -> chats.chat(left,event -> { })).getStatus());
+        assertEquals(AgentRequestContext.State.FAILED,left.requestContext().state());
+        assertEquals(AgentRequestContext.State.PREPARED,right.requestContext().state());
+        assertEquals(2,fixture.service().detail(request,leftId,null,100).messages().size());
     }
 
     private <T> T output(String name, String args, AcademicAnalysisReadContext context, Class<T> type) {

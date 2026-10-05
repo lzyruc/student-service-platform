@@ -24,3 +24,10 @@ test('future courses and uncertainty notes remain separate from academic issues'
   assert.equal(report.earnedCredits, 117);
   assert.deepEqual(report.notes, ['尚未到计划学期']);
 });
+
+test('missing statistics remain unavailable rather than a healthy zero GPA', () => {
+  assert.equal(normalizeAcademicReport({}, 0).officialGpa, '—');
+  assert.equal(normalizeAcademicReport({}, 0).riskLevel, 'unknown');
+  assert.equal(normalizeAcademicReport({ warning_level: '正常' }, 1).riskLevel, 'low');
+  assert.equal(normalizeAcademicReport({ official_gpa: 0 }, 1).officialGpa, 0);
+});

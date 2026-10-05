@@ -1,6 +1,5 @@
 package com.college.student_service_platform.agent;
 
-import com.college.student_service_platform.agent.academic.AcademicToolDtos.ContextOutput;
 import com.college.student_service_platform.agent.academic.AcademicToolExecutor;
 import com.college.student_service_platform.agent.academic.AcademicSkill;
 import com.college.student_service_platform.agent.academic.AcademicToolResult;
@@ -11,20 +10,19 @@ import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
-import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 
-import java.util.ArrayList;
-import java.util.HashSet;
 import java.util.List;
-import java.util.Set;
+import java.util.Map;
+import java.util.LinkedHashMap;
+import java.util.function.Consumer;
+import com.college.student_service_platform.service.AgentConversationService;
+import com.college.student_service_platform.agent.academic.AcademicToolDtos;
 
 /** One Agent with an Academic tool set. All mutable state is local to this HTTP request. */
 @Service
 public class SingleAgentService {
-    private static final Set<String> ANALYSIS_TOOLS = Set.of(
-            "get_academic_assessment", "get_recent_course_performance", "get_academic_trend");
     private final DeepSeekClient model;
     private final AcademicToolExecutor tools;
     private final AgentProperties properties;
@@ -40,70 +38,130 @@ public class SingleAgentService {
         this.skill = skill;
     }
 
-    public AgentChatResponse chat(AgentChatRequest input, HttpServletRequest request) {
-        // Once per HTTP request, outside the loop. Never place this in a bean field or Conversation.
-        var analysisContext = tools.beginRequest(request);
-        long deadline = System.nanoTime() + properties.getRequestTimeout().toNanos();
-        ArrayNode messages = mapper.createArrayNode();
-        messages.addObject().put("role", "system").put("content", skill.instructions());
-        for (AgentChatRequest.Turn turn : input.history())
-            messages.addObject().put("role", turn.role()).put("content", turn.content());
-        messages.addObject().put("role", "user").put("content", input.message());
-        List<AgentChatResponse.ToolTrace> trace = new ArrayList<>();
-        Set<String> callIds = new HashSet<>();
-        List<String> nextActions = List.of();
-        boolean analysisAvailable = false;
-        int rounds = 0, calls = 0;
+    /** Capture one owned identity and a fresh lazy business context before streaming/queueing. */
+    public AgentRequestContext prepareRequest(AgentConversationService.ChatInput owned, long startedAtNanos) {
+        return new AgentRequestContext(owned.identity(), new AgentConversationContext(owned.conversationId(), owned.agentRequest().history()),
+                owned.agentRequest().message(), tools.beginRequest(owned.identity()), startedAtNanos, properties.getRequestTimeout(),
+                properties.getMaxToolRounds(), properties.getMaxToolCalls());
+    }
+
+    public AgentChatResponse chat(AgentRequestContext context, Consumer<AgentExecutionEvent> events) {
+        context.beginExecution();
+        try {
+            var response = run(context, events);
+            context.succeed(); return response;
+        } catch (RuntimeException failure) {
+            context.fail(); throw failure;
+        }
+    }
+    private AgentChatResponse run(AgentRequestContext context, Consumer<AgentExecutionEvent> events) {
+        events.accept(AgentExecutionEvent.progress("identity", "验证学生身份", "done", "仅查询当前登录学生"));
+        ArrayNode messages = AgentPromptBuilder.build(mapper, skill.instructions(), context);
         var definitions = tools.definitions();
         while (true) {
-            checkDeadline(deadline);
-            boolean limitReached = rounds >= properties.getMaxToolRounds() || calls >= properties.getMaxToolCalls();
+            context.checkDeadline();
+            boolean limitReached = context.limitReached();
             // Scope refusals need no student data. Evidence is still required for academic conclusions.
             String choice = limitReached ? "none" : "auto";
+            String modelId = "model-" + (context.toolRounds() + 1);
+            String modelLabel = context.toolRounds() == 0 ? "理解学业问题" : "整理工具结果";
+            events.accept(AgentExecutionEvent.progress(modelId, modelLabel, "running", "正在等待模型响应"));
             DeepSeekReply reply = model.complete(messages, definitions, choice);
-            checkDeadline(deadline);
+            events.accept(AgentExecutionEvent.progress(modelId, modelLabel, "done", "已收到模型响应"));
+            context.checkDeadline();
             ObjectNode assistant = reply.message();
             JsonNode requested = assistant.path("tool_calls");
             if (!requested.isArray() || requested.isEmpty()) {
-                var nonAnalysis = nonAnalysisReply(assistant.path("content").textValue(), trace, rounds);
+                var nonAnalysis = nonAnalysisReply(assistant.path("content").textValue(), context.trace(), context.toolRounds());
                 if (nonAnalysis != null) return nonAnalysis;
-                if (!analysisAvailable) return noEvidence(trace, nextActions, rounds, limitReached);
-                return new AgentChatResponse(assistant.path("content").asText(),
-                        limitReached ? "TOOL_LIMIT" : "COMPLETED", rounds, trace);
+                if (!context.business().analysisAvailable()) return noEvidence(context.trace(), context.business().nextActions(), context.toolRounds(), limitReached);
+                return new AgentChatResponse(AcademicAnswerGrounding.ground(assistant.path("content").asText(), context.business()),
+                        limitReached ? "TOOL_LIMIT" : "COMPLETED", context.toolRounds(), context.trace());
             }
-            if (limitReached) return noEvidence(trace, nextActions, rounds, true);
+            if (limitReached) return noEvidence(context.trace(), context.business().nextActions(), context.toolRounds(), true);
             // Validate IDs for the entire batch before executing anything.
             for (JsonNode call : requested) {
-                if (!callIds.add(call.path("id").asText()))
-                    throw new ApiException(HttpStatus.BAD_GATEWAY, "模型返回了重复工具调用标识，请重试");
+                context.registerCallId(call.path("id").asText());
             }
             messages.add(assistant);
             for (JsonNode call : requested) {
-                checkDeadline(deadline);
+                context.checkDeadline();
                 String name = call.path("function").path("name").asText();
+                String eventId = "tool-" + (context.trace().size() + 1);
+                String eventLabel = toolLabel(name);
                 AcademicToolResult<?> result;
-                if (calls >= properties.getMaxToolCalls()) {
+                if (!context.tryStartToolCall()) {
                     result = new AcademicToolResult<>(name, "TOOL_LIMIT", "本请求工具执行次数已达上限", null);
                 } else {
-                    calls++;
-                    result = tools.execute(name, call.path("function").path("arguments").asText(), analysisContext);
+                    events.accept(AgentExecutionEvent.progress(eventId, eventLabel, "running", "正在执行受控学业查询"));
+                    result = tools.execute(name, call.path("function").path("arguments").asText(), context.business().analysis());
                 }
-                checkDeadline(deadline);
+                context.checkDeadline();
                 String dataStatus = result.data() == null ? null : mapper.valueToTree(result.data()).path("status").textValue();
-                trace.add(new AgentChatResponse.ToolTrace(result.tool(), result.status(), dataStatus));
+                context.addTrace(new AgentChatResponse.ToolTrace(result.tool(), result.status(), dataStatus));
+                boolean complete = "OK".equals(result.status()) && !"MISSING_DATA".equals(dataStatus)
+                        && !"INSUFFICIENT_DATA".equals(dataStatus);
+                events.accept(AgentExecutionEvent.progress(eventId, eventLabel, complete ? "done" : "warning",
+                        complete ? "查询完成" : toolStatus(result.status(), dataStatus)));
+                if ("OK".equals(result.status())) emitEvidence(result.data(), events);
                 // A real business permission denial stops this request, including the remaining batch.
-                if ("ACCESS_DENIED".equals(result.status())) return refused(trace, rounds + 1);
-                if ("OK".equals(result.status()) && ANALYSIS_TOOLS.contains(name)) analysisAvailable = true;
-                if (result.data() instanceof ContextOutput context) nextActions = context.nextActions();
+                if ("ACCESS_DENIED".equals(result.status())) return refused(context.trace(), context.toolRounds() + 1);
+                context.business().record(result);
                 messages.addObject().put("role", "tool").put("tool_call_id", call.path("id").asText())
                         .put("content", resultJson(result));
             }
-            rounds++;
-            if (rounds >= properties.getMaxToolRounds() || calls >= properties.getMaxToolCalls()) {
+            context.finishToolRound();
+            if (context.limitReached()) {
                 messages.addObject().put("role", "system")
                         .put("content", "本请求工具执行已达上限。只基于当前工具结果总结，明确说明未完成的部分，不再请求工具。");
             }
         }
+    }
+
+    private String toolLabel(String name) {
+        return switch (name) {
+            case "get_academic_context" -> "读取学业资料与培养方案";
+            case "get_academic_assessment" -> "读取成绩单并分析学业情况";
+            case "get_recent_course_performance" -> "分析近期课程表现";
+            case "get_academic_trend" -> "查询成绩趋势";
+            default -> "检查查询能力";
+        };
+    }
+
+    private String toolStatus(String status, String dataStatus) {
+        if ("ACCESS_DENIED".equals(status)) return "当前请求无权读取";
+        if ("SERVICE_UNAVAILABLE".equals(status)) return "学业数据服务暂不可用";
+        if ("MISSING_DATA".equals(status) || "MISSING_DATA".equals(dataStatus)) return "资料尚未齐全";
+        if ("INSUFFICIENT_DATA".equals(dataStatus)) return "取得部分数据，覆盖不足";
+        if ("TOOL_LIMIT".equals(status)) return "已达到本轮查询上限";
+        return "本次查询未完成";
+    }
+
+    /** UI projections use computed Tool DTO values, not numbers extracted from model prose. */
+    private void emitEvidence(Object data, Consumer<AgentExecutionEvent> events) {
+        if (data instanceof AcademicToolDtos.AssessmentOutput assessment) {
+            var metrics = List.of(metric("官方 GPA", assessment.officialGpaAvailable() ? assessment.officialGpa() : null),
+                    metric("已获学分", assessment.totalEarnedCredits()), metric("待核实事项", assessment.issueCourseCount()),
+                    metric("预警等级", assessment.warningLevel()));
+            events.accept(new AgentExecutionEvent("evidence", Map.of("kind", "overview", "metrics", metrics)));
+        } else if (data instanceof AcademicToolDtos.TrendOutput trend) {
+            events.accept(new AgentExecutionEvent("evidence", Map.of("kind", "trend", "semesters", trend.semesters().stream().map(semester -> {
+                Map<String,Object> row = new LinkedHashMap<>();
+                row.put("semester", semester.semester()); row.put("weightedGpa", semester.weightedGpa());
+                row.put("gpaCourseCount", semester.gpaCourseCount()); row.put("averageNumericScore", semester.averageNumericScore());
+                return row;
+            }).toList())));
+        } else if (data instanceof AcademicToolDtos.RecentOutput recent) {
+            events.accept(new AgentExecutionEvent("evidence", Map.of("kind", "recent", "semester", recent.semester() == null ? "" : recent.semester(),
+                    "courses", recent.focusCourses().stream().map(course -> {
+                        Map<String,Object> row = new LinkedHashMap<>(); row.put("name", course.name());
+                        row.put("score", course.score()); row.put("reason", course.reason()); return row;
+                    }).toList())));
+        }
+    }
+
+    private Map<String,Object> metric(String label, Object value) {
+        Map<String,Object> item = new LinkedHashMap<>(); item.put("label", label); item.put("value", value); return item;
     }
 
     /** Model identifies intent only. Allowed non-analysis replies are fixed server text, never model claims. */
@@ -151,8 +209,4 @@ public class SingleAgentService {
         return new AgentChatResponse(answer, limit ? "TOOL_LIMIT" : "DATA_UNAVAILABLE", rounds, trace);
     }
 
-    private void checkDeadline(long deadline) {
-        if (System.nanoTime() >= deadline)
-            throw new ApiException(HttpStatus.GATEWAY_TIMEOUT, "本次 Agent 请求超过耗时预算，请稍后重试");
-    }
 }

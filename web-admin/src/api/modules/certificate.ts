@@ -50,8 +50,12 @@ export const submitCertificateApply = (params: BackendCertificate.ApplySubmitReq
   return http.post<number>("/certificate/apply/submit", params, { cancel: false });
 };
 
-export const listCertificateApplies = (params?: { status?: string; keyword?: string }) => {
-  return http.get<BackendCertificate.ApplyItem[]>("/certificate/apply/list", params, { cancel: false, loading: false });
+export const listCertificateApplies = (params?: { status?: string; keyword?: string }, options: { silent?: boolean } = {}) => {
+  return http.get<BackendCertificate.ApplyItem[]>("/certificate/apply/list", params, {
+    cancel: false,
+    loading: false,
+    ...options
+  });
 };
 
 export const getCertificateApplyDetail = (id: number | string) => {

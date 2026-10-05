@@ -1,6 +1,6 @@
 <template>
   <div class="footer flx-center">
-    <a href="https://github.com/HalseySpicy" target="_blank"> 2022 © Geeker-Admin By Geeker Technology. </a>
+    <span>学生综合服务平台 · 校园服务工作台</span>
   </div>
 </template>
 

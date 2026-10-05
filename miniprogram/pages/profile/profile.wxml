@@ -1,45 +1,50 @@
-﻿<view class="container profile-container">
-  <view class="profile-header">
-    <view class="header-bg-mask"></view>
-    <view class="header-content">
-      <image class="avatar" src="/assets/头像.webp" mode="aspectFill"></image>
-      <view class="user-info">
-        <view class="name-row">
-          <text class="name">{{name}}</text>
-          <text class="identity-badge">学生</text>
-        </view>
-        <text class="student-no">学号: {{studentNo}} | {{userInfo.major || '信息学院'}}</text>
-      </view>
-    </view>
-  </view>
-
-  <view class="glass-card info-board-card">
-    <view class="board-title">我的学业看板</view>
-    <view class="stats-grid">
-      <view class="stat-item {{showCourses ? 'stat-item-active' : ''}}" bindtap="toggleCourses">
-        <text class="stat-num">{{earnedCredits}}</text>
-        <text class="stat-name">已修总学分 ▼</text>
-      </view>
-      <view class="stat-item">
-        <text class="stat-num">0</text>
-        <text class="stat-name">挂科违纪记录</text>
-      </view>
-    </view>
-
-    <view class="course-dropdown {{showCourses ? 'dropdown-expand' : ''}}">
-      <view class="dropdown-inner">
-        <view class="course-list-title">已修读课程明细：</view>
-        <view class="course-row" wx:for="{{myCourses}}" wx:key="name">
-          <view class="c-info">
-            <text class="c-dot">●</text>
-            <text class="c-name">{{item.name || item.courseName}}</text>
-          </view>
-          <text class="c-credit">{{item.credit || item.credits || 0}} 学分</text>
-        </view>
-      </view>
-    </view>
-  </view>
-
-
-  <button class="logout-btn" bindtap="handleLogout">安全退出当前账号</button>
-</view>
+<view class="container profile-container"
+  ><text class="page-eyebrow">MY CAMPUS</text
+  ><text class="page-title">个人中心</text
+  ><text class="page-description">你的身份、学业资料与校园服务。</text
+  ><view class="surface-card profile-identity"
+    ><view class="profile-monogram">{{initial || '学'}}</view
+    ><view
+      ><view class="name-row"
+        ><text class="name">{{name || '学生'}}</text
+        ><text class="identity-badge">学生</text></view
+      ><text class="student-no">{{studentNo || '未登录'}}</text
+      ><text class="profile-major"
+        >{{userInfo.major || '专业信息待维护'}} · {{userInfo.grade ||
+        '年级待维护'}}</text
+      ></view
+    ></view
+  ><view class="glass-card info-board-card"
+    ><view class="board-title">我的学业资料</view
+    ><view wx:if="{{loading}}"
+      ><view class="skeleton skeleton-lg"></view
+      ><view class="skeleton"></view></view
+    ><view wx:elif="{{loadError}}" class="error-state"
+      >暂时无法读取个人资料<button bindtap="fetchRealData">
+        重新加载
+      </button></view
+    ><view wx:else
+      ><text class="board-caption">来自最近一次已保存的课程分析记录</text
+      ><view class="stats-grid"
+        ><view class="stat-item" bindtap="toggleCourses"
+          ><text class="stat-num"
+            >{{myCourses.length ? earnedCredits : '—'}}</text
+          ><text class="stat-name">已获学分 {{showCourses?'⌃':'⌄'}}</text></view
+        ><view class="stat-item"
+          ><text class="stat-num">{{myCourses.length || '—'}}</text
+          ><text class="stat-name">已识别课程</text></view
+        ></view
+      ><view wx:if="{{!myCourses.length}}" class="empty-state"
+        >暂无保存的分析记录，请先在课程分析中生成报告。</view
+      ><view wx:if="{{showCourses}}" class="course-dropdown"
+        ><view class="course-row" wx:for="{{myCourses}}" wx:key="name"
+          ><text>{{item.name || item.courseName}}</text
+          ><text class="c-credit"
+            >{{item.credit || item.credits || 0}} 学分</text
+          ></view
+        ></view
+      ></view
+    ></view
+  ><button class="logout-btn" bindtap="handleLogout">退出当前账号</button
+  ><text class="profile-privacy">个人学业资料仅供当前登录账号访问</text></view
+>
