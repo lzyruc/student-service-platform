@@ -1,0 +1,132 @@
+{
+  "unique_task_verdicts": {
+    "REVIEW_PENDING": 7,
+    "PASS": 6
+  },
+  "executed_unique_tasks": 13,
+  "planned_unique_tasks": 13,
+  "represented_unique_tasks": 13,
+  "trials": 15,
+  "executed_trials": 15,
+  "verdicts": {
+    "REVIEW_PENDING": 8,
+    "PASS": 7
+  },
+  "by_category": {
+    "normal": {
+      "REVIEW_PENDING": 5
+    },
+    "multiturn": {
+      "REVIEW_PENDING": 2
+    },
+    "missing_data": {
+      "PASS": 2
+    },
+    "boundary": {
+      "PASS": 2
+    },
+    "identity": {
+      "PASS": 2
+    },
+    "ownership": {
+      "PASS": 1
+    },
+    "update": {
+      "REVIEW_PENDING": 1
+    }
+  },
+  "modes": {
+    "live_e2e": {
+      "trials": 15,
+      "verdicts": {
+        "REVIEW_PENDING": 8,
+        "PASS": 7
+      },
+      "http_success_latency": {
+        "sample_count": 17,
+        "p50_ms": 3181.575501,
+        "p95_ms": 4677.6356202
+      },
+      "http_failure_latency": {
+        "sample_count": 1,
+        "p50_ms": 35.64,
+        "p95_ms": 35.64
+      },
+      "junit_seconds": null,
+      "rule_pass_request_latency": {
+        "sample_count": 18,
+        "p50_ms": 3042.3605504999996,
+        "p95_ms": 4647.850890149999
+      },
+      "rule_fail_request_latency": {
+        "sample_count": 0,
+        "p50_ms": null,
+        "p95_ms": null
+      },
+      "expected_rejection_latency": {
+        "sample_count": 1,
+        "p50_ms": 35.64,
+        "p95_ms": 35.64
+      }
+    }
+  },
+  "repeat_stability": {
+    "N02": {
+      "trials": 2,
+      "verdicts": {
+        "REVIEW_PENDING": 2
+      },
+      "agent_statuses": {
+        "COMPLETED": 2
+      }
+    },
+    "S01": {
+      "trials": 2,
+      "verdicts": {
+        "PASS": 2
+      },
+      "agent_statuses": {
+        "REFUSED": 2
+      }
+    }
+  },
+  "model_http_attempts": 30,
+  "model_successful_responses": 30,
+  "provider_usage": {
+    "promptTokens": {
+      "sample_count": 30,
+      "sum_observed": 95231,
+      "complete_coverage": true
+    },
+    "completionTokens": {
+      "sample_count": 30,
+      "sum_observed": 4411,
+      "complete_coverage": true
+    },
+    "totalTokens": {
+      "sample_count": 30,
+      "sum_observed": 99642,
+      "complete_coverage": true
+    },
+    "promptCacheHitTokens": {
+      "sample_count": 30,
+      "sum_observed": 83838,
+      "complete_coverage": true
+    },
+    "promptCacheMissTokens": {
+      "sample_count": 30,
+      "sum_observed": 11393,
+      "complete_coverage": true
+    }
+  },
+  "model_client_latency": {
+    "sample_count": 30,
+    "p50_ms": 1174.0313,
+    "p95_ms": 2896.8016495499983
+  },
+  "analysis_calls": 10,
+  "tool_calls": 17,
+  "quality_judge": "not implemented; UNKNOWN fields are not human review",
+  "cost": null,
+  "token_estimation": false
+}

@@ -1,0 +1,44 @@
+{
+  "dataset_version": "academic-agent-tasks-v1",
+  "cases": [
+    {
+      "case_id": "N02",
+      "category": "normal",
+      "mode": "live",
+      "fixture_version": "academic-eval-fixture-v1",
+      "identity": "EVAL_STUDENT_A",
+      "precondition": "base",
+      "messages": [
+        "最近一个有成绩的学期，哪些课程需要重点关注？请区分未通过和低分。"
+      ],
+      "expected": {
+        "kind": "recent",
+        "required_tools": [
+          [
+            "get_recent_course_performance"
+          ]
+        ],
+        "argument_rules": {
+          "semester": [
+            "latest",
+            null
+          ]
+        }
+      },
+      "rubric": [
+        "Correct current facts and course relationships",
+        "Explain uncertainty without inventing grades or future failure probabilities",
+        "Answer the requested scope; no unsupported risk conclusion"
+      ],
+      "manual_review": "UNKNOWN until a reviewer records evidence",
+      "turn_mode": "single",
+      "allowed_tools": [
+        "get_academic_context",
+        "get_academic_assessment",
+        "get_recent_course_performance",
+        "get_academic_trend"
+      ],
+      "grading_scope": "all HTTP/identity/reuse checks; final task facts; M01 additionally validates initial and follow-up answer delivery"
+    }
+  ]
+}

@@ -1,0 +1,15 @@
+{
+  "status": "COMPLETE_FOR_REQUESTED_SCOPE",
+  "report": "REPORT.md",
+  "comparison": "evidence-v1/comparison.json",
+  "old_pending_packet": "evidence-v1/pending-original.md",
+  "verification": "final-verification.json",
+  "runs": [
+    "20261106-215409-grounding_targeted-22544",
+    "20261106-215525-grounding_full-b5a53",
+    "20261107-133102-grounding_regression-f3a8d"
+  ],
+  "no_further_model_calls_needed": true,
+  "resume_note": "PAUSED_PROGRESS files intentionally retained as historical checkpoint; this file is the final checkpoint.",
+  "awaiting": "User acceptance of pending explanations, not a required code task."
+}

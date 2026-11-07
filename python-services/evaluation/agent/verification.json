@@ -1,0 +1,24 @@
+{
+  "created_at": "2026-11-06T13:22:27.107937+00:00",
+  "python": {
+    "tests": 22,
+    "failures": 0,
+    "errors": 0,
+    "seconds": 0.5876326999996309,
+    "output": "test_answer_and_tool_must_both_have_current_fact (test_scoring.ScoringTests.test_answer_and_tool_must_both_have_current_fact) ... ok\ntest_correct_facts_remain_pending_not_human_review (test_scoring.ScoringTests.test_correct_facts_remain_pending_not_human_review) ... ok\ntest_correct_followup_tool_with_generic_fallback_is_failure (test_scoring.ScoringTests.test_correct_followup_tool_with_generic_fallback_is_failure) ... ok\ntest_duplicate_tool_call_is_not_hidden_by_snapshot (test_scoring.ScoringTests.test_duplicate_tool_call_is_not_hidden_by_snapshot) ... ok\ntest_duplicate_trial_is_not_silently_replaced_as_success (test_scoring.ScoringTests.test_duplicate_trial_is_not_silently_replaced_as_success) ... ok\ntest_generated_fixture_parses_into_independent_expected_facts (test_scoring.ScoringTests.test_generated_fixture_parses_into_independent_expected_facts) ... ok\ntest_http_failure_with_text_is_not_success (test_scoring.ScoringTests.test_http_failure_with_text_is_not_success) ... ok\ntest_log_redaction_happens_before_disk (test_scoring.ScoringTests.test_log_redaction_happens_before_disk) ... ok\ntest_malformed_http_observation_cannot_pass (test_scoring.ScoringTests.test_malformed_http_observation_cannot_pass) ... ok\ntest_missing_and_malformed_observation_not_executed (test_scoring.ScoringTests.test_missing_and_malformed_observation_not_executed) ... ok\ntest_missing_data_response_without_tool_evidence_is_failure (test_scoring.ScoringTests.test_missing_data_response_without_tool_evidence_is_failure) ... ok\ntest_missing_usage_is_null_and_partial_coverage_explicit (test_scoring.ScoringTests.test_missing_usage_is_null_and_partial_coverage_explicit) ... ok\ntest_numeric_formats_match_but_other_numbers_do_not (test_scoring.ScoringTests.test_numeric_formats_match_but_other_numbers_do_not) ... ok\ntest_one_failed_trial_does_not_erase_other_results (test_scoring.ScoringTests.test_one_failed_trial_does_not_erase_other_results) ... ok\ntest_percentiles_and_empty_metrics (test_scoring.ScoringTests.test_percentiles_and_empty_metrics) ... ok\ntest_reader_retains_valid_records_after_invalid_line (test_scoring.ScoringTests.test_reader_retains_valid_records_after_invalid_line) ... ok\ntest_regression_missing_timing_is_unavailable (test_scoring.ScoringTests.test_regression_missing_timing_is_unavailable) ... ok\ntest_repeat_and_mode_denominators_are_separate (test_scoring.ScoringTests.test_repeat_and_mode_denominators_are_separate) ... ok\ntest_success_failure_latencies_are_separate (test_scoring.ScoringTests.test_success_failure_latencies_are_separate) ... ok\ntest_unexpected_grader_exception_does_not_abort_batch (test_scoring.ScoringTests.test_unexpected_grader_exception_does_not_abort_batch) ... ok\ntest_updated_fixture_rejects_old_gpa (test_scoring.ScoringTests.test_updated_fixture_rejects_old_gpa) ... ok\ntest_wrong_agent_status_is_not_success (test_scoring.ScoringTests.test_wrong_agent_status_is_not_success) ... ok\n\n----------------------------------------------------------------------\nRan 22 tests in 0.536s\n\nOK\n"
+  },
+  "java_full_suite": {
+    "tests": 154,
+    "failures": 0,
+    "errors": 0,
+    "skipped": 3
+  },
+  "java_full_log_sha256": "939a3fc8dbe9602db801ef3a6b52551a9c6c6fad19e84f21833d6fa6410e1d25",
+  "current_source_hashes": {
+    "fixtures.py": "536a30d8d0e19685b8c496b2de765490db44ff48cdc8443e458c5578f9f826bf",
+    "run.py": "0d2812bb05865c79048a7cf139d3cb097ba325f643a25735d763e8763ecf5b6a",
+    "scoring.py": "26658cfb882c29926c66653022646a5a406ac38bec295ea23219e1123651bba8",
+    "test_scoring.py": "2a9e1b01cfc5789c1f68653e906511586b1518184946a56de8bc4c99f65ec45c"
+  },
+  "real_model_calls_in_verification": 0
+}

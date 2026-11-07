@@ -1,0 +1,136 @@
+{
+  "dataset_version": "academic-agent-tasks-v1",
+  "cases": [
+    {
+      "case_id": "E01",
+      "category": "downstream",
+      "mode": "regression",
+      "fixture_version": "existing-regression-fixtures-at-code-revision",
+      "identity": "existing synthetic A/B",
+      "precondition": "isolated H2 and mocked upstreams",
+      "messages": [],
+      "expected": {
+        "junit_methods": {
+          "AgentConcurrencyIsolationTest": [
+            "cachedFailureInOneStudentRequestDoesNotPoisonAnotherStudent"
+          ],
+          "SingleAgentServiceTest": [
+            "modelFailuresAreNotRetriedAndAuthenticationHappensBeforeModelAccess",
+            "exhaustedRequestBudgetStopsBeforeCallingModel",
+            "queueWaitCountsAgainstDeadlineAndFailureStateIsRequestLocal"
+          ],
+          "DeepSeekClientTest": [
+            "timeoutAndRateLimitHaveSafeActionableErrors",
+            "authenticationFailureDoesNotRetryOrExposeProviderBody"
+          ]
+        }
+      },
+      "rubric": [
+        "All listed assertions pass; mocks are not real model skill evidence"
+      ],
+      "turn_mode": "controlled_replay",
+      "allowed_tools": "see existing JUnit fixture",
+      "grading_scope": "all specified existing assertions must execute and pass"
+    },
+    {
+      "case_id": "E02",
+      "category": "budget",
+      "mode": "regression",
+      "fixture_version": "existing-regression-fixtures-at-code-revision",
+      "identity": "existing synthetic A/B",
+      "precondition": "isolated H2 and mocked upstreams",
+      "messages": [],
+      "expected": {
+        "junit_methods": {
+          "SingleAgentServiceTest": [
+            "roundLimitStopsExecutionAndRequestsOneFinalSummary",
+            "callLimitDoesNotExecuteExcessCallsButProvidesAResultForEveryDeclaredId"
+          ]
+        }
+      },
+      "rubric": [
+        "All listed assertions pass; mocks are not real model skill evidence"
+      ],
+      "turn_mode": "controlled_replay",
+      "allowed_tools": "see existing JUnit fixture",
+      "grading_scope": "all specified existing assertions must execute and pass"
+    },
+    {
+      "case_id": "E03",
+      "category": "protocol",
+      "mode": "regression",
+      "fixture_version": "existing-regression-fixtures-at-code-revision",
+      "identity": "existing synthetic A/B",
+      "precondition": "isolated H2 and mocked upstreams",
+      "messages": [],
+      "expected": {
+        "junit_methods": {
+          "SingleAgentServiceTest": [
+            "invalidToolResultsAreFedBackWithoutCallingOtherApis",
+            "repeatedCallIdsAreRejectedBeforeSecondBatchExecution"
+          ],
+          "DeepSeekClientTest": [
+            "validatesRequiredProviderUsage"
+          ],
+          "AcademicToolExecutorTest": [
+            "strictParametersAndUnknownToolsFailBeforeAnyBusinessReads",
+            "runtimeJsonNodeInputsAreAlsoValidatedAndSchemasMatchDefaultsAndBoundaries"
+          ]
+        }
+      },
+      "rubric": [
+        "All listed assertions pass; mocks are not real model skill evidence"
+      ],
+      "turn_mode": "controlled_replay",
+      "allowed_tools": "see existing JUnit fixture",
+      "grading_scope": "all specified existing assertions must execute and pass"
+    },
+    {
+      "case_id": "E04",
+      "category": "isolation",
+      "mode": "regression",
+      "fixture_version": "existing-regression-fixtures-at-code-revision",
+      "identity": "existing synthetic A/B",
+      "precondition": "isolated H2 and mocked upstreams",
+      "messages": [],
+      "expected": {
+        "junit_methods": {
+          "AgentConcurrencyIsolationTest": [
+            "eightyInterleavedJwtChatsUseSharedSingletonsWithoutCrossUserData",
+            "foreignConversationIsRejectedBeforeAgentToolsOrModelEvenForStream"
+          ]
+        }
+      },
+      "rubric": [
+        "All listed assertions pass; mocks are not real model skill evidence"
+      ],
+      "turn_mode": "controlled_replay",
+      "allowed_tools": "see existing JUnit fixture",
+      "grading_scope": "all specified existing assertions must execute and pass"
+    },
+    {
+      "case_id": "E05",
+      "category": "snapshot",
+      "mode": "regression",
+      "fixture_version": "existing-regression-fixtures-at-code-revision",
+      "identity": "existing synthetic A/B",
+      "precondition": "isolated H2 and mocked upstreams",
+      "messages": [],
+      "expected": {
+        "junit_methods": {
+          "AgentConcurrencyIsolationTest": [
+            "parallelAndSequentialFourToolsShareOneRequestSingleFlight",
+            "nextHttpRequestReadsUpdatedGradesAndCreatesNewSnapshot",
+            "historyCannotOverrideFreshToolFactsEvenWhenModelRepeatsClaim"
+          ]
+        }
+      },
+      "rubric": [
+        "All listed assertions pass; mocks are not real model skill evidence"
+      ],
+      "turn_mode": "controlled_replay",
+      "allowed_tools": "see existing JUnit fixture",
+      "grading_scope": "all specified existing assertions must execute and pass"
+    }
+  ]
+}

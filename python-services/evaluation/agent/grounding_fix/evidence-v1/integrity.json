@@ -1,0 +1,239 @@
+{
+  "sealed_files": 95,
+  "unchanged_old_evaluation_files": 92,
+  "changed_archived_sources": [
+    "backend/src/main/java/com/college/student_service_platform/agent/AcademicAnswerGrounding.java",
+    "backend/src/test/java/com/college/student_service_platform/AcademicAnswerGroundingTest.java",
+    "backend/src/test/java/com/college/student_service_platform/AcademicEvaluationEvidenceTest.java"
+  ],
+  "old_evaluation_files_changed": [],
+  "rescore_read_only_identical": {
+    "baseline": [
+      {
+        "trial_id": "N01-1",
+        "same_verdict_and_checks": true
+      },
+      {
+        "trial_id": "N02-1",
+        "same_verdict_and_checks": true
+      },
+      {
+        "trial_id": "N02-2",
+        "same_verdict_and_checks": true
+      },
+      {
+        "trial_id": "N03-1",
+        "same_verdict_and_checks": true
+      },
+      {
+        "trial_id": "N04-1",
+        "same_verdict_and_checks": true
+      },
+      {
+        "trial_id": "M01-1",
+        "same_verdict_and_checks": true
+      },
+      {
+        "trial_id": "M02-1",
+        "same_verdict_and_checks": true
+      },
+      {
+        "trial_id": "B01-1",
+        "same_verdict_and_checks": true
+      },
+      {
+        "trial_id": "B02-1",
+        "same_verdict_and_checks": true
+      },
+      {
+        "trial_id": "B03-1",
+        "same_verdict_and_checks": true
+      },
+      {
+        "trial_id": "B04-1",
+        "same_verdict_and_checks": true
+      },
+      {
+        "trial_id": "S01-1",
+        "same_verdict_and_checks": true
+      },
+      {
+        "trial_id": "S01-2",
+        "same_verdict_and_checks": true
+      },
+      {
+        "trial_id": "S02-1",
+        "same_verdict_and_checks": true
+      },
+      {
+        "trial_id": "U01-1",
+        "same_verdict_and_checks": true
+      }
+    ],
+    "targeted": [
+      {
+        "trial_id": "N02-1",
+        "same_verdict_and_checks": true
+      },
+      {
+        "trial_id": "N02-2",
+        "same_verdict_and_checks": true
+      },
+      {
+        "trial_id": "M01-1",
+        "same_verdict_and_checks": true
+      },
+      {
+        "trial_id": "M01-2",
+        "same_verdict_and_checks": true
+      }
+    ],
+    "full": [
+      {
+        "trial_id": "N01-1",
+        "same_verdict_and_checks": true
+      },
+      {
+        "trial_id": "N02-1",
+        "same_verdict_and_checks": true
+      },
+      {
+        "trial_id": "N02-2",
+        "same_verdict_and_checks": true
+      },
+      {
+        "trial_id": "N03-1",
+        "same_verdict_and_checks": true
+      },
+      {
+        "trial_id": "N04-1",
+        "same_verdict_and_checks": true
+      },
+      {
+        "trial_id": "M01-1",
+        "same_verdict_and_checks": true
+      },
+      {
+        "trial_id": "M02-1",
+        "same_verdict_and_checks": true
+      },
+      {
+        "trial_id": "B01-1",
+        "same_verdict_and_checks": true
+      },
+      {
+        "trial_id": "B02-1",
+        "same_verdict_and_checks": true
+      },
+      {
+        "trial_id": "B03-1",
+        "same_verdict_and_checks": true
+      },
+      {
+        "trial_id": "B04-1",
+        "same_verdict_and_checks": true
+      },
+      {
+        "trial_id": "S01-1",
+        "same_verdict_and_checks": true
+      },
+      {
+        "trial_id": "S01-2",
+        "same_verdict_and_checks": true
+      },
+      {
+        "trial_id": "S02-1",
+        "same_verdict_and_checks": true
+      },
+      {
+        "trial_id": "U01-1",
+        "same_verdict_and_checks": true
+      }
+    ]
+  },
+  "comparable": {
+    "selected_cases": true,
+    "repeat_ids": true,
+    "extra_repeats": true,
+    "fixture_version": true,
+    "prompt_sha256": true,
+    "effective_dataset_sha256": true,
+    "effective_scorer_sha256": true,
+    "effective_runner_sha256": true,
+    "model": true,
+    "task_snapshot": true
+  },
+  "pdf_comparison": [
+    {
+      "file": "alpha-base.pdf",
+      "old": {
+        "file_sha256": "1c4ee0b4b262d6e89325db64e39cd75bacfeb12d0fd03d1da0369805381af473",
+        "words_sha256": "13d31eb4ff6dfa1225042d8778e4d5434cd637a4ab88ea58531f46764a81db1d",
+        "document_id": "[<C2B70C30C288327667C29EC2B4C3AFC2><2DAC4EEC131D874D9499101CD47D185E>]"
+      },
+      "new": {
+        "file_sha256": "68063f5a8bd58092d7062e28a323e4076811c5aab5058de13e73d4b23e31d056",
+        "words_sha256": "13d31eb4ff6dfa1225042d8778e4d5434cd637a4ab88ea58531f46764a81db1d",
+        "document_id": "[<C392C28B43C29FC3BDC3A5C2AA252F4E><08EB21C39E4C8A94CFB843D3BF8C7B85>]"
+      },
+      "same_text_and_word_positions": true
+    },
+    {
+      "file": "alpha-updated.pdf",
+      "old": {
+        "file_sha256": "04f0aac88d08e6acf5f465f9d955c92975690b895d0bb593093a1685168464fd",
+        "words_sha256": "63b990793ac6e17cd4c8c3e9beb7cfd6f755b60f0f871be72f514fda448078ed",
+        "document_id": "[<C3852C2CC39C29504A33453FC2A30924><844F74F0629E83F11DB8D392496347EA>]"
+      },
+      "new": {
+        "file_sha256": "69e81ae4e54007da8b8f85ae26248667095a32810bc218401f5ac5e41b20cdfb",
+        "words_sha256": "63b990793ac6e17cd4c8c3e9beb7cfd6f755b60f0f871be72f514fda448078ed",
+        "document_id": "[<602BC2BF73743F0D3A401EC296C280C3><DF0EC7476D4D06B8D85786C9B4F22A91>]"
+      },
+      "same_text_and_word_positions": true
+    },
+    {
+      "file": "beta.pdf",
+      "old": {
+        "file_sha256": "7bc2a368e9a0661f58647916936567f3c20b1bf662019630924d1968220a2635",
+        "words_sha256": "290e558352cfafb499f3c26a10e02bcab137c04bf269a7c613ae1ed62629a7c3",
+        "document_id": "[<13C3BA71C3A14CC2B1C2A54714C3B7C2><B7320D871657C115BF100EBD310A0D26>]"
+      },
+      "new": {
+        "file_sha256": "7d7b8e24aae1d19690a9640b311ea1899f4ab7d4050794904627a7ac86badcda",
+        "words_sha256": "290e558352cfafb499f3c26a10e02bcab137c04bf269a7c613ae1ed62629a7c3",
+        "document_id": "[<2E79C284C3B81720C3A8C38EC28F562B><9271E05EA186C45CFA2F41741C19704D>]"
+      },
+      "same_text_and_word_positions": true
+    }
+  ],
+  "same_parsed_facts": true,
+  "fixture_verification_now": {
+    "fixture_version": "academic-eval-fixture-v1",
+    "local_parse_calls": 2,
+    "provider_calls": 0,
+    "facts": {
+      "base": {
+        "course_count": 6,
+        "official_gpa": 2.63,
+        "earned_credits": 15,
+        "semester_gpas": [
+          3.85,
+          3.15,
+          0.9
+        ]
+      },
+      "updated": {
+        "course_count": 6,
+        "official_gpa": 3.3,
+        "earned_credits": 18,
+        "semester_gpas": [
+          3.85,
+          3.15,
+          2.9
+        ]
+      }
+    }
+  },
+  "note": "This audit parses saved synthetic PDFs locally (4 parse calls, no HTTP/model); it does not rewrite original fixture verification."
+}

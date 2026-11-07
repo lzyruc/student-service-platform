@@ -1,0 +1,2 @@
+# Keep archived evaluation evidence byte-for-byte for recorded SHA256 hashes.
+python-services/evaluation/agent/** -text

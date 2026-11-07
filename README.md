@@ -205,7 +205,7 @@ Python 代码修改后重启对应 Python 终端；Web 开发服务器通常会�
 
 ## Agent 开发
 
-采用可扩展的 Single Agent 架构，第一版开发 Academic Analysis Skill。目前已完成业务 Service、共享快照、确定性统计、4 个只读 Tool、专用 DTO、DeepSeek 客户端、简单调用循环、学生聊天接口和独立 Skill 提示词。当前后端全量 150 项测试中 148 项通过，2 项真实模型测试默认跳过；此前真实模型协议测试只使用虚构数据。小程序首页四个功能下方已增加“学业智能助手”入口，支持提问和追问，42 项小程序回归测试通过；真实成绩单问答和真机体验验收正在继续。实际开发思路、实现与测试记录见 [Agent 开发记录与复盘](./AGENT_DEVELOPMENT.md)。
+采用可扩展的 Single Agent 架构，第一版开发 Academic Analysis Skill。目前已完成业务 Service、共享快照、确定性统计、4 个只读 Tool、专用 DTO、DeepSeek 客户端、简单调用循环、学生聊天接口和独立 Skill 提示词。当前后端全量 163 项测试中 159 项通过；2 项真实模型协议测试、1 项真实端到端评测入口和 1 项显式离线回放入口默认跳过；此前真实模型协议测试只使用虚构数据。小程序首页四个功能下方已增加“学业智能助手”入口，支持提问和追问，42 项小程序回归测试通过；真实成绩单问答和真机体验验收正在继续。实际开发思路、实现与测试记录见 [Agent 开发记录与复盘](./AGENT_DEVELOPMENT.md)。
 
 分析上下文仅在一次 Agent HTTP 请求及其整个 Tool Calling Loop 内共享，最多解析一次 PDF；同一会话下一轮请求仍创建新上下文。当前没有跨请求分析缓存。对话消息已单独持久化到 MySQL，读取本人历史不会复用旧分析 Snapshot。Identity／Conversation／Request／Business 四类上下文现已明确分开，次数、deadline、调用 ID 和执行状态归本次 Request Context。历史只帮助理解指代和话题，当前成绩必须以本轮 Tool／Service 为准，详见 [可信上下文说明](./backend/docs/agent-contexts.md)。
 
@@ -235,6 +235,18 @@ cd "D:\agent开发准备\简历项目\student-service-platform\backend"
 小程序重新编译后，登录并点击服务大厅四个功能下方的“学业智能助手”即可提问和追问。页面有五个快捷问题、“新对话”、历史会话、改名／删除和成绩单管理入口；关闭页面后对话仍保存在服务端，下次进入恢复本人最近会话。切换账号只加载新账号自己的历史，点击“新对话”不会删除旧会话。应用上文的 GPA 统计修复时，仍需保持 `8002` 为新版。真机需要重新生成预览，连接地址仍按前面的局域网配置。
 
 返回 `data.answer` 和工具调用状态。查询他人成绩会返回 `REFUSED`，未支持业务返回 `OUT_OF_SCOPE`，需要明确问题返回 `NEEDS_CLARIFICATION`，不再统一显示数据不足。服务端只信任当前 JWT 确定的学生归属和数据库历史；客户端不再发送 `history`，也不能传 studentId／studentNo。普通查询继续复用只读学业 Tool，不新增正式预警记录。
+
+## 学业 Agent 评测基线（2026-11-06）
+
+新增统一入口 `python-services/evaluation/agent/run.py`，使用合成成绩单和专用 MySQL 测试库完成真实登录/JWT、会话、工具、Python 与 DeepSeek 链路。13项真实任务执行15个trial，结果为7通过、5待审、3失败；另5组可控工程回归确认通过。解释质量未做人工评分，不能称为真实模型准确率。
+
+本轮真实模型累计37次请求（先导3、主基线30、失败补采4），保留实际usage、分阶段耗时和bad case。定位到“GPA下降2.25”与DTO负变化量-2.25的匹配误拦截，尚未修复；未实施跨请求缓存。任务集、结果、限制和复现命令见 [评测说明](./python-services/evaluation/agent/README.md) 与 [实际基线报告](./python-services/evaluation/agent/BASELINE_REPORT.md)。旧16题政策RAG报告不作为Agent能力证据。
+
+### GPA 校验修复与复测（2026-11-07）
+
+已将官方 GPA、学期 GPA 和带方向的 GPA 变化量分开校验，修复“GPA下降2.25”被误拦截的问题。旧基线及原始记录保持不变；2条保存模型原文的离线配对回放均由整段替换变为完整保留。相同主矩阵真实重采样为13任务/15trial：7通过、0失败、8待审；待审不计通过，也不将模型输出波动全部归因于代码修复。
+
+定向与主矩阵共42次真实模型调用、141691个API实际返回token；恢复后的整理和回归未额外调用模型。后端完整测试159通过、4跳过，工程5组回归及22项评测器测试通过。识别边界、逐题对比、usage/耗时和原5项待审材料见 [本轮修复交付报告](./python-services/evaluation/agent/grounding_fix/REPORT.md)。此前基线报告保留其采样时状态，不代表最新修复状态。
 
 ## 测试与构建
 

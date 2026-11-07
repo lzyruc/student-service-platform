@@ -1,0 +1,90 @@
+[
+  {
+    "case_id": "N01",
+    "trial_id": "N01-1",
+    "reviewer": null,
+    "source": "manual_entry_required",
+    "fact_attribution": "UNKNOWN",
+    "explanation_relevance": "UNKNOWN",
+    "uncertainty_handling": "UNKNOWN",
+    "evidence": [],
+    "notes": null
+  },
+  {
+    "case_id": "N02",
+    "trial_id": "N02-1",
+    "reviewer": null,
+    "source": "manual_entry_required",
+    "fact_attribution": "UNKNOWN",
+    "explanation_relevance": "UNKNOWN",
+    "uncertainty_handling": "UNKNOWN",
+    "evidence": [],
+    "notes": null
+  },
+  {
+    "case_id": "N02",
+    "trial_id": "N02-2",
+    "reviewer": null,
+    "source": "manual_entry_required",
+    "fact_attribution": "UNKNOWN",
+    "explanation_relevance": "UNKNOWN",
+    "uncertainty_handling": "UNKNOWN",
+    "evidence": [],
+    "notes": null
+  },
+  {
+    "case_id": "N03",
+    "trial_id": "N03-1",
+    "reviewer": null,
+    "source": "manual_entry_required",
+    "fact_attribution": "UNKNOWN",
+    "explanation_relevance": "UNKNOWN",
+    "uncertainty_handling": "UNKNOWN",
+    "evidence": [],
+    "notes": null
+  },
+  {
+    "case_id": "N04",
+    "trial_id": "N04-1",
+    "reviewer": null,
+    "source": "manual_entry_required",
+    "fact_attribution": "UNKNOWN",
+    "explanation_relevance": "UNKNOWN",
+    "uncertainty_handling": "UNKNOWN",
+    "evidence": [],
+    "notes": null
+  },
+  {
+    "case_id": "M01",
+    "trial_id": "M01-1",
+    "reviewer": null,
+    "source": "manual_entry_required",
+    "fact_attribution": "UNKNOWN",
+    "explanation_relevance": "UNKNOWN",
+    "uncertainty_handling": "UNKNOWN",
+    "evidence": [],
+    "notes": null
+  },
+  {
+    "case_id": "M02",
+    "trial_id": "M02-1",
+    "reviewer": null,
+    "source": "manual_entry_required",
+    "fact_attribution": "UNKNOWN",
+    "explanation_relevance": "UNKNOWN",
+    "uncertainty_handling": "UNKNOWN",
+    "evidence": [],
+    "notes": null
+  },
+  {
+    "case_id": "U01",
+    "trial_id": "U01-1",
+    "reviewer": null,
+    "source": "manual_entry_required",
+    "fact_attribution": "UNKNOWN",
+    "explanation_relevance": "UNKNOWN",
+    "uncertainty_handling": "UNKNOWN",
+    "evidence": [],
+    "notes": null
+  }
+]

@@ -1,0 +1,46 @@
+{
+  "verified_at": "2026-11-07T13:39:15.866150+08:00",
+  "old_sealed_files": 95,
+  "old_evaluation_files_unchanged": 92,
+  "source_archives": [
+    {
+      "source": "backend/src/main/java/com/college/student_service_platform/agent/AcademicAnswerGrounding.java",
+      "before_sha256": "d9f2b50687b6363a2494f2222b999449458917acc35819537915a2ac3e0b123e",
+      "archive_matches": true,
+      "after_sha256": "9a885b6f001ec7d91dbcf0377c189cf16956ef19b4fb47a9cadcf8604ca043d7"
+    },
+    {
+      "source": "backend/src/test/java/com/college/student_service_platform/AcademicAnswerGroundingTest.java",
+      "before_sha256": "70611d4da24f49376ebc0c2dfe32eb4ffb9bd31baf4d18ec00338c8684cdc780",
+      "archive_matches": true,
+      "after_sha256": "46a20ae3536ecccd4ee116ad0384423bd2b228b931f035b2bcb2573f6d92fe0a"
+    },
+    {
+      "source": "backend/src/test/java/com/college/student_service_platform/AcademicEvaluationEvidenceTest.java",
+      "before_sha256": "6a8fd7f536f3ebc2c8dd97e5a4d179f129be7f306fa0946e2d082cf4ca204b20",
+      "archive_matches": true,
+      "after_sha256": "afb31a8b17f93e1a74a6555768811edc3c1328706831fa80d1c2dbf2346abfa2"
+    }
+  ],
+  "legacy_is_renamed_original": true,
+  "credential_scan": {
+    "files": 57,
+    "configured_credentials_checked": 3,
+    "credential_values_logged": false,
+    "findings": [],
+    "scope": "round folder plus three new run folders; regex and exact configured values >=4 chars; not a universal secret detector"
+  },
+  "evaluation_port_18002_closed": true,
+  "process_check": "PowerShell process query found no java.exe/python.exe/pythonw.exe at check time",
+  "original_pending_packet_complete_and_unaltered": true,
+  "old_scoring_and_34_trials_recomputed_without_changes": true,
+  "markdown_links_valid": true,
+  "current_full_verdicts": {
+    "REVIEW_PENDING": 8,
+    "PASS": 7
+  },
+  "this_resume_external_model_calls": 0,
+  "new_round_external_model_calls": 42,
+  "new_round_actual_total_tokens": 141691,
+  "remaining": "Human/user review still pending; natural-language scope limits are documented; no optimization expansion."
+}

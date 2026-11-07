@@ -1,0 +1,1 @@
+{"database":"student_agent_eval_v1_a34f7c25b4","model":"deepseek-flash","auth":"real /api/auth/login + JWT filter","http":"real embedded Tomcat random port","python":"real HTTP + PDF parsing","tools":"real registered services","usage_source":"provider API response, null means unavailable","fixture_version":"academic-eval-fixture-v1"}

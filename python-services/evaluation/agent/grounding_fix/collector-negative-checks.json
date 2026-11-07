@@ -1,0 +1,18 @@
+{
+  "checks": [
+    {
+      "output_argument": "evidence-v1",
+      "exit_code": 2,
+      "expected_rejection": true,
+      "reason": "collect_round.py: error: refusing to overwrite existing evidence"
+    },
+    {
+      "output_argument": "../outside",
+      "exit_code": 2,
+      "expected_rejection": true,
+      "reason": "collect_round.py: error: output must be a new directory name"
+    }
+  ],
+  "existing_evidence_unchanged": true,
+  "external_calls": 0
+}

@@ -1,0 +1,1582 @@
+[
+  {
+    "case_id": "N02",
+    "trial_id": "N02-1",
+    "mode": "live_e2e",
+    "real_model": true,
+    "turns": [
+      {
+        "turn": 1,
+        "message": "最近一个有成绩的学期，哪些课程需要重点关注？请区分未通过和低分。",
+        "http_status": 200,
+        "end_to_end_ms": 5024.7196,
+        "response": {
+          "code": 200,
+          "message": "成功",
+          "data": {
+            "conversationId": 1,
+            "answer": "最近有有效成绩的学期是 2025-2026 学年秋季学期，共 2 门课程有最终成绩，其中 1 门未通过、1 门已通过但分数偏低。\n\n需要重点关注的课程\n\n未通过：\n- 操作系统，最终成绩 58 分，3 学分。现有记录中仍未见通过记录，属于需要优先处理的情况。建议尽快核实是否有补考、重修安排或成绩录入问题，并联系任课教师或教务确认。\n\n低分（已通过，60≤分数<70）：\n- 计算机网络，最终成绩 65 分，3 学分。已通过，但分数偏低，建议针对薄弱章节巩固，避免影响后续课程衔接。\n\n学期整体情况\n\n该学期加权 GPA 为 0.9，百分制算术均分为 61.5（2 门课程样本）。与上一有效学期 2024-2025 学年春季学期相比，加权 GPA 下降 2.25，百分制均分下降 16.0，未通过课程数增加 1 门，两项指标方向均为下降。\n\n限制与下一步\n\n本学期只有 2 门课程有成绩，样本很小，统计结果容易受个别课程影响，不能据此推断整体学习能力或预测后续考试结果。另外有 1 门核心课程尚未到计划开课学期，不计入当前缺口。如需了解整体学分、官方 GPA 和已有预警等级，可以再做一次整体学业评估；若操作系统成绩与实际不符，建议先向教务核实成绩记录。",
+            "status": "COMPLETED",
+            "toolRounds": 1,
+            "toolCalls": [
+              {
+                "tool": "get_recent_course_performance",
+                "status": "OK",
+                "dataStatus": "OK"
+              }
+            ]
+          }
+        },
+        "execution": {
+          "model_calls": [
+            {
+              "duration_ms": 1874.2187,
+              "usage": {
+                "promptTokens": 2878,
+                "completionTokens": 59,
+                "totalTokens": 2937,
+                "promptCacheHitTokens": 2688,
+                "promptCacheMissTokens": 190
+              },
+              "provider_model": "deepseek-flash",
+              "outcome": "success",
+              "network_attempted": true,
+              "finish_reason": "tool_calls",
+              "assistant_message": {
+                "role": "assistant",
+                "content": "",
+                "tool_calls": [
+                  {
+                    "id": "call_00_K8GEt2tnv18CgdEDCHsu4833",
+                    "type": "function",
+                    "function": {
+                      "name": "get_recent_course_performance",
+                      "arguments": "{\"semester\": \"latest\", \"limit\": 10}"
+                    }
+                  }
+                ]
+              }
+            },
+            {
+              "duration_ms": 2720.2653,
+              "usage": {
+                "promptTokens": 3578,
+                "completionTokens": 325,
+                "totalTokens": 3903,
+                "promptCacheHitTokens": 2816,
+                "promptCacheMissTokens": 762
+              },
+              "provider_model": "deepseek-flash",
+              "outcome": "success",
+              "network_attempted": true,
+              "finish_reason": "stop",
+              "assistant_message": {
+                "role": "assistant",
+                "content": "最近有有效成绩的学期是 2025-2026 学年秋季学期，共 2 门课程有最终成绩，其中 1 门未通过、1 门已通过但分数偏低。\n\n需要重点关注的课程\n\n未通过：\n- 操作系统，最终成绩 58 分，3 学分。现有记录中仍未见通过记录，属于需要优先处理的情况。建议尽快核实是否有补考、重修安排或成绩录入问题，并联系任课教师或教务确认。\n\n低分（已通过，60≤分数<70）：\n- 计算机网络，最终成绩 65 分，3 学分。已通过，但分数偏低，建议针对薄弱章节巩固，避免影响后续课程衔接。\n\n学期整体情况\n\n该学期加权 GPA 为 0.9，百分制算术均分为 61.5（2 门课程样本）。与上一有效学期 2024-2025 学年春季学期相比，加权 GPA 下降 2.25，百分制均分下降 16.0，未通过课程数增加 1 门，两项指标方向均为下降。\n\n限制与下一步\n\n本学期只有 2 门课程有成绩，样本很小，统计结果容易受个别课程影响，不能据此推断整体学习能力或预测后续考试结果。另外有 1 门核心课程尚未到计划开课学期，不计入当前缺口。如需了解整体学分、官方 GPA 和已有预警等级，可以再做一次整体学业评估；若操作系统成绩与实际不符，建议先向教务核实成绩记录。"
+              }
+            }
+          ],
+          "tool_calls": [
+            {
+              "tool": "get_recent_course_performance",
+              "arguments": {
+                "semester": "latest",
+                "limit": 10
+              },
+              "duration_ms": 269.7557,
+              "status": "OK",
+              "data": {
+                "source": {
+                  "major": "EVAL_COMPUTER_SCIENCE_V1",
+                  "grade": "2024",
+                  "transcriptUploadedAt": [
+                    2026,
+                    11,
+                    6,
+                    21,
+                    54,
+                    33
+                  ],
+                  "trainingPlanVersion": "eval-v1",
+                  "trainingPlanUpdatedAt": [
+                    2026,
+                    11,
+                    6,
+                    21,
+                    54,
+                    32
+                  ]
+                },
+                "status": "OK",
+                "message": null,
+                "requestedSemester": "latest",
+                "semester": "2025-2026学年秋季学期",
+                "limit": 10,
+                "rules": {
+                  "lowScoreMin": 60,
+                  "lowScoreMaxExclusive": 70,
+                  "semesterOrder": [
+                    "秋季",
+                    "春季",
+                    "国际小学期",
+                    "夏季/暑期"
+                  ],
+                  "weightedGpa": "sum(credit * gpa) / sum(valid credit); exclude P/pass-only records, retain earned credit; GPA coverage uses all course records",
+                  "averageNumericScore": "arithmetic mean of valid 0..100 final scores",
+                  "trendDirection": "sign of the difference between reported statistics"
+                },
+                "summary": {
+                  "semester": "2025-2026学年秋季学期",
+                  "courseCount": 2,
+                  "validScoreCourseCount": 2,
+                  "passedCourseCount": 1,
+                  "failedCourseCount": 1,
+                  "unknownScoreCourseCount": 0,
+                  "attemptedCredits": 6.0,
+                  "validCreditCourseCount": 2,
+                  "weightedGpa": 0.9,
+                  "gpaCourseCount": 2,
+                  "gpaCredits": 6.0,
+                  "gpaCourseCoverage": 1.0,
+                  "gpaCreditCoverage": 1.0,
+                  "averageNumericScore": 61.5,
+                  "numericScoreCourseCount": 2,
+                  "numericScoreCoverage": 1.0,
+                  "changeFromPrevious": {
+                    "semester": "2024-2025学年春季学期",
+                    "weightedGpaDelta": -2.25,
+                    "gpaDirection": "DOWN",
+                    "averageNumericScoreDelta": -16.0,
+                    "numericScoreDirection": "DOWN",
+                    "failedCourseCountDelta": 1
+                  },
+                  "analysisNotes": []
+                },
+                "focusCourseCount": 2,
+                "truncated": false,
+                "focusCourses": [
+                  {
+                    "name": "操作系统",
+                    "score": "58",
+                    "numericScore": 58.0,
+                    "credit": 3.0,
+                    "page": 1,
+                    "passed": false,
+                    "currentFailureStatus": "UNRESOLVED",
+                    "reason": "UNRESOLVED_FAILURE"
+                  },
+                  {
+                    "name": "计算机网络",
+                    "score": "65",
+                    "numericScore": 65.0,
+                    "credit": 3.0,
+                    "page": 1,
+                    "passed": true,
+                    "currentFailureStatus": null,
+                    "reason": "LOW_NUMERIC_SCORE"
+                  }
+                ],
+                "analysisNotes": [
+                  "1 门核心课程尚未到计划开课学期，不计入缺口",
+                  "学期 GPA 是按有效课程记录加权计算值；修读学分和未通过数量按本学期记录统计，不替代整体已获学分和当前预警结果",
+                  "趋势描述有效样本统计变化；各学期课程构成或统计覆盖率不同，不能直接推断学习能力变化或预测挂科",
+                  "previous 和趋势相邻项指上一有效成绩学期；没有成绩记录的学期不推测，不能假定学期记录连续"
+                ]
+              }
+            }
+          ],
+          "analysis_calls": [
+            {
+              "duration_ms": 201.4964,
+              "outcome": "success"
+            }
+          ],
+          "server_history": [],
+          "server_execution_ms": 4903.7713,
+          "tool_rounds": 1,
+          "execution_state": "SUCCEEDED"
+        },
+        "fixture_state": "base"
+      }
+    ],
+    "error": null,
+    "persisted_history": [
+      {
+        "role": "USER",
+        "content": "最近一个有成绩的学期，哪些课程需要重点关注？请区分未通过和低分。"
+      },
+      {
+        "role": "ASSISTANT",
+        "content": "最近有有效成绩的学期是 2025-2026 学年秋季学期，共 2 门课程有最终成绩，其中 1 门未通过、1 门已通过但分数偏低。\n\n需要重点关注的课程\n\n未通过：\n- 操作系统，最终成绩 58 分，3 学分。现有记录中仍未见通过记录，属于需要优先处理的情况。建议尽快核实是否有补考、重修安排或成绩录入问题，并联系任课教师或教务确认。\n\n低分（已通过，60≤分数<70）：\n- 计算机网络，最终成绩 65 分，3 学分。已通过，但分数偏低，建议针对薄弱章节巩固，避免影响后续课程衔接。\n\n学期整体情况\n\n该学期加权 GPA 为 0.9，百分制算术均分为 61.5（2 门课程样本）。与上一有效学期 2024-2025 学年春季学期相比，加权 GPA 下降 2.25，百分制均分下降 16.0，未通过课程数增加 1 门，两项指标方向均为下降。\n\n限制与下一步\n\n本学期只有 2 门课程有成绩，样本很小，统计结果容易受个别课程影响，不能据此推断整体学习能力或预测后续考试结果。另外有 1 门核心课程尚未到计划开课学期，不计入当前缺口。如需了解整体学分、官方 GPA 和已有预警等级，可以再做一次整体学业评估；若操作系统成绩与实际不符，建议先向教务核实成绩记录。"
+      }
+    ],
+    "formal_warning_records": 0,
+    "verdict": "REVIEW_PENDING",
+    "checks": [
+      {
+        "name": "http_status_turn_1",
+        "pass": true,
+        "detail": ""
+      },
+      {
+        "name": "no_foreign_tool_data_turn_1",
+        "pass": true,
+        "detail": ""
+      },
+      {
+        "name": "single_analysis_per_request_turn_1",
+        "pass": true,
+        "detail": ""
+      },
+      {
+        "name": "no_duplicate_identical_tool_call_turn_1",
+        "pass": true,
+        "detail": ""
+      },
+      {
+        "name": "agent_status",
+        "pass": true,
+        "detail": "'COMPLETED'"
+      },
+      {
+        "name": "no_formal_warning_write",
+        "pass": true,
+        "detail": ""
+      },
+      {
+        "name": "no_foreign_answer_data",
+        "pass": true,
+        "detail": ""
+      },
+      {
+        "name": "required_capability_get_recent_course_performance",
+        "pass": true,
+        "detail": ""
+      },
+      {
+        "name": "argument_semester",
+        "pass": true,
+        "detail": ""
+      },
+      {
+        "name": "recent_courses_from_fixture",
+        "pass": true,
+        "detail": ""
+      },
+      {
+        "name": "recent_scores_from_fixture",
+        "pass": true,
+        "detail": ""
+      }
+    ],
+    "agent_status": "COMPLETED",
+    "review": {
+      "status": "UNKNOWN",
+      "rubric": [
+        "Correct current facts and course relationships",
+        "Explain uncertainty without inventing grades or future failure probabilities",
+        "Answer the requested scope; no unsupported risk conclusion"
+      ],
+      "reviewer": null,
+      "notes": null
+    },
+    "category": "normal"
+  },
+  {
+    "case_id": "N02",
+    "trial_id": "N02-2",
+    "mode": "live_e2e",
+    "real_model": true,
+    "turns": [
+      {
+        "turn": 1,
+        "message": "最近一个有成绩的学期，哪些课程需要重点关注？请区分未通过和低分。",
+        "http_status": 200,
+        "end_to_end_ms": 3465.7744,
+        "response": {
+          "code": 200,
+          "message": "成功",
+          "data": {
+            "conversationId": 2,
+            "answer": "最近有有效成绩的学期是 2025-2026 学年秋季学期，共 2 门课程有最终成绩，其中 1 门未通过、1 门已通过但分数偏低。\n\n需要重点关注的课程\n\n1. 操作系统（3 学分，58 分）：未通过，现有记录中仍未见通过记录，属于需要优先处理的情况。建议尽快核实是否有补考、重修安排或成绩更正，并尽早联系任课教师或教务确认后续处理方式。\n2. 计算机网络（3 学分，65 分）：已通过，但属于低分区间（60 分及以上、70 分以下）。建议巩固基础，尤其是与后续课程衔接较多的内容。\n\n学期整体情况\n\n该学期加权 GPA 为 0.9，百分制算术平均分为 61.5（2 门课程均有数值成绩，覆盖完整）。与上一有效学期 2024-2025 学年春季学期相比，加权 GPA 下降 2.25，平均分下降 16.0，未通过课程数增加 1 门，两项指标方向一致，均呈下降。\n\n限制与下一步\n\n本学期只有 2 门课程，样本很小，统计结果容易受个别课程影响，不宜据此推断整体学习能力。另外有 1 门核心课程尚未到计划开课学期，不计入当前缺口。如需了解整体学分、官方 GPA 和已有预警等级，或查看更长时间的成绩变化，可以继续查询整体学业报告和成绩趋势。",
+            "status": "COMPLETED",
+            "toolRounds": 1,
+            "toolCalls": [
+              {
+                "tool": "get_recent_course_performance",
+                "status": "OK",
+                "dataStatus": "OK"
+              }
+            ]
+          }
+        },
+        "execution": {
+          "model_calls": [
+            {
+              "duration_ms": 660.1754,
+              "usage": {
+                "promptTokens": 2878,
+                "completionTokens": 59,
+                "totalTokens": 2937,
+                "promptCacheHitTokens": 2688,
+                "promptCacheMissTokens": 190
+              },
+              "provider_model": "deepseek-flash",
+              "outcome": "success",
+              "network_attempted": true,
+              "finish_reason": "tool_calls",
+              "assistant_message": {
+                "role": "assistant",
+                "content": "",
+                "tool_calls": [
+                  {
+                    "id": "call_00_K1J0wvnV3EuZzmhGLKIi1651",
+                    "type": "function",
+                    "function": {
+                      "name": "get_recent_course_performance",
+                      "arguments": "{\"semester\": \"latest\", \"limit\": 10}"
+                    }
+                  }
+                ]
+              }
+            },
+            {
+              "duration_ms": 2637.6796,
+              "usage": {
+                "promptTokens": 3578,
+                "completionTokens": 318,
+                "totalTokens": 3896,
+                "promptCacheHitTokens": 2816,
+                "promptCacheMissTokens": 762
+              },
+              "provider_model": "deepseek-flash",
+              "outcome": "success",
+              "network_attempted": true,
+              "finish_reason": "stop",
+              "assistant_message": {
+                "role": "assistant",
+                "content": "最近有有效成绩的学期是 2025-2026 学年秋季学期，共 2 门课程有最终成绩，其中 1 门未通过、1 门已通过但分数偏低。\n\n需要重点关注的课程\n\n1. 操作系统（3 学分，58 分）：未通过，现有记录中仍未见通过记录，属于需要优先处理的情况。建议尽快核实是否有补考、重修安排或成绩更正，并尽早联系任课教师或教务确认后续处理方式。\n2. 计算机网络（3 学分，65 分）：已通过，但属于低分区间（60 分及以上、70 分以下）。建议巩固基础，尤其是与后续课程衔接较多的内容。\n\n学期整体情况\n\n该学期加权 GPA 为 0.9，百分制算术平均分为 61.5（2 门课程均有数值成绩，覆盖完整）。与上一有效学期 2024-2025 学年春季学期相比，加权 GPA 下降 2.25，平均分下降 16.0，未通过课程数增加 1 门，两项指标方向一致，均呈下降。\n\n限制与下一步\n\n本学期只有 2 门课程，样本很小，统计结果容易受个别课程影响，不宜据此推断整体学习能力。另外有 1 门核心课程尚未到计划开课学期，不计入当前缺口。如需了解整体学分、官方 GPA 和已有预警等级，或查看更长时间的成绩变化，可以继续查询整体学业报告和成绩趋势。"
+              }
+            }
+          ],
+          "tool_calls": [
+            {
+              "tool": "get_recent_course_performance",
+              "arguments": {
+                "semester": "latest",
+                "limit": 10
+              },
+              "duration_ms": 96.724101,
+              "status": "OK",
+              "data": {
+                "source": {
+                  "major": "EVAL_COMPUTER_SCIENCE_V1",
+                  "grade": "2024",
+                  "transcriptUploadedAt": [
+                    2026,
+                    11,
+                    6,
+                    21,
+                    54,
+                    40
+                  ],
+                  "trainingPlanVersion": "eval-v1",
+                  "trainingPlanUpdatedAt": [
+                    2026,
+                    11,
+                    6,
+                    21,
+                    54,
+                    39
+                  ]
+                },
+                "status": "OK",
+                "message": null,
+                "requestedSemester": "latest",
+                "semester": "2025-2026学年秋季学期",
+                "limit": 10,
+                "rules": {
+                  "lowScoreMin": 60,
+                  "lowScoreMaxExclusive": 70,
+                  "semesterOrder": [
+                    "秋季",
+                    "春季",
+                    "国际小学期",
+                    "夏季/暑期"
+                  ],
+                  "weightedGpa": "sum(credit * gpa) / sum(valid credit); exclude P/pass-only records, retain earned credit; GPA coverage uses all course records",
+                  "averageNumericScore": "arithmetic mean of valid 0..100 final scores",
+                  "trendDirection": "sign of the difference between reported statistics"
+                },
+                "summary": {
+                  "semester": "2025-2026学年秋季学期",
+                  "courseCount": 2,
+                  "validScoreCourseCount": 2,
+                  "passedCourseCount": 1,
+                  "failedCourseCount": 1,
+                  "unknownScoreCourseCount": 0,
+                  "attemptedCredits": 6.0,
+                  "validCreditCourseCount": 2,
+                  "weightedGpa": 0.9,
+                  "gpaCourseCount": 2,
+                  "gpaCredits": 6.0,
+                  "gpaCourseCoverage": 1.0,
+                  "gpaCreditCoverage": 1.0,
+                  "averageNumericScore": 61.5,
+                  "numericScoreCourseCount": 2,
+                  "numericScoreCoverage": 1.0,
+                  "changeFromPrevious": {
+                    "semester": "2024-2025学年春季学期",
+                    "weightedGpaDelta": -2.25,
+                    "gpaDirection": "DOWN",
+                    "averageNumericScoreDelta": -16.0,
+                    "numericScoreDirection": "DOWN",
+                    "failedCourseCountDelta": 1
+                  },
+                  "analysisNotes": []
+                },
+                "focusCourseCount": 2,
+                "truncated": false,
+                "focusCourses": [
+                  {
+                    "name": "操作系统",
+                    "score": "58",
+                    "numericScore": 58.0,
+                    "credit": 3.0,
+                    "page": 1,
+                    "passed": false,
+                    "currentFailureStatus": "UNRESOLVED",
+                    "reason": "UNRESOLVED_FAILURE"
+                  },
+                  {
+                    "name": "计算机网络",
+                    "score": "65",
+                    "numericScore": 65.0,
+                    "credit": 3.0,
+                    "page": 1,
+                    "passed": true,
+                    "currentFailureStatus": null,
+                    "reason": "LOW_NUMERIC_SCORE"
+                  }
+                ],
+                "analysisNotes": [
+                  "1 门核心课程尚未到计划开课学期，不计入缺口",
+                  "学期 GPA 是按有效课程记录加权计算值；修读学分和未通过数量按本学期记录统计，不替代整体已获学分和当前预警结果",
+                  "趋势描述有效样本统计变化；各学期课程构成或统计覆盖率不同，不能直接推断学习能力变化或预测挂科",
+                  "previous 和趋势相邻项指上一有效成绩学期；没有成绩记录的学期不推测，不能假定学期记录连续"
+                ]
+              }
+            }
+          ],
+          "analysis_calls": [
+            {
+              "duration_ms": 54.1389,
+              "outcome": "success"
+            }
+          ],
+          "server_history": [],
+          "server_execution_ms": 3399.3361,
+          "tool_rounds": 1,
+          "execution_state": "SUCCEEDED"
+        },
+        "fixture_state": "base"
+      }
+    ],
+    "error": null,
+    "persisted_history": [
+      {
+        "role": "USER",
+        "content": "最近一个有成绩的学期，哪些课程需要重点关注？请区分未通过和低分。"
+      },
+      {
+        "role": "ASSISTANT",
+        "content": "最近有有效成绩的学期是 2025-2026 学年秋季学期，共 2 门课程有最终成绩，其中 1 门未通过、1 门已通过但分数偏低。\n\n需要重点关注的课程\n\n1. 操作系统（3 学分，58 分）：未通过，现有记录中仍未见通过记录，属于需要优先处理的情况。建议尽快核实是否有补考、重修安排或成绩更正，并尽早联系任课教师或教务确认后续处理方式。\n2. 计算机网络（3 学分，65 分）：已通过，但属于低分区间（60 分及以上、70 分以下）。建议巩固基础，尤其是与后续课程衔接较多的内容。\n\n学期整体情况\n\n该学期加权 GPA 为 0.9，百分制算术平均分为 61.5（2 门课程均有数值成绩，覆盖完整）。与上一有效学期 2024-2025 学年春季学期相比，加权 GPA 下降 2.25，平均分下降 16.0，未通过课程数增加 1 门，两项指标方向一致，均呈下降。\n\n限制与下一步\n\n本学期只有 2 门课程，样本很小，统计结果容易受个别课程影响，不宜据此推断整体学习能力。另外有 1 门核心课程尚未到计划开课学期，不计入当前缺口。如需了解整体学分、官方 GPA 和已有预警等级，或查看更长时间的成绩变化，可以继续查询整体学业报告和成绩趋势。"
+      }
+    ],
+    "formal_warning_records": 0,
+    "verdict": "REVIEW_PENDING",
+    "checks": [
+      {
+        "name": "http_status_turn_1",
+        "pass": true,
+        "detail": ""
+      },
+      {
+        "name": "no_foreign_tool_data_turn_1",
+        "pass": true,
+        "detail": ""
+      },
+      {
+        "name": "single_analysis_per_request_turn_1",
+        "pass": true,
+        "detail": ""
+      },
+      {
+        "name": "no_duplicate_identical_tool_call_turn_1",
+        "pass": true,
+        "detail": ""
+      },
+      {
+        "name": "agent_status",
+        "pass": true,
+        "detail": "'COMPLETED'"
+      },
+      {
+        "name": "no_formal_warning_write",
+        "pass": true,
+        "detail": ""
+      },
+      {
+        "name": "no_foreign_answer_data",
+        "pass": true,
+        "detail": ""
+      },
+      {
+        "name": "required_capability_get_recent_course_performance",
+        "pass": true,
+        "detail": ""
+      },
+      {
+        "name": "argument_semester",
+        "pass": true,
+        "detail": ""
+      },
+      {
+        "name": "recent_courses_from_fixture",
+        "pass": true,
+        "detail": ""
+      },
+      {
+        "name": "recent_scores_from_fixture",
+        "pass": true,
+        "detail": ""
+      }
+    ],
+    "agent_status": "COMPLETED",
+    "review": {
+      "status": "UNKNOWN",
+      "rubric": [
+        "Correct current facts and course relationships",
+        "Explain uncertainty without inventing grades or future failure probabilities",
+        "Answer the requested scope; no unsupported risk conclusion"
+      ],
+      "reviewer": null,
+      "notes": null
+    },
+    "category": "normal"
+  },
+  {
+    "case_id": "M01",
+    "trial_id": "M01-1",
+    "mode": "live_e2e",
+    "real_model": true,
+    "turns": [
+      {
+        "turn": 1,
+        "message": "最近一个有成绩的学期有哪些课值得关注？",
+        "http_status": 200,
+        "end_to_end_ms": 3955.0345,
+        "response": {
+          "code": 200,
+          "message": "成功",
+          "data": {
+            "conversationId": 3,
+            "answer": "最近一个有有效成绩的学期是 2025-2026 学年秋季学期。该学期共有 2 门课程有有效成绩，其中 1 门未通过、1 门通过但分数偏低；学期加权 GPA 为 0.9，百分制均分 61.5（2 门课程样本）。\n\n值得关注的课程：\n\n1. 操作系统（3 学分，58 分，未通过）\n   现有记录显示该课程仍未通过，需要重点关注。建议尽快核实补考或重修安排，并针对薄弱章节制定复习计划。\n\n2. 计算机网络（3 学分，65 分，已通过）\n   已通过，但分数处于 60～69 的低分区间，建议巩固基础，避免后续相关课程衔接吃力。\n\n补充说明：与上一有效学期（2024-2025 学年春季学期）相比，学期加权 GPA 下降 2.25，百分制均分下降 16.0，未通过课程数增加 1 门。不过两个学期课程构成不同、样本量很小（本学期仅 2 门），这些变化只能作为参考，不能据此推断学习能力变化或预测后续挂科。另有 1 门核心课程尚未到计划开课学期，不计入当前缺口。\n\n下一步建议：先向教务或任课教师确认操作系统的补考/重修安排；如需了解整体学分、官方 GPA 和预警等级，或想看更长学期的趋势，可以继续告诉我。",
+            "status": "COMPLETED",
+            "toolRounds": 1,
+            "toolCalls": [
+              {
+                "tool": "get_recent_course_performance",
+                "status": "OK",
+                "dataStatus": "OK"
+              }
+            ]
+          }
+        },
+        "execution": {
+          "model_calls": [
+            {
+              "duration_ms": 1058.8222,
+              "usage": {
+                "promptTokens": 2869,
+                "completionTokens": 59,
+                "totalTokens": 2928,
+                "promptCacheHitTokens": 2688,
+                "promptCacheMissTokens": 181
+              },
+              "provider_model": "deepseek-flash",
+              "outcome": "success",
+              "network_attempted": true,
+              "finish_reason": "tool_calls",
+              "assistant_message": {
+                "role": "assistant",
+                "content": "",
+                "tool_calls": [
+                  {
+                    "id": "call_00_nBKrer0AU1A51m2ecyqR4369",
+                    "type": "function",
+                    "function": {
+                      "name": "get_recent_course_performance",
+                      "arguments": "{\"semester\": \"latest\", \"limit\": 10}"
+                    }
+                  }
+                ]
+              }
+            },
+            {
+              "duration_ms": 2749.319099,
+              "usage": {
+                "promptTokens": 3569,
+                "completionTokens": 309,
+                "totalTokens": 3878,
+                "promptCacheHitTokens": 2816,
+                "promptCacheMissTokens": 753
+              },
+              "provider_model": "deepseek-flash",
+              "outcome": "success",
+              "network_attempted": true,
+              "finish_reason": "stop",
+              "assistant_message": {
+                "role": "assistant",
+                "content": "最近一个有有效成绩的学期是 2025-2026 学年秋季学期。该学期共有 2 门课程有有效成绩，其中 1 门未通过、1 门通过但分数偏低；学期加权 GPA 为 0.9，百分制均分 61.5（2 门课程样本）。\n\n值得关注的课程：\n\n1. 操作系统（3 学分，58 分，未通过）\n   现有记录显示该课程仍未通过，需要重点关注。建议尽快核实补考或重修安排，并针对薄弱章节制定复习计划。\n\n2. 计算机网络（3 学分，65 分，已通过）\n   已通过，但分数处于 60～69 的低分区间，建议巩固基础，避免后续相关课程衔接吃力。\n\n补充说明：与上一有效学期（2024-2025 学年春季学期）相比，学期加权 GPA 下降 2.25，百分制均分下降 16.0，未通过课程数增加 1 门。不过两个学期课程构成不同、样本量很小（本学期仅 2 门），这些变化只能作为参考，不能据此推断学习能力变化或预测后续挂科。另有 1 门核心课程尚未到计划开课学期，不计入当前缺口。\n\n下一步建议：先向教务或任课教师确认操作系统的补考/重修安排；如需了解整体学分、官方 GPA 和预警等级，或想看更长学期的趋势，可以继续告诉我。"
+              }
+            }
+          ],
+          "tool_calls": [
+            {
+              "tool": "get_recent_course_performance",
+              "arguments": {
+                "semester": "latest",
+                "limit": 10
+              },
+              "duration_ms": 86.875299,
+              "status": "OK",
+              "data": {
+                "source": {
+                  "major": "EVAL_COMPUTER_SCIENCE_V1",
+                  "grade": "2024",
+                  "transcriptUploadedAt": [
+                    2026,
+                    11,
+                    6,
+                    21,
+                    54,
+                    44
+                  ],
+                  "trainingPlanVersion": "eval-v1",
+                  "trainingPlanUpdatedAt": [
+                    2026,
+                    11,
+                    6,
+                    21,
+                    54,
+                    43
+                  ]
+                },
+                "status": "OK",
+                "message": null,
+                "requestedSemester": "latest",
+                "semester": "2025-2026学年秋季学期",
+                "limit": 10,
+                "rules": {
+                  "lowScoreMin": 60,
+                  "lowScoreMaxExclusive": 70,
+                  "semesterOrder": [
+                    "秋季",
+                    "春季",
+                    "国际小学期",
+                    "夏季/暑期"
+                  ],
+                  "weightedGpa": "sum(credit * gpa) / sum(valid credit); exclude P/pass-only records, retain earned credit; GPA coverage uses all course records",
+                  "averageNumericScore": "arithmetic mean of valid 0..100 final scores",
+                  "trendDirection": "sign of the difference between reported statistics"
+                },
+                "summary": {
+                  "semester": "2025-2026学年秋季学期",
+                  "courseCount": 2,
+                  "validScoreCourseCount": 2,
+                  "passedCourseCount": 1,
+                  "failedCourseCount": 1,
+                  "unknownScoreCourseCount": 0,
+                  "attemptedCredits": 6.0,
+                  "validCreditCourseCount": 2,
+                  "weightedGpa": 0.9,
+                  "gpaCourseCount": 2,
+                  "gpaCredits": 6.0,
+                  "gpaCourseCoverage": 1.0,
+                  "gpaCreditCoverage": 1.0,
+                  "averageNumericScore": 61.5,
+                  "numericScoreCourseCount": 2,
+                  "numericScoreCoverage": 1.0,
+                  "changeFromPrevious": {
+                    "semester": "2024-2025学年春季学期",
+                    "weightedGpaDelta": -2.25,
+                    "gpaDirection": "DOWN",
+                    "averageNumericScoreDelta": -16.0,
+                    "numericScoreDirection": "DOWN",
+                    "failedCourseCountDelta": 1
+                  },
+                  "analysisNotes": []
+                },
+                "focusCourseCount": 2,
+                "truncated": false,
+                "focusCourses": [
+                  {
+                    "name": "操作系统",
+                    "score": "58",
+                    "numericScore": 58.0,
+                    "credit": 3.0,
+                    "page": 1,
+                    "passed": false,
+                    "currentFailureStatus": "UNRESOLVED",
+                    "reason": "UNRESOLVED_FAILURE"
+                  },
+                  {
+                    "name": "计算机网络",
+                    "score": "65",
+                    "numericScore": 65.0,
+                    "credit": 3.0,
+                    "page": 1,
+                    "passed": true,
+                    "currentFailureStatus": null,
+                    "reason": "LOW_NUMERIC_SCORE"
+                  }
+                ],
+                "analysisNotes": [
+                  "1 门核心课程尚未到计划开课学期，不计入缺口",
+                  "学期 GPA 是按有效课程记录加权计算值；修读学分和未通过数量按本学期记录统计，不替代整体已获学分和当前预警结果",
+                  "趋势描述有效样本统计变化；各学期课程构成或统计覆盖率不同，不能直接推断学习能力变化或预测挂科",
+                  "previous 和趋势相邻项指上一有效成绩学期；没有成绩记录的学期不推测，不能假定学期记录连续"
+                ]
+              }
+            }
+          ],
+          "analysis_calls": [
+            {
+              "duration_ms": 40.8532,
+              "outcome": "success"
+            }
+          ],
+          "server_history": [],
+          "server_execution_ms": 3899.9193,
+          "tool_rounds": 1,
+          "execution_state": "SUCCEEDED"
+        },
+        "fixture_state": "base"
+      },
+      {
+        "turn": 2,
+        "message": "那上一学期呢？请按刚才的口径看。",
+        "http_status": 200,
+        "end_to_end_ms": 3213.182899,
+        "response": {
+          "code": 200,
+          "message": "成功",
+          "data": {
+            "conversationId": 3,
+            "answer": "按刚才的口径，上一有效成绩学期是 2024-2025 学年春季学期。\n\n结论与依据：该学期共 2 门课程有有效成绩，全部通过，无未通过课程，也没有成绩未知的课程。学期加权 GPA 为 3.15，百分制均分 77.5（2 门课程样本，GPA 与均分覆盖均为全部记录）。\n\n关注课程与建议：该学期没有需要重点关注的课程——没有未通过记录，也没有落在 60～69 低分区间的课程，因此工具未列出关注课程。若想进一步巩固，可回顾这两门课中得分相对较低的一门，为后续进阶课程打基础。\n\n限制与下一步：与再上一有效学期（2024-2025 学年秋季学期）相比，学期加权 GPA 下降 0.7、百分制均分下降 11.5，未通过课程数不变。但两个学期各只有 2 门课程、课程构成不同，这些变化只能作参考，不能据此推断学习能力变化或预测后续挂科。另有 1 门核心课程尚未到计划开课学期，不计入当前缺口。如需看整体学分、官方 GPA 与预警等级，或更长学期的趋势，可以继续告诉我。",
+            "status": "COMPLETED",
+            "toolRounds": 1,
+            "toolCalls": [
+              {
+                "tool": "get_recent_course_performance",
+                "status": "OK",
+                "dataStatus": "OK"
+              }
+            ]
+          }
+        },
+        "execution": {
+          "model_calls": [
+            {
+              "duration_ms": 852.538,
+              "usage": {
+                "promptTokens": 3241,
+                "completionTokens": 59,
+                "totalTokens": 3300,
+                "promptCacheHitTokens": 2816,
+                "promptCacheMissTokens": 425
+              },
+              "provider_model": "deepseek-flash",
+              "outcome": "success",
+              "network_attempted": true,
+              "finish_reason": "tool_calls",
+              "assistant_message": {
+                "role": "assistant",
+                "content": "",
+                "tool_calls": [
+                  {
+                    "id": "call_00_i24GjVVSOW7RlGuL0B5o6390",
+                    "type": "function",
+                    "function": {
+                      "name": "get_recent_course_performance",
+                      "arguments": "{\"semester\": \"previous\", \"limit\": 10}"
+                    }
+                  }
+                ]
+              }
+            },
+            {
+              "duration_ms": 2197.7748,
+              "usage": {
+                "promptTokens": 3848,
+                "completionTokens": 269,
+                "totalTokens": 4117,
+                "promptCacheHitTokens": 3200,
+                "promptCacheMissTokens": 648
+              },
+              "provider_model": "deepseek-flash",
+              "outcome": "success",
+              "network_attempted": true,
+              "finish_reason": "stop",
+              "assistant_message": {
+                "role": "assistant",
+                "content": "按刚才的口径，上一有效成绩学期是 2024-2025 学年春季学期。\n\n结论与依据：该学期共 2 门课程有有效成绩，全部通过，无未通过课程，也没有成绩未知的课程。学期加权 GPA 为 3.15，百分制均分 77.5（2 门课程样本，GPA 与均分覆盖均为全部记录）。\n\n关注课程与建议：该学期没有需要重点关注的课程——没有未通过记录，也没有落在 60～69 低分区间的课程，因此工具未列出关注课程。若想进一步巩固，可回顾这两门课中得分相对较低的一门，为后续进阶课程打基础。\n\n限制与下一步：与再上一有效学期（2024-2025 学年秋季学期）相比，学期加权 GPA 下降 0.7、百分制均分下降 11.5，未通过课程数不变。但两个学期各只有 2 门课程、课程构成不同，这些变化只能作参考，不能据此推断学习能力变化或预测后续挂科。另有 1 门核心课程尚未到计划开课学期，不计入当前缺口。如需看整体学分、官方 GPA 与预警等级，或更长学期的趋势，可以继续告诉我。"
+              }
+            }
+          ],
+          "tool_calls": [
+            {
+              "tool": "get_recent_course_performance",
+              "arguments": {
+                "semester": "previous",
+                "limit": 10
+              },
+              "duration_ms": 90.5038,
+              "status": "OK",
+              "data": {
+                "source": {
+                  "major": "EVAL_COMPUTER_SCIENCE_V1",
+                  "grade": "2024",
+                  "transcriptUploadedAt": [
+                    2026,
+                    11,
+                    6,
+                    21,
+                    54,
+                    44
+                  ],
+                  "trainingPlanVersion": "eval-v1",
+                  "trainingPlanUpdatedAt": [
+                    2026,
+                    11,
+                    6,
+                    21,
+                    54,
+                    43
+                  ]
+                },
+                "status": "OK",
+                "message": null,
+                "requestedSemester": "previous",
+                "semester": "2024-2025学年春季学期",
+                "limit": 10,
+                "rules": {
+                  "lowScoreMin": 60,
+                  "lowScoreMaxExclusive": 70,
+                  "semesterOrder": [
+                    "秋季",
+                    "春季",
+                    "国际小学期",
+                    "夏季/暑期"
+                  ],
+                  "weightedGpa": "sum(credit * gpa) / sum(valid credit); exclude P/pass-only records, retain earned credit; GPA coverage uses all course records",
+                  "averageNumericScore": "arithmetic mean of valid 0..100 final scores",
+                  "trendDirection": "sign of the difference between reported statistics"
+                },
+                "summary": {
+                  "semester": "2024-2025学年春季学期",
+                  "courseCount": 2,
+                  "validScoreCourseCount": 2,
+                  "passedCourseCount": 2,
+                  "failedCourseCount": 0,
+                  "unknownScoreCourseCount": 0,
+                  "attemptedCredits": 6.0,
+                  "validCreditCourseCount": 2,
+                  "weightedGpa": 3.15,
+                  "gpaCourseCount": 2,
+                  "gpaCredits": 6.0,
+                  "gpaCourseCoverage": 1.0,
+                  "gpaCreditCoverage": 1.0,
+                  "averageNumericScore": 77.5,
+                  "numericScoreCourseCount": 2,
+                  "numericScoreCoverage": 1.0,
+                  "changeFromPrevious": {
+                    "semester": "2024-2025学年秋季学期",
+                    "weightedGpaDelta": -0.7,
+                    "gpaDirection": "DOWN",
+                    "averageNumericScoreDelta": -11.5,
+                    "numericScoreDirection": "DOWN",
+                    "failedCourseCountDelta": 0
+                  },
+                  "analysisNotes": []
+                },
+                "focusCourseCount": 0,
+                "truncated": false,
+                "focusCourses": [],
+                "analysisNotes": [
+                  "1 门核心课程尚未到计划开课学期，不计入缺口",
+                  "学期 GPA 是按有效课程记录加权计算值；修读学分和未通过数量按本学期记录统计，不替代整体已获学分和当前预警结果",
+                  "趋势描述有效样本统计变化；各学期课程构成或统计覆盖率不同，不能直接推断学习能力变化或预测挂科",
+                  "previous 和趋势相邻项指上一有效成绩学期；没有成绩记录的学期不推测，不能假定学期记录连续"
+                ]
+              }
+            }
+          ],
+          "analysis_calls": [
+            {
+              "duration_ms": 48.818501,
+              "outcome": "success"
+            }
+          ],
+          "server_history": [
+            {
+              "role": "user",
+              "content": "最近一个有成绩的学期有哪些课值得关注？"
+            },
+            {
+              "role": "assistant",
+              "content": "最近一个有有效成绩的学期是 2025-2026 学年秋季学期。该学期共有 2 门课程有有效成绩，其中 1 门未通过、1 门通过但分数偏低；学期加权 GPA 为 0.9，百分制均分 61.5（2 门课程样本）。\n\n值得关注的课程：\n\n1. 操作系统（3 学分，58 分，未通过）\n   现有记录显示该课程仍未通过，需要重点关注。建议尽快核实补考或重修安排，并针对薄弱章节制定复习计划。\n\n2. 计算机网络（3 学分，65 分，已通过）\n   已通过，但分数处于 60～69 的低分区间，建议巩固基础，避免后续相关课程衔接吃力。\n\n补充说明：与上一有效学期（2024-2025 学年春季学期）相比，学期加权 GPA 下降 2.25，百分制均分下降 16.0，未通过课程数增加 1 门。不过两个学期课程构成不同、样本量很小（本学期仅 2 门），这些变化只能作为参考，不能据此推断学习能力变化或预测后续挂科。另有 1 门核心课程尚未到计划开课学期，不计入当前缺口。\n\n下一步建议：先向教务或任课教师确认操作系统的补考/重修安排；如需了解整体学分、官方 GPA 和预警等级，或想看更长学期的趋势，可以继续告诉我。"
+            }
+          ],
+          "server_execution_ms": 3144.6591,
+          "tool_rounds": 1,
+          "execution_state": "SUCCEEDED"
+        },
+        "fixture_state": "base"
+      }
+    ],
+    "error": null,
+    "persisted_history": [
+      {
+        "role": "USER",
+        "content": "最近一个有成绩的学期有哪些课值得关注？"
+      },
+      {
+        "role": "ASSISTANT",
+        "content": "最近一个有有效成绩的学期是 2025-2026 学年秋季学期。该学期共有 2 门课程有有效成绩，其中 1 门未通过、1 门通过但分数偏低；学期加权 GPA 为 0.9，百分制均分 61.5（2 门课程样本）。\n\n值得关注的课程：\n\n1. 操作系统（3 学分，58 分，未通过）\n   现有记录显示该课程仍未通过，需要重点关注。建议尽快核实补考或重修安排，并针对薄弱章节制定复习计划。\n\n2. 计算机网络（3 学分，65 分，已通过）\n   已通过，但分数处于 60～69 的低分区间，建议巩固基础，避免后续相关课程衔接吃力。\n\n补充说明：与上一有效学期（2024-2025 学年春季学期）相比，学期加权 GPA 下降 2.25，百分制均分下降 16.0，未通过课程数增加 1 门。不过两个学期课程构成不同、样本量很小（本学期仅 2 门），这些变化只能作为参考，不能据此推断学习能力变化或预测后续挂科。另有 1 门核心课程尚未到计划开课学期，不计入当前缺口。\n\n下一步建议：先向教务或任课教师确认操作系统的补考/重修安排；如需了解整体学分、官方 GPA 和预警等级，或想看更长学期的趋势，可以继续告诉我。"
+      },
+      {
+        "role": "USER",
+        "content": "那上一学期呢？请按刚才的口径看。"
+      },
+      {
+        "role": "ASSISTANT",
+        "content": "按刚才的口径，上一有效成绩学期是 2024-2025 学年春季学期。\n\n结论与依据：该学期共 2 门课程有有效成绩，全部通过，无未通过课程，也没有成绩未知的课程。学期加权 GPA 为 3.15，百分制均分 77.5（2 门课程样本，GPA 与均分覆盖均为全部记录）。\n\n关注课程与建议：该学期没有需要重点关注的课程——没有未通过记录，也没有落在 60～69 低分区间的课程，因此工具未列出关注课程。若想进一步巩固，可回顾这两门课中得分相对较低的一门，为后续进阶课程打基础。\n\n限制与下一步：与再上一有效学期（2024-2025 学年秋季学期）相比，学期加权 GPA 下降 0.7、百分制均分下降 11.5，未通过课程数不变。但两个学期各只有 2 门课程、课程构成不同，这些变化只能作参考，不能据此推断学习能力变化或预测后续挂科。另有 1 门核心课程尚未到计划开课学期，不计入当前缺口。如需看整体学分、官方 GPA 与预警等级，或更长学期的趋势，可以继续告诉我。"
+      }
+    ],
+    "formal_warning_records": 0,
+    "verdict": "REVIEW_PENDING",
+    "checks": [
+      {
+        "name": "http_status_turn_1",
+        "pass": true,
+        "detail": ""
+      },
+      {
+        "name": "no_foreign_tool_data_turn_1",
+        "pass": true,
+        "detail": ""
+      },
+      {
+        "name": "single_analysis_per_request_turn_1",
+        "pass": true,
+        "detail": ""
+      },
+      {
+        "name": "no_duplicate_identical_tool_call_turn_1",
+        "pass": true,
+        "detail": ""
+      },
+      {
+        "name": "http_status_turn_2",
+        "pass": true,
+        "detail": ""
+      },
+      {
+        "name": "no_foreign_tool_data_turn_2",
+        "pass": true,
+        "detail": ""
+      },
+      {
+        "name": "single_analysis_per_request_turn_2",
+        "pass": true,
+        "detail": ""
+      },
+      {
+        "name": "no_duplicate_identical_tool_call_turn_2",
+        "pass": true,
+        "detail": ""
+      },
+      {
+        "name": "agent_status",
+        "pass": true,
+        "detail": "'COMPLETED'"
+      },
+      {
+        "name": "no_formal_warning_write",
+        "pass": true,
+        "detail": ""
+      },
+      {
+        "name": "no_foreign_answer_data",
+        "pass": true,
+        "detail": ""
+      },
+      {
+        "name": "required_capability_get_recent_course_performance",
+        "pass": true,
+        "detail": ""
+      },
+      {
+        "name": "argument_semester",
+        "pass": true,
+        "detail": ""
+      },
+      {
+        "name": "real_server_history_loaded",
+        "pass": true,
+        "detail": ""
+      },
+      {
+        "name": "previous_semester_in_tool",
+        "pass": true,
+        "detail": ""
+      },
+      {
+        "name": "previous_no_focus_courses_from_tool",
+        "pass": true,
+        "detail": ""
+      },
+      {
+        "name": "previous_result_reaches_answer",
+        "pass": true,
+        "detail": ""
+      },
+      {
+        "name": "initial_recent_result_reaches_answer",
+        "pass": true,
+        "detail": ""
+      }
+    ],
+    "agent_status": "COMPLETED",
+    "review": {
+      "status": "UNKNOWN",
+      "rubric": [
+        "Correct current facts and course relationships",
+        "Explain uncertainty without inventing grades or future failure probabilities",
+        "Answer the requested scope; no unsupported risk conclusion"
+      ],
+      "reviewer": null,
+      "notes": null
+    },
+    "category": "multiturn"
+  },
+  {
+    "case_id": "M01",
+    "trial_id": "M01-2",
+    "mode": "live_e2e",
+    "real_model": true,
+    "turns": [
+      {
+        "turn": 1,
+        "message": "最近一个有成绩的学期有哪些课值得关注？",
+        "http_status": 200,
+        "end_to_end_ms": 3113.546201,
+        "response": {
+          "code": 200,
+          "message": "成功",
+          "data": {
+            "conversationId": 4,
+            "answer": "最近有有效成绩的学期是 2025-2026 学年秋季学期。该学期共有 2 门课程有有效成绩，其中 1 门未通过、1 门通过但分数偏低；学期加权 GPA 为 0.9，百分制均分 61.5（2 门课程样本）。\n\n值得关注的课程：\n\n1. 操作系统（3 学分，58 分，未通过）\n   现有记录显示仍未通过，需要重点关注。建议尽快核实补考或重修安排，并针对该课程制定复习计划。\n\n2. 计算机网络（3 学分，65 分，已通过）\n   已通过但属于低分区间（60≤分数<70），建议巩固基础，避免后续相关课程吃力。\n\n与上一有效学期（2024-2025 学年春季学期）相比，学期加权 GPA 下降 2.25，百分制均分下降 16.0，未通过课程数增加 1 门，两项指标方向均为下降。\n\n限制说明：本学期只有 2 门课程有有效成绩，样本很小，且各学期课程构成不同，这些变化不能直接推断学习能力变化，也不能预测后续挂科情况。另有 1 门核心课程尚未到计划开课学期，不计入当前缺口。如需了解整体学分、官方 GPA 和已有预警等级，可以继续查询整体学业报告。",
+            "status": "COMPLETED",
+            "toolRounds": 1,
+            "toolCalls": [
+              {
+                "tool": "get_recent_course_performance",
+                "status": "OK",
+                "dataStatus": "OK"
+              }
+            ]
+          }
+        },
+        "execution": {
+          "model_calls": [
+            {
+              "duration_ms": 954.5743,
+              "usage": {
+                "promptTokens": 2869,
+                "completionTokens": 59,
+                "totalTokens": 2928,
+                "promptCacheHitTokens": 2688,
+                "promptCacheMissTokens": 181
+              },
+              "provider_model": "deepseek-flash",
+              "outcome": "success",
+              "network_attempted": true,
+              "finish_reason": "tool_calls",
+              "assistant_message": {
+                "role": "assistant",
+                "content": "",
+                "tool_calls": [
+                  {
+                    "id": "call_00_auLg0k3jLvnhHWjdV4IS4904",
+                    "type": "function",
+                    "function": {
+                      "name": "get_recent_course_performance",
+                      "arguments": "{\"semester\": \"latest\", \"limit\": 10}"
+                    }
+                  }
+                ]
+              }
+            },
+            {
+              "duration_ms": 2026.462199,
+              "usage": {
+                "promptTokens": 3569,
+                "completionTokens": 291,
+                "totalTokens": 3860,
+                "promptCacheHitTokens": 2816,
+                "promptCacheMissTokens": 753
+              },
+              "provider_model": "deepseek-flash",
+              "outcome": "success",
+              "network_attempted": true,
+              "finish_reason": "stop",
+              "assistant_message": {
+                "role": "assistant",
+                "content": "最近有有效成绩的学期是 2025-2026 学年秋季学期。该学期共有 2 门课程有有效成绩，其中 1 门未通过、1 门通过但分数偏低；学期加权 GPA 为 0.9，百分制均分 61.5（2 门课程样本）。\n\n值得关注的课程：\n\n1. 操作系统（3 学分，58 分，未通过）\n   现有记录显示仍未通过，需要重点关注。建议尽快核实补考或重修安排，并针对该课程制定复习计划。\n\n2. 计算机网络（3 学分，65 分，已通过）\n   已通过但属于低分区间（60≤分数<70），建议巩固基础，避免后续相关课程吃力。\n\n与上一有效学期（2024-2025 学年春季学期）相比，学期加权 GPA 下降 2.25，百分制均分下降 16.0，未通过课程数增加 1 门，两项指标方向均为下降。\n\n限制说明：本学期只有 2 门课程有有效成绩，样本很小，且各学期课程构成不同，这些变化不能直接推断学习能力变化，也不能预测后续挂科情况。另有 1 门核心课程尚未到计划开课学期，不计入当前缺口。如需了解整体学分、官方 GPA 和已有预警等级，可以继续查询整体学业报告。"
+              }
+            }
+          ],
+          "tool_calls": [
+            {
+              "tool": "get_recent_course_performance",
+              "arguments": {
+                "semester": "latest",
+                "limit": 10
+              },
+              "duration_ms": 78.4676,
+              "status": "OK",
+              "data": {
+                "source": {
+                  "major": "EVAL_COMPUTER_SCIENCE_V1",
+                  "grade": "2024",
+                  "transcriptUploadedAt": [
+                    2026,
+                    11,
+                    6,
+                    21,
+                    54,
+                    52
+                  ],
+                  "trainingPlanVersion": "eval-v1",
+                  "trainingPlanUpdatedAt": [
+                    2026,
+                    11,
+                    6,
+                    21,
+                    54,
+                    51
+                  ]
+                },
+                "status": "OK",
+                "message": null,
+                "requestedSemester": "latest",
+                "semester": "2025-2026学年秋季学期",
+                "limit": 10,
+                "rules": {
+                  "lowScoreMin": 60,
+                  "lowScoreMaxExclusive": 70,
+                  "semesterOrder": [
+                    "秋季",
+                    "春季",
+                    "国际小学期",
+                    "夏季/暑期"
+                  ],
+                  "weightedGpa": "sum(credit * gpa) / sum(valid credit); exclude P/pass-only records, retain earned credit; GPA coverage uses all course records",
+                  "averageNumericScore": "arithmetic mean of valid 0..100 final scores",
+                  "trendDirection": "sign of the difference between reported statistics"
+                },
+                "summary": {
+                  "semester": "2025-2026学年秋季学期",
+                  "courseCount": 2,
+                  "validScoreCourseCount": 2,
+                  "passedCourseCount": 1,
+                  "failedCourseCount": 1,
+                  "unknownScoreCourseCount": 0,
+                  "attemptedCredits": 6.0,
+                  "validCreditCourseCount": 2,
+                  "weightedGpa": 0.9,
+                  "gpaCourseCount": 2,
+                  "gpaCredits": 6.0,
+                  "gpaCourseCoverage": 1.0,
+                  "gpaCreditCoverage": 1.0,
+                  "averageNumericScore": 61.5,
+                  "numericScoreCourseCount": 2,
+                  "numericScoreCoverage": 1.0,
+                  "changeFromPrevious": {
+                    "semester": "2024-2025学年春季学期",
+                    "weightedGpaDelta": -2.25,
+                    "gpaDirection": "DOWN",
+                    "averageNumericScoreDelta": -16.0,
+                    "numericScoreDirection": "DOWN",
+                    "failedCourseCountDelta": 1
+                  },
+                  "analysisNotes": []
+                },
+                "focusCourseCount": 2,
+                "truncated": false,
+                "focusCourses": [
+                  {
+                    "name": "操作系统",
+                    "score": "58",
+                    "numericScore": 58.0,
+                    "credit": 3.0,
+                    "page": 1,
+                    "passed": false,
+                    "currentFailureStatus": "UNRESOLVED",
+                    "reason": "UNRESOLVED_FAILURE"
+                  },
+                  {
+                    "name": "计算机网络",
+                    "score": "65",
+                    "numericScore": 65.0,
+                    "credit": 3.0,
+                    "page": 1,
+                    "passed": true,
+                    "currentFailureStatus": null,
+                    "reason": "LOW_NUMERIC_SCORE"
+                  }
+                ],
+                "analysisNotes": [
+                  "1 门核心课程尚未到计划开课学期，不计入缺口",
+                  "学期 GPA 是按有效课程记录加权计算值；修读学分和未通过数量按本学期记录统计，不替代整体已获学分和当前预警结果",
+                  "趋势描述有效样本统计变化；各学期课程构成或统计覆盖率不同，不能直接推断学习能力变化或预测挂科",
+                  "previous 和趋势相邻项指上一有效成绩学期；没有成绩记录的学期不推测，不能假定学期记录连续"
+                ]
+              }
+            }
+          ],
+          "analysis_calls": [
+            {
+              "duration_ms": 39.7988,
+              "outcome": "success"
+            }
+          ],
+          "server_history": [],
+          "server_execution_ms": 3062.1281,
+          "tool_rounds": 1,
+          "execution_state": "SUCCEEDED"
+        },
+        "fixture_state": "base"
+      },
+      {
+        "turn": 2,
+        "message": "那上一学期呢？请按刚才的口径看。",
+        "http_status": 200,
+        "end_to_end_ms": 3137.999001,
+        "response": {
+          "code": 200,
+          "message": "成功",
+          "data": {
+            "conversationId": 4,
+            "answer": "上一有效成绩学期是 2024-2025 学年春季学期，按同样的口径看：\n\n结论与依据\n该学期共有 2 门课程有有效成绩，全部通过，没有未通过课程，也没有成绩未知的课程。学期加权 GPA 为 3.15，百分制均分 77.5（2 门课程样本），GPA 与均分的覆盖率均为 100%。\n\n关注课程与建议\n按低分口径（60≤最终成绩<70）筛选，本学期没有需要关注的课程，也没有未通过课程。两门课程均正常通过，暂无需要特别巩固或核实的科目。\n\n限制与下一步\n本学期只有 2 门课程有有效成绩，样本很小。与再上一有效学期（2024-2025 学年秋季学期）相比，学期加权 GPA 下降 0.7、百分制均分下降 11.5，方向均为下降，但各学期课程构成不同，不能据此推断学习能力变化，也不能预测后续挂科情况。另有 1 门核心课程尚未到计划开课学期，不计入当前缺口。如需了解整体学分、官方 GPA 和已有预警等级，可以继续查询整体学业报告。",
+            "status": "COMPLETED",
+            "toolRounds": 1,
+            "toolCalls": [
+              {
+                "tool": "get_recent_course_performance",
+                "status": "OK",
+                "dataStatus": "OK"
+              }
+            ]
+          }
+        },
+        "execution": {
+          "model_calls": [
+            {
+              "duration_ms": 814.6719,
+              "usage": {
+                "promptTokens": 3223,
+                "completionTokens": 59,
+                "totalTokens": 3282,
+                "promptCacheHitTokens": 2816,
+                "promptCacheMissTokens": 407
+              },
+              "provider_model": "deepseek-flash",
+              "outcome": "success",
+              "network_attempted": true,
+              "finish_reason": "tool_calls",
+              "assistant_message": {
+                "role": "assistant",
+                "content": "",
+                "tool_calls": [
+                  {
+                    "id": "call_00_a5f2CE6VB8qGEBurR5v33534",
+                    "type": "function",
+                    "function": {
+                      "name": "get_recent_course_performance",
+                      "arguments": "{\"semester\": \"previous\", \"limit\": 10}"
+                    }
+                  }
+                ]
+              }
+            },
+            {
+              "duration_ms": 2166.132,
+              "usage": {
+                "promptTokens": 3830,
+                "completionTokens": 253,
+                "totalTokens": 4083,
+                "promptCacheHitTokens": 3200,
+                "promptCacheMissTokens": 630
+              },
+              "provider_model": "deepseek-flash",
+              "outcome": "success",
+              "network_attempted": true,
+              "finish_reason": "stop",
+              "assistant_message": {
+                "role": "assistant",
+                "content": "上一有效成绩学期是 2024-2025 学年春季学期，按同样的口径看：\n\n结论与依据\n该学期共有 2 门课程有有效成绩，全部通过，没有未通过课程，也没有成绩未知的课程。学期加权 GPA 为 3.15，百分制均分 77.5（2 门课程样本），GPA 与均分的覆盖率均为 100%。\n\n关注课程与建议\n按低分口径（60≤最终成绩<70）筛选，本学期没有需要关注的课程，也没有未通过课程。两门课程均正常通过，暂无需要特别巩固或核实的科目。\n\n限制与下一步\n本学期只有 2 门课程有有效成绩，样本很小。与再上一有效学期（2024-2025 学年秋季学期）相比，学期加权 GPA 下降 0.7、百分制均分下降 11.5，方向均为下降，但各学期课程构成不同，不能据此推断学习能力变化，也不能预测后续挂科情况。另有 1 门核心课程尚未到计划开课学期，不计入当前缺口。如需了解整体学分、官方 GPA 和已有预警等级，可以继续查询整体学业报告。"
+              }
+            }
+          ],
+          "tool_calls": [
+            {
+              "tool": "get_recent_course_performance",
+              "arguments": {
+                "semester": "previous",
+                "limit": 10
+              },
+              "duration_ms": 83.737299,
+              "status": "OK",
+              "data": {
+                "source": {
+                  "major": "EVAL_COMPUTER_SCIENCE_V1",
+                  "grade": "2024",
+                  "transcriptUploadedAt": [
+                    2026,
+                    11,
+                    6,
+                    21,
+                    54,
+                    52
+                  ],
+                  "trainingPlanVersion": "eval-v1",
+                  "trainingPlanUpdatedAt": [
+                    2026,
+                    11,
+                    6,
+                    21,
+                    54,
+                    51
+                  ]
+                },
+                "status": "OK",
+                "message": null,
+                "requestedSemester": "previous",
+                "semester": "2024-2025学年春季学期",
+                "limit": 10,
+                "rules": {
+                  "lowScoreMin": 60,
+                  "lowScoreMaxExclusive": 70,
+                  "semesterOrder": [
+                    "秋季",
+                    "春季",
+                    "国际小学期",
+                    "夏季/暑期"
+                  ],
+                  "weightedGpa": "sum(credit * gpa) / sum(valid credit); exclude P/pass-only records, retain earned credit; GPA coverage uses all course records",
+                  "averageNumericScore": "arithmetic mean of valid 0..100 final scores",
+                  "trendDirection": "sign of the difference between reported statistics"
+                },
+                "summary": {
+                  "semester": "2024-2025学年春季学期",
+                  "courseCount": 2,
+                  "validScoreCourseCount": 2,
+                  "passedCourseCount": 2,
+                  "failedCourseCount": 0,
+                  "unknownScoreCourseCount": 0,
+                  "attemptedCredits": 6.0,
+                  "validCreditCourseCount": 2,
+                  "weightedGpa": 3.15,
+                  "gpaCourseCount": 2,
+                  "gpaCredits": 6.0,
+                  "gpaCourseCoverage": 1.0,
+                  "gpaCreditCoverage": 1.0,
+                  "averageNumericScore": 77.5,
+                  "numericScoreCourseCount": 2,
+                  "numericScoreCoverage": 1.0,
+                  "changeFromPrevious": {
+                    "semester": "2024-2025学年秋季学期",
+                    "weightedGpaDelta": -0.7,
+                    "gpaDirection": "DOWN",
+                    "averageNumericScoreDelta": -11.5,
+                    "numericScoreDirection": "DOWN",
+                    "failedCourseCountDelta": 0
+                  },
+                  "analysisNotes": []
+                },
+                "focusCourseCount": 0,
+                "truncated": false,
+                "focusCourses": [],
+                "analysisNotes": [
+                  "1 门核心课程尚未到计划开课学期，不计入缺口",
+                  "学期 GPA 是按有效课程记录加权计算值；修读学分和未通过数量按本学期记录统计，不替代整体已获学分和当前预警结果",
+                  "趋势描述有效样本统计变化；各学期课程构成或统计覆盖率不同，不能直接推断学习能力变化或预测挂科",
+                  "previous 和趋势相邻项指上一有效成绩学期；没有成绩记录的学期不推测，不能假定学期记录连续"
+                ]
+              }
+            }
+          ],
+          "analysis_calls": [
+            {
+              "duration_ms": 38.8588,
+              "outcome": "success"
+            }
+          ],
+          "server_history": [
+            {
+              "role": "user",
+              "content": "最近一个有成绩的学期有哪些课值得关注？"
+            },
+            {
+              "role": "assistant",
+              "content": "最近有有效成绩的学期是 2025-2026 学年秋季学期。该学期共有 2 门课程有有效成绩，其中 1 门未通过、1 门通过但分数偏低；学期加权 GPA 为 0.9，百分制均分 61.5（2 门课程样本）。\n\n值得关注的课程：\n\n1. 操作系统（3 学分，58 分，未通过）\n   现有记录显示仍未通过，需要重点关注。建议尽快核实补考或重修安排，并针对该课程制定复习计划。\n\n2. 计算机网络（3 学分，65 分，已通过）\n   已通过但属于低分区间（60≤分数<70），建议巩固基础，避免后续相关课程吃力。\n\n与上一有效学期（2024-2025 学年春季学期）相比，学期加权 GPA 下降 2.25，百分制均分下降 16.0，未通过课程数增加 1 门，两项指标方向均为下降。\n\n限制说明：本学期只有 2 门课程有有效成绩，样本很小，且各学期课程构成不同，这些变化不能直接推断学习能力变化，也不能预测后续挂科情况。另有 1 门核心课程尚未到计划开课学期，不计入当前缺口。如需了解整体学分、官方 GPA 和已有预警等级，可以继续查询整体学业报告。"
+            }
+          ],
+          "server_execution_ms": 3079.506,
+          "tool_rounds": 1,
+          "execution_state": "SUCCEEDED"
+        },
+        "fixture_state": "base"
+      }
+    ],
+    "error": null,
+    "persisted_history": [
+      {
+        "role": "USER",
+        "content": "最近一个有成绩的学期有哪些课值得关注？"
+      },
+      {
+        "role": "ASSISTANT",
+        "content": "最近有有效成绩的学期是 2025-2026 学年秋季学期。该学期共有 2 门课程有有效成绩，其中 1 门未通过、1 门通过但分数偏低；学期加权 GPA 为 0.9，百分制均分 61.5（2 门课程样本）。\n\n值得关注的课程：\n\n1. 操作系统（3 学分，58 分，未通过）\n   现有记录显示仍未通过，需要重点关注。建议尽快核实补考或重修安排，并针对该课程制定复习计划。\n\n2. 计算机网络（3 学分，65 分，已通过）\n   已通过但属于低分区间（60≤分数<70），建议巩固基础，避免后续相关课程吃力。\n\n与上一有效学期（2024-2025 学年春季学期）相比，学期加权 GPA 下降 2.25，百分制均分下降 16.0，未通过课程数增加 1 门，两项指标方向均为下降。\n\n限制说明：本学期只有 2 门课程有有效成绩，样本很小，且各学期课程构成不同，这些变化不能直接推断学习能力变化，也不能预测后续挂科情况。另有 1 门核心课程尚未到计划开课学期，不计入当前缺口。如需了解整体学分、官方 GPA 和已有预警等级，可以继续查询整体学业报告。"
+      },
+      {
+        "role": "USER",
+        "content": "那上一学期呢？请按刚才的口径看。"
+      },
+      {
+        "role": "ASSISTANT",
+        "content": "上一有效成绩学期是 2024-2025 学年春季学期，按同样的口径看：\n\n结论与依据\n该学期共有 2 门课程有有效成绩，全部通过，没有未通过课程，也没有成绩未知的课程。学期加权 GPA 为 3.15，百分制均分 77.5（2 门课程样本），GPA 与均分的覆盖率均为 100%。\n\n关注课程与建议\n按低分口径（60≤最终成绩<70）筛选，本学期没有需要关注的课程，也没有未通过课程。两门课程均正常通过，暂无需要特别巩固或核实的科目。\n\n限制与下一步\n本学期只有 2 门课程有有效成绩，样本很小。与再上一有效学期（2024-2025 学年秋季学期）相比，学期加权 GPA 下降 0.7、百分制均分下降 11.5，方向均为下降，但各学期课程构成不同，不能据此推断学习能力变化，也不能预测后续挂科情况。另有 1 门核心课程尚未到计划开课学期，不计入当前缺口。如需了解整体学分、官方 GPA 和已有预警等级，可以继续查询整体学业报告。"
+      }
+    ],
+    "formal_warning_records": 0,
+    "verdict": "REVIEW_PENDING",
+    "checks": [
+      {
+        "name": "http_status_turn_1",
+        "pass": true,
+        "detail": ""
+      },
+      {
+        "name": "no_foreign_tool_data_turn_1",
+        "pass": true,
+        "detail": ""
+      },
+      {
+        "name": "single_analysis_per_request_turn_1",
+        "pass": true,
+        "detail": ""
+      },
+      {
+        "name": "no_duplicate_identical_tool_call_turn_1",
+        "pass": true,
+        "detail": ""
+      },
+      {
+        "name": "http_status_turn_2",
+        "pass": true,
+        "detail": ""
+      },
+      {
+        "name": "no_foreign_tool_data_turn_2",
+        "pass": true,
+        "detail": ""
+      },
+      {
+        "name": "single_analysis_per_request_turn_2",
+        "pass": true,
+        "detail": ""
+      },
+      {
+        "name": "no_duplicate_identical_tool_call_turn_2",
+        "pass": true,
+        "detail": ""
+      },
+      {
+        "name": "agent_status",
+        "pass": true,
+        "detail": "'COMPLETED'"
+      },
+      {
+        "name": "no_formal_warning_write",
+        "pass": true,
+        "detail": ""
+      },
+      {
+        "name": "no_foreign_answer_data",
+        "pass": true,
+        "detail": ""
+      },
+      {
+        "name": "required_capability_get_recent_course_performance",
+        "pass": true,
+        "detail": ""
+      },
+      {
+        "name": "argument_semester",
+        "pass": true,
+        "detail": ""
+      },
+      {
+        "name": "real_server_history_loaded",
+        "pass": true,
+        "detail": ""
+      },
+      {
+        "name": "previous_semester_in_tool",
+        "pass": true,
+        "detail": ""
+      },
+      {
+        "name": "previous_no_focus_courses_from_tool",
+        "pass": true,
+        "detail": ""
+      },
+      {
+        "name": "previous_result_reaches_answer",
+        "pass": true,
+        "detail": ""
+      },
+      {
+        "name": "initial_recent_result_reaches_answer",
+        "pass": true,
+        "detail": ""
+      }
+    ],
+    "agent_status": "COMPLETED",
+    "review": {
+      "status": "UNKNOWN",
+      "rubric": [
+        "Correct current facts and course relationships",
+        "Explain uncertainty without inventing grades or future failure probabilities",
+        "Answer the requested scope; no unsupported risk conclusion"
+      ],
+      "reviewer": null,
+      "notes": null
+    },
+    "category": "multiturn"
+  }
+]

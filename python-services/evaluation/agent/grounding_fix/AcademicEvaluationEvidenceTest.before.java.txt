@@ -1,0 +1,30 @@
+package com.college.student_service_platform;
+
+import com.college.student_service_platform.agent.AcademicAnswerGrounding;
+import com.college.student_service_platform.agent.AcademicBusinessContext;
+import com.college.student_service_platform.agent.academic.AcademicToolDtos.RecentOutput;
+import com.college.student_service_platform.agent.academic.AcademicToolResult;
+import com.college.student_service_platform.service.AcademicAnalysisReadContext;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import org.junit.jupiter.api.Test;
+import static org.junit.jupiter.api.Assertions.*;
+import static org.mockito.Mockito.mock;
+
+/** Characterizes the observed v1 baseline defect; update expectations when implementing its later fix. */
+class AcademicEvaluationEvidenceTest {
+    @Test void characterizesVerifiedDownwardDeltaMagnitudeBeingRejected() throws Exception {
+        var mapper=new ObjectMapper().findAndRegisterModules();
+        var recent=mapper.readValue("""
+            {"status":"OK","requestedSemester":"latest","semester":"2025-2026学年秋季学期","limit":5,
+             "summary":{"semester":"2025-2026学年秋季学期","weightedGpa":0.9,
+               "changeFromPrevious":{"weightedGpaDelta":-2.25,"gpaDirection":"DOWN"},"analysisNotes":[]},
+             "focusCourseCount":2,"truncated":false,"focusCourses":[],"analysisNotes":[]}
+            """,RecentOutput.class);
+        var business=new AcademicBusinessContext(mock(AcademicAnalysisReadContext.class));
+        business.record(new AcademicToolResult<>("get_recent_course_performance","OK",null,recent));
+        String natural="关注操作系统58分、计算机网络65分；GPA下降2.25。";
+        String signed="关注操作系统58分、计算机网络65分；GPA变化量为-2.25。";
+        assertFalse(AcademicAnswerGrounding.ground(natural,business).contains("操作系统"));
+        assertEquals(signed,AcademicAnswerGrounding.ground(signed,business));
+    }
+}

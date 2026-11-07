@@ -1,0 +1,102 @@
+{
+  "unique_task_verdicts": {
+    "FAIL": 1
+  },
+  "executed_unique_tasks": 1,
+  "planned_unique_tasks": 1,
+  "represented_unique_tasks": 1,
+  "trials": 2,
+  "executed_trials": 2,
+  "verdicts": {
+    "FAIL": 2
+  },
+  "by_category": {
+    "normal": {
+      "FAIL": 2
+    }
+  },
+  "modes": {
+    "live_e2e": {
+      "trials": 2,
+      "verdicts": {
+        "FAIL": 2
+      },
+      "http_success_latency": {
+        "sample_count": 2,
+        "p50_ms": 5023.12065,
+        "p95_ms": 5535.452445
+      },
+      "http_failure_latency": {
+        "sample_count": 0,
+        "p50_ms": null,
+        "p95_ms": null
+      },
+      "junit_seconds": null,
+      "rule_pass_request_latency": {
+        "sample_count": 0,
+        "p50_ms": null,
+        "p95_ms": null
+      },
+      "rule_fail_request_latency": {
+        "sample_count": 2,
+        "p50_ms": 5023.12065,
+        "p95_ms": 5535.452445
+      },
+      "expected_rejection_latency": {
+        "sample_count": 0,
+        "p50_ms": null,
+        "p95_ms": null
+      }
+    }
+  },
+  "repeat_stability": {
+    "N02": {
+      "trials": 2,
+      "verdicts": {
+        "FAIL": 2
+      },
+      "agent_statuses": {
+        "COMPLETED": 2
+      }
+    }
+  },
+  "model_http_attempts": 4,
+  "model_successful_responses": 4,
+  "provider_usage": {
+    "promptTokens": {
+      "sample_count": 4,
+      "sum_observed": 12912,
+      "complete_coverage": true
+    },
+    "completionTokens": {
+      "sample_count": 4,
+      "sum_observed": 784,
+      "complete_coverage": true
+    },
+    "totalTokens": {
+      "sample_count": 4,
+      "sum_observed": 13696,
+      "complete_coverage": true
+    },
+    "promptCacheHitTokens": {
+      "sample_count": 4,
+      "sum_observed": 11008,
+      "complete_coverage": true
+    },
+    "promptCacheMissTokens": {
+      "sample_count": 4,
+      "sum_observed": 1904,
+      "complete_coverage": true
+    }
+  },
+  "model_client_latency": {
+    "sample_count": 4,
+    "p50_ms": 2453.9106,
+    "p95_ms": 3239.9491749999997
+  },
+  "analysis_calls": 2,
+  "tool_calls": 2,
+  "quality_judge": "not implemented; UNKNOWN fields are not human review",
+  "cost": null,
+  "token_estimation": false
+}

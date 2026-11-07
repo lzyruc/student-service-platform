@@ -74,7 +74,8 @@ public class DeepSeekClient {
     private DeepSeekReply parse(String raw) {
         try {
             if (raw == null || raw.isBlank()) throw new IllegalArgumentException();
-            JsonNode choice = mapper.readTree(raw).path("choices").path(0);
+            JsonNode root = mapper.readTree(raw);
+            JsonNode choice = root.path("choices").path(0);
             JsonNode original = choice.path("message");
             String reason = choice.path("finish_reason").asText();
             if (!original.isObject() || !"assistant".equals(original.path("role").asText())) throw new IllegalArgumentException();
@@ -105,7 +106,8 @@ public class DeepSeekClient {
             } else if (!"stop".equals(reason) || !content.isTextual() || content.textValue().isBlank()) {
                 throw new IllegalArgumentException();
             }
-            return new DeepSeekReply(message, reason);
+            return new DeepSeekReply(message, reason, DeepSeekReply.TokenUsage.from(root.path("usage")),
+                    root.path("model").isTextual() ? root.path("model").textValue() : null);
         } catch (JsonProcessingException | IllegalArgumentException e) {
             throw new ApiException(HttpStatus.BAD_GATEWAY, "DeepSeek 返回格式不完整，请稍后重试");
         }

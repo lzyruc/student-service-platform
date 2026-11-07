@@ -95,7 +95,7 @@
           v-else-if="!activities.length"
           :description="activityUnavailable ? '业务动态暂时不可用' : '还没有业务动态'"
           :image-size="50"
-        /><button v-for="(item, index) in activities" :key="item.key" class="activity" @click="router.push(item.path)">
+        /><button v-for="item in activities" :key="item.key" class="activity" @click="router.push(item.path)">
           <span class="activity-dot" :class="item.kind"
             ><el-icon><component :is="item.icon" /></el-icon></span
           ><span class="activity-text"

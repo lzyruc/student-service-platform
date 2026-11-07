@@ -1,0 +1,372 @@
+{
+  "maven_exit": 0,
+  "tests": [
+    {
+      "class": "AcademicToolExecutorTest",
+      "method": "insufficientRecentAndTrendDataAreSuccessfulQueriesWithExplicitDataStatus",
+      "verdict": "PASS",
+      "seconds": 2.637
+    },
+    {
+      "class": "AcademicToolExecutorTest",
+      "method": "trendKeepsPrecomputedDeltasDirectionsAndSampleCoverage",
+      "verdict": "PASS",
+      "seconds": 0.036
+    },
+    {
+      "class": "AcademicToolExecutorTest",
+      "method": "assessmentRetainsRiskAndSeparateCoreStatusesAndDoesNotTreatMissingGpaAsZero",
+      "verdict": "PASS",
+      "seconds": 0.089
+    },
+    {
+      "class": "AcademicToolExecutorTest",
+      "method": "missingFilesAndNonStudentIdentityDoNotReachPython",
+      "verdict": "PASS",
+      "seconds": 0.049
+    },
+    {
+      "class": "AcademicToolExecutorTest",
+      "method": "recentRespectsLimitsEvidenceNullsAndCanonicalSemesterFromStatistics",
+      "verdict": "PASS",
+      "seconds": 0.041
+    },
+    {
+      "class": "AcademicToolExecutorTest",
+      "method": "modelOutputsContainOnlyDtosAndExcludeIdentityPathsAndRawLists",
+      "verdict": "PASS",
+      "seconds": 0.179
+    },
+    {
+      "class": "AcademicToolExecutorTest",
+      "method": "strictParametersAndUnknownToolsFailBeforeAnyBusinessReads",
+      "verdict": "PASS",
+      "seconds": 0.053
+    },
+    {
+      "class": "AcademicToolExecutorTest",
+      "method": "jwtChatEndpointAndRealFourToolsParseOncePerRequestAndRefreshOnFollowup",
+      "verdict": "PASS",
+      "seconds": 3.858
+    },
+    {
+      "class": "AcademicToolExecutorTest",
+      "method": "concurrentDifferentToolsStillShareOneAnalysis",
+      "verdict": "PASS",
+      "seconds": 0.015
+    },
+    {
+      "class": "AcademicToolExecutorTest",
+      "method": "fourToolsInOneRequestShareOneReadOnlyAnalysisAndTrustedIdentity",
+      "verdict": "PASS",
+      "seconds": 0.018
+    },
+    {
+      "class": "AcademicToolExecutorTest",
+      "method": "contextIsLazyCachedAndDoesNotParsePdf",
+      "verdict": "PASS",
+      "seconds": 0.006
+    },
+    {
+      "class": "AcademicToolExecutorTest",
+      "method": "conversationRequestContextsCannotBeMixedAndFailedPersistenceMarksRequestFailed",
+      "verdict": "PASS",
+      "seconds": 0.138
+    },
+    {
+      "class": "AcademicToolExecutorTest",
+      "method": "oldStatisticsFailExplicitlyWithoutCallingPythonAgainOrWritingRecords",
+      "verdict": "PASS",
+      "seconds": 0.011
+    },
+    {
+      "class": "AcademicToolExecutorTest",
+      "method": "contextDistinguishesBrokenFileAndMissingProfile",
+      "verdict": "PASS",
+      "seconds": 0.009
+    },
+    {
+      "class": "AcademicToolExecutorTest",
+      "method": "severalToolsInFailedRequestDoNotRetryPythonButNextRequestCanRecover",
+      "verdict": "PASS",
+      "seconds": 0.191
+    },
+    {
+      "class": "AcademicToolExecutorTest",
+      "method": "runtimeJsonNodeInputsAreAlsoValidatedAndSchemasMatchDefaultsAndBoundaries",
+      "verdict": "PASS",
+      "seconds": 0.007
+    },
+    {
+      "class": "AcademicToolExecutorTest",
+      "method": "ownedDatabaseHistoryCannotOverrideCurrentPythonGpaAndNextRequestGetsFreshSnapshot",
+      "verdict": "PASS",
+      "seconds": 0.145
+    },
+    {
+      "class": "AcademicToolExecutorTest",
+      "method": "failedAnalysisIsNotRetriedAndExceptionDetailsAreNotExposed",
+      "verdict": "PASS",
+      "seconds": 0.009
+    },
+    {
+      "class": "AcademicToolExecutorTest",
+      "method": "contextListsMissingPrerequisitesWithoutFabricatingAssessment",
+      "verdict": "PASS",
+      "seconds": 0.004
+    },
+    {
+      "class": "AcademicToolExecutorTest",
+      "method": "missingReportEvidenceDoesNotBecomeAnEmptyHealthyReport",
+      "verdict": "PASS",
+      "seconds": 0.011
+    },
+    {
+      "class": "AgentConcurrencyIsolationTest",
+      "method": "foreignConversationIsRejectedBeforeAgentToolsOrModelEvenForStream",
+      "verdict": "PASS",
+      "seconds": 0.305
+    },
+    {
+      "class": "AgentConcurrencyIsolationTest",
+      "method": "concurrentStreamingEvidenceAndResultStayWithTheirOwners",
+      "verdict": "PASS",
+      "seconds": 0.461
+    },
+    {
+      "class": "AgentConcurrencyIsolationTest",
+      "method": "eightyInterleavedJwtChatsUseSharedSingletonsWithoutCrossUserData",
+      "verdict": "PASS",
+      "seconds": 0.59
+    },
+    {
+      "class": "AgentConcurrencyIsolationTest",
+      "method": "historyCannotOverrideFreshToolFactsEvenWhenModelRepeatsClaim",
+      "verdict": "PASS",
+      "seconds": 0.067
+    },
+    {
+      "class": "AgentConcurrencyIsolationTest",
+      "method": "nextHttpRequestReadsUpdatedGradesAndCreatesNewSnapshot",
+      "verdict": "PASS",
+      "seconds": 0.063
+    },
+    {
+      "class": "AgentConcurrencyIsolationTest",
+      "method": "cachedFailureInOneStudentRequestDoesNotPoisonAnotherStudent",
+      "verdict": "PASS",
+      "seconds": 0.109
+    },
+    {
+      "class": "AgentConcurrencyIsolationTest",
+      "method": "parallelAndSequentialFourToolsShareOneRequestSingleFlight",
+      "verdict": "PASS",
+      "seconds": 0.098
+    },
+    {
+      "class": "DeepSeekClientTest",
+      "method": "emptyProviderResponseIsA502InsteadOfAnUnhandledError",
+      "verdict": "PASS",
+      "seconds": 0.634
+    },
+    {
+      "class": "DeepSeekClientTest",
+      "method": "sendsFunctionSchemaDisabledThinkingAndBearerWithoutChangingCallerMessages",
+      "verdict": "PASS",
+      "seconds": 0.063
+    },
+    {
+      "class": "DeepSeekClientTest",
+      "method": "rejectsTruncatedOutputAndMalformedProtocolBeforeToolDispatch",
+      "verdict": "PASS",
+      "seconds": 0.005
+    },
+    {
+      "class": "DeepSeekClientTest",
+      "method": "duplicateIdsAndBadArgumentsCannotExecuteTools",
+      "verdict": "PASS",
+      "seconds": 0.005
+    },
+    {
+      "class": "DeepSeekClientTest",
+      "method": "rateLimitDoesNotRetryOrExposeResponseDetails",
+      "verdict": "PASS",
+      "seconds": 0.017
+    },
+    {
+      "class": "DeepSeekClientTest",
+      "method": "timeoutAndRateLimitHaveSafeActionableErrors",
+      "verdict": "PASS",
+      "seconds": 0.006
+    },
+    {
+      "class": "DeepSeekClientTest",
+      "method": "validatesRequiredProviderUsage",
+      "verdict": "PASS",
+      "seconds": 0.002
+    },
+    {
+      "class": "DeepSeekClientTest",
+      "method": "authenticationFailureDoesNotRetryOrExposeProviderBody",
+      "verdict": "PASS",
+      "seconds": 0.009
+    },
+    {
+      "class": "DeepSeekClientTest",
+      "method": "missingOrInvalidUsageFieldsRemainUnavailableInsteadOfZero",
+      "verdict": "PASS",
+      "seconds": 0.003
+    },
+    {
+      "class": "DeepSeekClientTest",
+      "method": "missingCredentialsFailBeforeNetworkRequest",
+      "verdict": "PASS",
+      "seconds": 0.004
+    },
+    {
+      "class": "DeepSeekClientTest",
+      "method": "sendsToolResultsWithTheirCallIdsAndReadsFinalAnswer",
+      "verdict": "PASS",
+      "seconds": 0.003
+    },
+    {
+      "class": "SingleAgentServiceTest",
+      "method": "GPAClaimWithoutFreshGpaEvidenceDoesNotUseHistoricalNumbers",
+      "verdict": "PASS",
+      "seconds": 0.06
+    },
+    {
+      "class": "SingleAgentServiceTest",
+      "method": "refusalIsNotReplacedByMissingPrerequisiteNextActions",
+      "verdict": "PASS",
+      "seconds": 0.039
+    },
+    {
+      "class": "SingleAgentServiceTest",
+      "method": "historyIsExplicitlyUntrustedAndConflictingGpaIsReplacedByCurrentToolFact",
+      "verdict": "PASS",
+      "seconds": 0.019
+    },
+    {
+      "class": "SingleAgentServiceTest",
+      "method": "executionEventsReflectActualToolLifecycleAndOneContext",
+      "verdict": "PASS",
+      "seconds": 0.081
+    },
+    {
+      "class": "SingleAgentServiceTest",
+      "method": "invalidToolResultsAreFedBackWithoutCallingOtherApis",
+      "verdict": "PASS",
+      "seconds": 0.007
+    },
+    {
+      "class": "SingleAgentServiceTest",
+      "method": "businessAccessDenialStopsRemainingToolsAndNeverAsksModelToOverrideIt",
+      "verdict": "PASS",
+      "seconds": 0.007
+    },
+    {
+      "class": "SingleAgentServiceTest",
+      "method": "repeatedCallIdsAreRejectedBeforeSecondBatchExecution",
+      "verdict": "PASS",
+      "seconds": 0.005
+    },
+    {
+      "class": "SingleAgentServiceTest",
+      "method": "missingPrerequisitesProduceDeterministicNextActionInsteadOfHallucinatedScores",
+      "verdict": "PASS",
+      "seconds": 0.006
+    },
+    {
+      "class": "SingleAgentServiceTest",
+      "method": "multipleCallsAndRoundsUseOneRequestContextAndCorrelateToolResults",
+      "verdict": "PASS",
+      "seconds": 0.015
+    },
+    {
+      "class": "SingleAgentServiceTest",
+      "method": "queueWaitCountsAgainstDeadlineAndFailureStateIsRequestLocal",
+      "verdict": "PASS",
+      "seconds": 0.012
+    },
+    {
+      "class": "SingleAgentServiceTest",
+      "method": "callLimitDoesNotExecuteExcessCallsButProvidesAResultForEveryDeclaredId",
+      "verdict": "PASS",
+      "seconds": 0.011
+    },
+    {
+      "class": "SingleAgentServiceTest",
+      "method": "requestContextsHaveIndependentBudgetsStatesAndCannotExecuteTwice",
+      "verdict": "PASS",
+      "seconds": 0.057
+    },
+    {
+      "class": "SingleAgentServiceTest",
+      "method": "unsupportedCapabilityAndClarificationRemainDistinctFromMissingData",
+      "verdict": "PASS",
+      "seconds": 0.006
+    },
+    {
+      "class": "SingleAgentServiceTest",
+      "method": "disconnectedProgressConsumerStopsFurtherWork",
+      "verdict": "PASS",
+      "seconds": 0.005
+    },
+    {
+      "class": "SingleAgentServiceTest",
+      "method": "exhaustedRequestBudgetStopsBeforeCallingModel",
+      "verdict": "PASS",
+      "seconds": 0.005
+    },
+    {
+      "class": "SingleAgentServiceTest",
+      "method": "noSuccessfulAnalysisNeverReturnsInventedStudentGrades",
+      "verdict": "PASS",
+      "seconds": 0.005
+    },
+    {
+      "class": "SingleAgentServiceTest",
+      "method": "contextBoundToAnotherStudentIsRejectedBeforeModelAndNoHistoryCanSupplyIdentity",
+      "verdict": "PASS",
+      "seconds": 0.004
+    },
+    {
+      "class": "SingleAgentServiceTest",
+      "method": "roundLimitStopsExecutionAndRequestsOneFinalSummary",
+      "verdict": "PASS",
+      "seconds": 0.005
+    },
+    {
+      "class": "SingleAgentServiceTest",
+      "method": "otherStudentRequestReturnsFixedRefusalWithoutReadingAcademicData",
+      "verdict": "PASS",
+      "seconds": 0.003
+    },
+    {
+      "class": "SingleAgentServiceTest",
+      "method": "modelFailuresAreNotRetriedAndAuthenticationHappensBeforeModelAccess",
+      "verdict": "PASS",
+      "seconds": 0.015
+    },
+    {
+      "class": "SingleAgentServiceTest",
+      "method": "userAuthoredSystemMarkersNeverBecomeSystemRolesOrTrustedIdentity",
+      "verdict": "PASS",
+      "seconds": 0.007
+    },
+    {
+      "class": "SingleAgentServiceTest",
+      "method": "nextHttpRequestCreatesFreshContextEvenWithConversationHistory",
+      "verdict": "PASS",
+      "seconds": 0.008
+    },
+    {
+      "class": "SingleAgentServiceTest",
+      "method": "malformedControlsCannotSupplyCustomAnswersOrGradesWithoutEvidence",
+      "verdict": "PASS",
+      "seconds": 0.012
+    }
+  ],
+  "real_model": false
+}

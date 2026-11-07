@@ -142,4 +142,28 @@ class DeepSeekClientTest {
         assertFalse(error.getMessage().contains("secret"));
         server.verify();
     }
+    @Test
+    void validatesRequiredProviderUsage() {
+        server.expect(requestTo("https://api.deepseek.com/chat/completions"))
+            .andRespond(withSuccess("{\"model\":\"provider-model\",\"usage\":{\"prompt_tokens\":100,\"completion_tokens\":20,\"total_tokens\":120,\"prompt_cache_hit_tokens\":80},\"choices\":[{\"finish_reason\":\"stop\",\"message\":{\"role\":\"assistant\",\"content\":\"test\"}}]}", MediaType.APPLICATION_JSON));
+        var reply=client.complete(messages,definitions,"auto");
+        assertEquals(100L,reply.usage().promptTokens());
+        assertEquals(120L,reply.usage().totalTokens());
+        assertNull(reply.usage().promptCacheMissTokens());
+        assertEquals("provider-model",reply.model());
+        assertNull(new com.college.student_service_platform.agent.DeepSeekReply(reply.message(),"stop").usage());
+        server.verify();
+    }
+    @Test
+    void missingOrInvalidUsageFieldsRemainUnavailableInsteadOfZero() {
+        server.expect(requestTo("https://api.deepseek.com/chat/completions"))
+            .andRespond(withSuccess("""
+                {"usage":{"prompt_tokens":-1,"completion_tokens":2.5,"total_tokens":"120","prompt_cache_hit_tokens":0},
+                 "choices":[{"finish_reason":"stop","message":{"role":"assistant","content":"test"}}]}
+                """, MediaType.APPLICATION_JSON));
+        var usage=client.complete(messages,definitions,"auto").usage();
+        assertNull(usage.promptTokens()); assertNull(usage.completionTokens()); assertNull(usage.totalTokens());
+        assertEquals(0L,usage.promptCacheHitTokens()); assertNull(usage.promptCacheMissTokens());
+        server.verify();
+    }
 }

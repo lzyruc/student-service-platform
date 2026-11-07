@@ -1,0 +1,114 @@
+{
+  "unique_task_verdicts": {
+    "REVIEW_PENDING": 2
+  },
+  "executed_unique_tasks": 2,
+  "planned_unique_tasks": 2,
+  "represented_unique_tasks": 2,
+  "trials": 4,
+  "executed_trials": 4,
+  "verdicts": {
+    "REVIEW_PENDING": 4
+  },
+  "by_category": {
+    "normal": {
+      "REVIEW_PENDING": 2
+    },
+    "multiturn": {
+      "REVIEW_PENDING": 2
+    }
+  },
+  "modes": {
+    "live_e2e": {
+      "trials": 4,
+      "verdicts": {
+        "REVIEW_PENDING": 4
+      },
+      "http_success_latency": {
+        "sample_count": 6,
+        "p50_ms": 3339.4786495,
+        "p95_ms": 4757.298325000001
+      },
+      "http_failure_latency": {
+        "sample_count": 0,
+        "p50_ms": null,
+        "p95_ms": null
+      },
+      "junit_seconds": null,
+      "rule_pass_request_latency": {
+        "sample_count": 6,
+        "p50_ms": 3339.4786495,
+        "p95_ms": 4757.298325000001
+      },
+      "rule_fail_request_latency": {
+        "sample_count": 0,
+        "p50_ms": null,
+        "p95_ms": null
+      },
+      "expected_rejection_latency": {
+        "sample_count": 0,
+        "p50_ms": null,
+        "p95_ms": null
+      }
+    }
+  },
+  "repeat_stability": {
+    "M01": {
+      "trials": 2,
+      "verdicts": {
+        "REVIEW_PENDING": 2
+      },
+      "agent_statuses": {
+        "COMPLETED": 2
+      }
+    },
+    "N02": {
+      "trials": 2,
+      "verdicts": {
+        "REVIEW_PENDING": 2
+      },
+      "agent_statuses": {
+        "COMPLETED": 2
+      }
+    }
+  },
+  "model_http_attempts": 12,
+  "model_successful_responses": 12,
+  "provider_usage": {
+    "promptTokens": {
+      "sample_count": 12,
+      "sum_observed": 39930,
+      "complete_coverage": true
+    },
+    "completionTokens": {
+      "sample_count": 12,
+      "sum_observed": 2119,
+      "complete_coverage": true
+    },
+    "totalTokens": {
+      "sample_count": 12,
+      "sum_observed": 42049,
+      "complete_coverage": true
+    },
+    "promptCacheHitTokens": {
+      "sample_count": 12,
+      "sum_observed": 34048,
+      "complete_coverage": true
+    },
+    "promptCacheMissTokens": {
+      "sample_count": 12,
+      "sum_observed": 5882,
+      "complete_coverage": true
+    }
+  },
+  "model_client_latency": {
+    "sample_count": 12,
+    "p50_ms": 1950.3404495,
+    "p95_ms": 2733.33950955
+  },
+  "analysis_calls": 6,
+  "tool_calls": 6,
+  "quality_judge": "not implemented; UNKNOWN fields are not human review",
+  "cost": null,
+  "token_estimation": false
+}

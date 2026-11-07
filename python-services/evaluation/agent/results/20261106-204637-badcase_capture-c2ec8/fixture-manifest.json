@@ -1,0 +1,40 @@
+{
+  "version": "academic-eval-fixture-v1",
+  "base": {
+    "official_gpa": 2.63,
+    "earned_credits": 15,
+    "failed": [
+      "操作系统"
+    ],
+    "low": [
+      "计算机网络"
+    ],
+    "semester_gpas": [
+      3.85,
+      3.15,
+      0.9
+    ],
+    "missing": [
+      "软件工程"
+    ],
+    "pending": [
+      "数据库系统"
+    ]
+  },
+  "updated": {
+    "official_gpa": 3.3,
+    "earned_credits": 18,
+    "failed": [],
+    "semester_gpas": [
+      3.85,
+      3.15,
+      2.9
+    ]
+  },
+  "files": {
+    "alpha-base.pdf": "32e778e43b7acfb931af0d85beeac051260cd257b3c2035f2af9f0c7a85326bc",
+    "alpha-updated.pdf": "eb21f11a4ea862c92f027519b55fad12ba92c65eb89af28ddfaffdcacbd5a79d",
+    "beta.pdf": "ce5e14bb592b665a74b0a341324bd52002bfc6cbdeea9f17df4f10b05f1e08d8",
+    "plan.json": "c0f1c51ad9656987049fab50a192dd066d12ed40140089d0d5ae0917d51f51f9"
+  }
+}

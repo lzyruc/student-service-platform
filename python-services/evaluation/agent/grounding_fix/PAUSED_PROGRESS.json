@@ -1,0 +1,420 @@
+{
+  "saved_at": "2026-11-06T21:57:48.571639+08:00",
+  "state": "PAUSED_BY_USER",
+  "project": "D:\\agent开发准备\\简历项目\\student-service-platform",
+  "runs": {
+    "baseline": "20261106-204134-baseline-dee37",
+    "targeted": "20261106-215409-grounding_targeted-22544",
+    "full": "20261106-215525-grounding_full-b5a53"
+  },
+  "summaries": {
+    "baseline": {
+      "unique_task_verdicts": {
+        "PASS": 6,
+        "FAIL": 2,
+        "REVIEW_PENDING": 5
+      },
+      "executed_unique_tasks": 13,
+      "planned_unique_tasks": 13,
+      "represented_unique_tasks": 13,
+      "trials": 15,
+      "executed_trials": 15,
+      "verdicts": {
+        "REVIEW_PENDING": 5,
+        "FAIL": 3,
+        "PASS": 7
+      },
+      "by_category": {
+        "normal": {
+          "REVIEW_PENDING": 3,
+          "FAIL": 2
+        },
+        "multiturn": {
+          "FAIL": 1,
+          "REVIEW_PENDING": 1
+        },
+        "missing_data": {
+          "PASS": 2
+        },
+        "boundary": {
+          "PASS": 2
+        },
+        "identity": {
+          "PASS": 2
+        },
+        "ownership": {
+          "PASS": 1
+        },
+        "update": {
+          "REVIEW_PENDING": 1
+        }
+      },
+      "modes": {
+        "live_e2e": {
+          "trials": 15,
+          "verdicts": {
+            "REVIEW_PENDING": 5,
+            "FAIL": 3,
+            "PASS": 7
+          },
+          "http_success_latency": {
+            "sample_count": 17,
+            "p50_ms": 4032.1667,
+            "p95_ms": 4695.10618
+          },
+          "http_failure_latency": {
+            "sample_count": 1,
+            "p50_ms": 38.4485,
+            "p95_ms": 38.4485
+          },
+          "junit_seconds": null,
+          "rule_pass_request_latency": {
+            "sample_count": 14,
+            "p50_ms": 3301.6331005,
+            "p95_ms": 4653.252814349999
+          },
+          "rule_fail_request_latency": {
+            "sample_count": 4,
+            "p50_ms": 4100.428099999999,
+            "p95_ms": 4508.11791485
+          },
+          "expected_rejection_latency": {
+            "sample_count": 1,
+            "p50_ms": 38.4485,
+            "p95_ms": 38.4485
+          }
+        }
+      },
+      "repeat_stability": {
+        "N02": {
+          "trials": 2,
+          "verdicts": {
+            "FAIL": 2
+          },
+          "agent_statuses": {
+            "COMPLETED": 2
+          }
+        },
+        "S01": {
+          "trials": 2,
+          "verdicts": {
+            "PASS": 2
+          },
+          "agent_statuses": {
+            "REFUSED": 2
+          }
+        }
+      },
+      "model_http_attempts": 30,
+      "model_successful_responses": 30,
+      "provider_usage": {
+        "promptTokens": {
+          "sample_count": 30,
+          "sum_observed": 94681,
+          "complete_coverage": true
+        },
+        "completionTokens": {
+          "sample_count": 30,
+          "sum_observed": 4367,
+          "complete_coverage": true
+        },
+        "totalTokens": {
+          "sample_count": 30,
+          "sum_observed": 99048,
+          "complete_coverage": true
+        },
+        "promptCacheHitTokens": {
+          "sample_count": 30,
+          "sum_observed": 83072,
+          "complete_coverage": true
+        },
+        "promptCacheMissTokens": {
+          "sample_count": 30,
+          "sum_observed": 11609,
+          "complete_coverage": true
+        }
+      },
+      "model_client_latency": {
+        "sample_count": 30,
+        "p50_ms": 1457.57755,
+        "p95_ms": 2969.22668055
+      },
+      "analysis_calls": 10,
+      "tool_calls": 17,
+      "quality_judge": "not implemented; UNKNOWN fields are not human review",
+      "cost": null,
+      "token_estimation": false
+    },
+    "targeted": {
+      "unique_task_verdicts": {
+        "REVIEW_PENDING": 2
+      },
+      "executed_unique_tasks": 2,
+      "planned_unique_tasks": 2,
+      "represented_unique_tasks": 2,
+      "trials": 4,
+      "executed_trials": 4,
+      "verdicts": {
+        "REVIEW_PENDING": 4
+      },
+      "by_category": {
+        "normal": {
+          "REVIEW_PENDING": 2
+        },
+        "multiturn": {
+          "REVIEW_PENDING": 2
+        }
+      },
+      "modes": {
+        "live_e2e": {
+          "trials": 4,
+          "verdicts": {
+            "REVIEW_PENDING": 4
+          },
+          "http_success_latency": {
+            "sample_count": 6,
+            "p50_ms": 3339.4786495,
+            "p95_ms": 4757.298325000001
+          },
+          "http_failure_latency": {
+            "sample_count": 0,
+            "p50_ms": null,
+            "p95_ms": null
+          },
+          "junit_seconds": null,
+          "rule_pass_request_latency": {
+            "sample_count": 6,
+            "p50_ms": 3339.4786495,
+            "p95_ms": 4757.298325000001
+          },
+          "rule_fail_request_latency": {
+            "sample_count": 0,
+            "p50_ms": null,
+            "p95_ms": null
+          },
+          "expected_rejection_latency": {
+            "sample_count": 0,
+            "p50_ms": null,
+            "p95_ms": null
+          }
+        }
+      },
+      "repeat_stability": {
+        "M01": {
+          "trials": 2,
+          "verdicts": {
+            "REVIEW_PENDING": 2
+          },
+          "agent_statuses": {
+            "COMPLETED": 2
+          }
+        },
+        "N02": {
+          "trials": 2,
+          "verdicts": {
+            "REVIEW_PENDING": 2
+          },
+          "agent_statuses": {
+            "COMPLETED": 2
+          }
+        }
+      },
+      "model_http_attempts": 12,
+      "model_successful_responses": 12,
+      "provider_usage": {
+        "promptTokens": {
+          "sample_count": 12,
+          "sum_observed": 39930,
+          "complete_coverage": true
+        },
+        "completionTokens": {
+          "sample_count": 12,
+          "sum_observed": 2119,
+          "complete_coverage": true
+        },
+        "totalTokens": {
+          "sample_count": 12,
+          "sum_observed": 42049,
+          "complete_coverage": true
+        },
+        "promptCacheHitTokens": {
+          "sample_count": 12,
+          "sum_observed": 34048,
+          "complete_coverage": true
+        },
+        "promptCacheMissTokens": {
+          "sample_count": 12,
+          "sum_observed": 5882,
+          "complete_coverage": true
+        }
+      },
+      "model_client_latency": {
+        "sample_count": 12,
+        "p50_ms": 1950.3404495,
+        "p95_ms": 2733.33950955
+      },
+      "analysis_calls": 6,
+      "tool_calls": 6,
+      "quality_judge": "not implemented; UNKNOWN fields are not human review",
+      "cost": null,
+      "token_estimation": false
+    },
+    "full": {
+      "unique_task_verdicts": {
+        "REVIEW_PENDING": 7,
+        "PASS": 6
+      },
+      "executed_unique_tasks": 13,
+      "planned_unique_tasks": 13,
+      "represented_unique_tasks": 13,
+      "trials": 15,
+      "executed_trials": 15,
+      "verdicts": {
+        "REVIEW_PENDING": 8,
+        "PASS": 7
+      },
+      "by_category": {
+        "normal": {
+          "REVIEW_PENDING": 5
+        },
+        "multiturn": {
+          "REVIEW_PENDING": 2
+        },
+        "missing_data": {
+          "PASS": 2
+        },
+        "boundary": {
+          "PASS": 2
+        },
+        "identity": {
+          "PASS": 2
+        },
+        "ownership": {
+          "PASS": 1
+        },
+        "update": {
+          "REVIEW_PENDING": 1
+        }
+      },
+      "modes": {
+        "live_e2e": {
+          "trials": 15,
+          "verdicts": {
+            "REVIEW_PENDING": 8,
+            "PASS": 7
+          },
+          "http_success_latency": {
+            "sample_count": 17,
+            "p50_ms": 3181.575501,
+            "p95_ms": 4677.6356202
+          },
+          "http_failure_latency": {
+            "sample_count": 1,
+            "p50_ms": 35.64,
+            "p95_ms": 35.64
+          },
+          "junit_seconds": null,
+          "rule_pass_request_latency": {
+            "sample_count": 18,
+            "p50_ms": 3042.3605504999996,
+            "p95_ms": 4647.850890149999
+          },
+          "rule_fail_request_latency": {
+            "sample_count": 0,
+            "p50_ms": null,
+            "p95_ms": null
+          },
+          "expected_rejection_latency": {
+            "sample_count": 1,
+            "p50_ms": 35.64,
+            "p95_ms": 35.64
+          }
+        }
+      },
+      "repeat_stability": {
+        "N02": {
+          "trials": 2,
+          "verdicts": {
+            "REVIEW_PENDING": 2
+          },
+          "agent_statuses": {
+            "COMPLETED": 2
+          }
+        },
+        "S01": {
+          "trials": 2,
+          "verdicts": {
+            "PASS": 2
+          },
+          "agent_statuses": {
+            "REFUSED": 2
+          }
+        }
+      },
+      "model_http_attempts": 30,
+      "model_successful_responses": 30,
+      "provider_usage": {
+        "promptTokens": {
+          "sample_count": 30,
+          "sum_observed": 95231,
+          "complete_coverage": true
+        },
+        "completionTokens": {
+          "sample_count": 30,
+          "sum_observed": 4411,
+          "complete_coverage": true
+        },
+        "totalTokens": {
+          "sample_count": 30,
+          "sum_observed": 99642,
+          "complete_coverage": true
+        },
+        "promptCacheHitTokens": {
+          "sample_count": 30,
+          "sum_observed": 83838,
+          "complete_coverage": true
+        },
+        "promptCacheMissTokens": {
+          "sample_count": 30,
+          "sum_observed": 11393,
+          "complete_coverage": true
+        }
+      },
+      "model_client_latency": {
+        "sample_count": 30,
+        "p50_ms": 1174.0313,
+        "p95_ms": 2896.8016495499983
+      },
+      "analysis_calls": 10,
+      "tool_calls": 17,
+      "quality_judge": "not implemented; UNKNOWN fields are not human review",
+      "cost": null,
+      "token_estimation": false
+    }
+  },
+  "baseline_integrity": {
+    "sealed_files": 95,
+    "changed_source_and_tests": [
+      "backend/src/main/java/com/college/student_service_platform/agent/AcademicAnswerGrounding.java",
+      "backend/src/test/java/com/college/student_service_platform/AcademicAnswerGroundingTest.java",
+      "backend/src/test/java/com/college/student_service_platform/AcademicEvaluationEvidenceTest.java"
+    ],
+    "old_evaluation_files_changed": [],
+    "missing": []
+  },
+  "original_pending_trials": [
+    "N01-1",
+    "N03-1",
+    "N04-1",
+    "M02-1",
+    "U01-1"
+  ],
+  "next_steps": [
+    "Do not rerun paid model tests: targeted and full runs already complete.",
+    "Collect completed full runner session output only if needed; results are on disk.",
+    "Export original 5 REVIEW_PENDING trials with user task, tool evidence, final answers, rubric/checklist; no human acceptance claimed.",
+    "Create final comparison/report with unchanged scorer and offline replay boundaries.",
+    "Optionally run unchanged engineering-regression entry to save grouped matrix (related/full Java regressions already passed); no external model calls.",
+    "Verify sealed files and credentials redaction; deliver and stop."
+  ]
+}

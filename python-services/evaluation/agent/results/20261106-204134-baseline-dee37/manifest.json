@@ -1,0 +1,50 @@
+{
+  "run_id": "20261106-204134-baseline-dee37",
+  "created_at": "2026-11-06T12:41:34.955129+00:00",
+  "mode": "live",
+  "code_revision": "5d1fe0e7ceb11b86e784eff200b6abe099dfa336",
+  "working_tree_dirty": true,
+  "dataset_version": "academic-agent-tasks-v1",
+  "dataset_sha256": "2acf4851e38afc0c4f6fefd4ba2b05ffe56d6cdec950d74d42fbb99ad3383aab",
+  "fixture_version": "academic-eval-fixture-v1",
+  "prompt_sha256": "5f2e008ea87115b5a528f8fa8a9f36d06f6b002bf588e7aab0bd60d634e9097e",
+  "selected_cases": [
+    "N01",
+    "N02",
+    "N03",
+    "N04",
+    "M01",
+    "M02",
+    "B01",
+    "B02",
+    "B03",
+    "B04",
+    "S01",
+    "S02",
+    "U01"
+  ],
+  "repeat_ids": [
+    "N02",
+    "S01"
+  ],
+  "extra_repeats": 1,
+  "database": "mysql",
+  "runner_sha256": "923a4c0788c800e61387bf9bdfd92ee172869fd2b6df8f82faf20178ff6d17e2",
+  "scorer_sha256": "ab1d19ff1468c88a6f4747a469ed6e2d164e103ca63b768e964e62b1fcc31c92",
+  "harness_sha256": "f244a6ce8f4a27bd02f7566b086fc9ea1e95087a3a95b389fd3fab14abb75cab",
+  "rescoring": [
+    {
+      "scorer_sha256": "eb07d85912334a4b98da7e03c7385936673407a215ee79c5cacafec8530078b4",
+      "reason": "decimal-equivalent numbers and actual follow-up answer delivery; original raw records unchanged",
+      "applied_dataset_sha256": "0b0afb6cd0e4a796c4505a2dc775f93b5887b67685378c055073109c00989fb1"
+    }
+  ],
+  "original_observations_sha256": "9215fe94c70bd1b73a5136c1b77bc008358c7365c8daeb57e75f2a05a04f0b9a",
+  "final_grader": {
+    "scorer_sha256": "26658cfb882c29926c66653022646a5a406ac38bec295ea23219e1123651bba8",
+    "dataset_sha256": "0b0afb6cd0e4a796c4505a2dc775f93b5887b67685378c055073109c00989fb1",
+    "runner_sha256": "0d2812bb05865c79048a7cf139d3cb097ba325f643a25735d763e8763ecf5b6a",
+    "raw_records_unchanged": true
+  },
+  "grading_dataset_snapshot_sha256": "a78d52c94f99011185401c73ef1db0f2818ef8cf03ce05bd2ffeeb0822f265f4"
+}

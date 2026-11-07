@@ -1,0 +1,30 @@
+{
+  "run_id": "20261106-211726-runner_blocked_check-d9219",
+  "created_at": "2026-11-06T13:17:26.587997+00:00",
+  "mode": "live",
+  "code_revision": "5d1fe0e7ceb11b86e784eff200b6abe099dfa336",
+  "working_tree_dirty": true,
+  "dataset_version": "academic-agent-tasks-v1",
+  "dataset_sha256": "0b0afb6cd0e4a796c4505a2dc775f93b5887b67685378c055073109c00989fb1",
+  "fixture_version": "academic-eval-fixture-v1",
+  "prompt_sha256": "5f2e008ea87115b5a528f8fa8a9f36d06f6b002bf588e7aab0bd60d634e9097e",
+  "selected_cases": [
+    "N02"
+  ],
+  "repeat_ids": [
+    "N02"
+  ],
+  "extra_repeats": 1,
+  "database": "mysql",
+  "runner_sha256": "0d2812bb05865c79048a7cf139d3cb097ba325f643a25735d763e8763ecf5b6a",
+  "scorer_sha256": "eb07d85912334a4b98da7e03c7385936673407a215ee79c5cacafec8530078b4",
+  "harness_sha256": "b05e68f7cabad9891188633e5e112dd92a0659e7ca317d3f607ef1b35f79bb92",
+  "source_fingerprints_sha256": "729801650380c472714453bc84479f40e791b3786a08a495cf3c7b006c76b8d9",
+  "final_grader": {
+    "scorer_sha256": "26658cfb882c29926c66653022646a5a406ac38bec295ea23219e1123651bba8",
+    "dataset_sha256": "0b0afb6cd0e4a796c4505a2dc775f93b5887b67685378c055073109c00989fb1",
+    "runner_sha256": "0d2812bb05865c79048a7cf139d3cb097ba325f643a25735d763e8763ecf5b6a",
+    "raw_records_unchanged": true
+  },
+  "grading_dataset_snapshot_sha256": "dfe30a232753c35b3c3c5c898747200e641bf781e675b919c09e5fc573d7c5d0"
+}

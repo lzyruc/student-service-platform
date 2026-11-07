@@ -1,0 +1,230 @@
+package com.college.student_service_platform;
+
+import com.college.student_service_platform.agent.*;
+import com.college.student_service_platform.agent.academic.*;
+import com.college.student_service_platform.common.*;
+import com.college.student_service_platform.config.*;
+import com.college.student_service_platform.controller.*;
+import com.college.student_service_platform.repository.AgentConversationRepository;
+import com.college.student_service_platform.service.*;
+import com.college.student_service_platform.service.external.*;
+import com.fasterxml.jackson.databind.*;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.condition.EnabledIfEnvironmentVariable;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
+import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.boot.test.mock.mockito.SpyBean;
+import org.springframework.boot.test.web.client.TestRestTemplate;
+import org.springframework.boot.web.client.RestTemplateBuilder;
+import org.springframework.context.annotation.*;
+import org.springframework.http.*;
+import org.springframework.jdbc.core.JdbcTemplate;
+import org.springframework.jdbc.datasource.*;
+import org.springframework.mock.web.MockMultipartFile;
+import org.springframework.transaction.PlatformTransactionManager;
+import org.springframework.web.client.RestTemplate;
+import javax.sql.DataSource;
+import java.nio.file.*;
+import java.time.*;
+import java.util.*;
+import java.util.concurrent.atomic.AtomicInteger;
+import java.util.regex.*;
+import java.util.function.Consumer;
+import static org.mockito.ArgumentMatchers.*;
+import static org.mockito.Mockito.*;
+
+/** Opt-in real HTTP/JWT/JDBC/DeepSeek/Python evaluation, isolated from the business schema. */
+@EnabledIfEnvironmentVariable(named="AGENT_EVAL_EXECUTE",matches="1")
+@SpringBootTest(classes=AcademicAgentEvaluationTest.Config.class,webEnvironment=SpringBootTest.WebEnvironment.RANDOM_PORT,
+ properties={"spring.config.name=academic-agent-eval-empty","logging.level.root=WARN","logging.level.org.springframework=WARN",
+ "spring.main.banner-mode=off","spring.jmx.enabled=false","logging.config=file:../python-services/evaluation/agent/logback-evaluation.xml"})
+class AcademicAgentEvaluationTest {
+    static final ObjectMapper JSON=new ObjectMapper().findAndRegisterModules();
+    static final String A="EVAL_STUDENT_A",B="EVAL_STUDENT_B",MAJOR="EVAL_COMPUTER_SCIENCE_V1";
+    static final String PASSWORD=UUID.randomUUID().toString();
+    static String databaseName;
+    static Path work(){return Path.of(Objects.requireNonNull(System.getenv("AGENT_EVAL_WORK"))).toAbsolutePath().normalize();}
+    static Path output(){return Path.of(Objects.requireNonNull(System.getenv("AGENT_EVAL_OUTPUT"))).toAbsolutePath().normalize();}
+    @Configuration(proxyBeanMethods=false) @EnableAutoConfiguration
+    @Import({AgentConversationRepository.class,AgentConversationService.class,ConversationChatService.class,
+      AcademicAnalysisService.class,AcademicStatisticsService.class,AcademicToolMapper.class,AcademicToolExecutor.class,
+      GetAcademicContextTool.class,GetAcademicAssessmentTool.class,GetRecentCoursePerformanceTool.class,GetAcademicTrendTool.class,
+      AcademicSkill.class,SingleAgentService.class,DeepSeekClient.class,AcademicWarningClient.class,ExternalCallExecutor.class,
+      StudentTranscriptService.class,TrainingPlanService.class,WarningRecordService.class,AdminAuthService.class,
+      AgentChatController.class,AgentConversationController.class,AuthController.class,GlobalExceptionHandler.class,AgentStreamingConfig.class})
+    static class Config {
+        @Bean DataSource dataSource() throws Exception {
+            String suffix=UUID.randomUUID().toString().replace("-","").substring(0,10);
+            databaseName="student_agent_eval_v1_"+suffix;
+            DriverManagerDataSource source;
+            if("h2".equals(System.getenv("AGENT_EVAL_DATABASE"))) {
+                source=new DriverManagerDataSource("jdbc:h2:mem:"+databaseName+";MODE=MySQL;DB_CLOSE_DELAY=-1","sa","");
+            } else {
+                JsonNode local=JSON.readTree(Files.readString(Path.of("local-config.json")));
+                String original=local.path("DB_URL").asText();
+                Matcher match=Pattern.compile("^jdbc:mysql://(127\\.0\\.0\\.1|localhost):([0-9]+)/([A-Za-z0-9_]+)(\\?.*)?$").matcher(original);
+                if(!match.matches())throw new IllegalStateException("Evaluation requires a local MySQL URL; configuration not changed");
+                String base="jdbc:mysql://"+match.group(1)+":"+match.group(2)+"/";
+                String query=match.group(4)==null?"":match.group(4);
+                String user=local.path("DB_USERNAME").asText(),password=local.path("DB_PASSWORD").asText();
+                var server=new DriverManagerDataSource(base+query,user,password);
+                if(!databaseName.matches("student_agent_eval_v1_[a-f0-9]{10}"))throw new IllegalStateException("Unsafe evaluation schema");
+                new JdbcTemplate(server).execute("CREATE DATABASE `"+databaseName+"` CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci");
+                source=new DriverManagerDataSource(base+databaseName+query,user,password);
+            }
+            var jdbc=new JdbcTemplate(source);
+            // Extract CREATE TABLE statements only. Never execute DROP/USE/database initialization.
+            String script=Files.readString(Path.of("docs/sql/init-mysql.sql"));
+            var statements=Pattern.compile("(?s)CREATE TABLE(?: IF NOT EXISTS)? .*?;").matcher(script);
+            while(statements.find()) {
+                String sql=statements.group();
+                if("h2".equals(System.getenv("AGENT_EVAL_DATABASE"))) sql=sql.replace("CHARACTER SET ascii COLLATE ascii_bin","")
+                    .replace("ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci","");
+                jdbc.execute(sql);
+            }
+            jdbc.execute("CREATE TABLE evaluation_marker(fixture_version VARCHAR(100) NOT NULL)");
+            jdbc.update("INSERT INTO evaluation_marker VALUES(?)","academic-eval-fixture-v1");
+            Files.createDirectories(output());
+            Files.writeString(output().resolve("database.json"),JSON.writeValueAsString(Map.of("database",databaseName,"engine",
+                "h2".equals(System.getenv("AGENT_EVAL_DATABASE"))?"H2 MySQL mode":"MySQL","business_database_touched",false)));
+            return source;
+        }
+        @Bean JdbcTemplate jdbc(DataSource source){return new JdbcTemplate(source);}
+        @Bean PlatformTransactionManager transactions(DataSource source){return new DataSourceTransactionManager(source);}
+        @Bean ObjectMapper mapper(){return JSON;}
+        @Bean AgentProperties properties(){var p=new AgentProperties();return p;}
+        @Bean JwtUtil jwt(){return new JwtUtil(UUID.randomUUID().toString()+UUID.randomUUID(),"academic-agent-eval",Duration.ofHours(2));}
+        @Bean AuthFilter auth(JwtUtil jwt,ObjectMapper mapper){return new AuthFilter(jwt,mapper);}
+        @Bean PasswordService passwords(){return new PasswordService(10);}
+        @Bean FileService files(JdbcTemplate jdbc){return new FileService(jdbc,work().resolve("uploads").toString());}
+        @Bean ExternalServiceProperties external(){var p=new ExternalServiceProperties();
+            p.getWarningService().setBaseUrl("http://127.0.0.1:"+System.getenv().getOrDefault("AGENT_EVAL_PYTHON_PORT","18002"));return p;}
+        @Bean RestTemplate template(RestTemplateBuilder b,ExternalServiceProperties p){return b.setConnectTimeout(p.getConnectTimeout()).setReadTimeout(p.getReadTimeout()).build();}
+    }
+    @Autowired TestRestTemplate http;
+    @Autowired JdbcTemplate jdbc;
+    @Autowired PasswordService passwords;
+    @Autowired StudentTranscriptService transcripts;
+    @Autowired AgentProperties properties;
+    @SpyBean DeepSeekClient model;
+    @SpyBean AcademicWarningClient python;
+    @SpyBean AcademicToolExecutor tools;
+    @SpyBean SingleAgentService agent;
+    final ThreadLocal<Map<String,Object>> current=new ThreadLocal<>();
+    final AtomicInteger modelAttempts=new AtomicInteger();
+    final Map<String,String> tokens=new HashMap<>();
+    static double ms(long start){return (System.nanoTime()-start)/1_000_000.0;}
+    static List<Map<String,Object>> list(Map<String,Object> c,String key){return (List<Map<String,Object>>)c.get(key);}
+    static Map<String,Object> row(Object... pairs){var m=new LinkedHashMap<String,Object>();for(int i=0;i<pairs.length;i+=2)m.put((String)pairs[i],pairs[i+1]);return m;}
+
+    void instrument() {
+        doAnswer(call->{
+            AgentRequestContext context=call.getArgument(0);
+            var capture=row("model_calls",new ArrayList<>(),"tool_calls",new ArrayList<>(),"analysis_calls",new ArrayList<>(),
+                "server_history",context.conversation().history());current.set(capture);
+            long started=System.nanoTime();
+            try{return call.callRealMethod();}
+            finally {capture.put("server_execution_ms",ms(started));capture.put("tool_rounds",context.toolRounds());
+                capture.put("execution_state",context.state().name());finished.set(capture);current.remove();}
+        }).when(agent).chat(any(),any());
+        doAnswer(call->{
+            var capture=current.get();var observation=row("duration_ms",null,"usage",null,"provider_model",null,"outcome","failed","network_attempted",false);
+            if(capture!=null)list(capture,"model_calls").add(observation);
+            int limit=Integer.parseInt(System.getenv().getOrDefault("AGENT_EVAL_MODEL_BUDGET","48"));
+            if(modelAttempts.get()>=limit)throw new ApiException(HttpStatus.SERVICE_UNAVAILABLE,"Evaluation model-call budget exhausted");
+            modelAttempts.incrementAndGet();observation.put("network_attempted",true);long started=System.nanoTime();
+            try {DeepSeekReply reply=(DeepSeekReply)call.callRealMethod();observation.put("usage",reply.usage());observation.put("provider_model",reply.model());
+                observation.put("finish_reason",reply.finishReason());observation.put("assistant_message",reply.message());observation.put("outcome","success");return reply;}
+            catch(ApiException error){observation.put("http_status",error.getStatus().value());throw error;}
+            finally {observation.put("duration_ms",ms(started));}
+        }).when(model).complete(any(),anyList(),anyString());
+        doAnswer(call->{
+            var capture=current.get();var observation=row("tool",call.getArgument(0),"arguments",JSON.readTree((String)call.getArgument(1)),"duration_ms",null);
+            if(capture!=null)list(capture,"tool_calls").add(observation);long started=System.nanoTime();
+            try {AcademicToolResult<?> result=(AcademicToolResult<?>)call.callRealMethod();observation.put("status",result.status());observation.put("data",result.data());return result;}
+            finally {observation.put("duration_ms",ms(started));}
+        }).when(tools).execute(anyString(),anyString(),any(AcademicAnalysisReadContext.class));
+        doAnswer(call->{
+            var capture=current.get();var observation=row("duration_ms",null,"outcome","failed");
+            if(capture!=null)list(capture,"analysis_calls").add(observation);long started=System.nanoTime();
+            try {Object result=call.callRealMethod();observation.put("outcome","success");return result;}
+            finally {observation.put("duration_ms",ms(started));}
+        }).when(python).analyzeStoredTranscript(any(),anyString(),anyString(),anyString());
+    }
+    final java.util.concurrent.atomic.AtomicReference<Map<String,Object>> finished=new java.util.concurrent.atomic.AtomicReference<>();
+    void seed(String scenario) throws Exception {
+        // Only the newly-created dedicated schema is held by this JdbcTemplate.
+        for(String table:List.of("agent_conversation_message","agent_conversation","t_file","t_training_plan","t_student","t_user"))jdbc.update("DELETE FROM "+table);
+        tokens.clear();
+        for(int i=0;i<2;i++) {
+            String no=i==0?A:B,major=i==0 && scenario.equals("missing_plan")?"EVAL_NO_MATCHING_PLAN":MAJOR;
+            jdbc.update("INSERT INTO t_user(id,username,password,role_code,student_no,status) VALUES(?,?,?,'student',?,1)",92001+i,no,passwords.encode(PASSWORD),no);
+            jdbc.update("INSERT INTO t_student(id,student_no,name,class_name,major,grade,status) VALUES(?,?,?,?,?,'2024',1)",91001+i,no,"Synthetic "+(i==0?"A":"B"),"EVAL_CLASS",major);
+        }
+        jdbc.update("INSERT INTO t_training_plan(id,major,grade,version,json_content,course_count,total_credits,created_at,updated_at) VALUES(1,?,'2024','eval-v1',?,8,24,CURRENT_TIMESTAMP,CURRENT_TIMESTAMP)",
+            MAJOR,Files.readString(work().resolve("fixtures/plan.json")));
+        if(!scenario.equals("missing_transcript"))upload(A,"alpha-base.pdf");
+        upload(B,"beta.pdf");
+        for(String no:List.of(A,B)) {
+            var login=http.postForEntity("/api/auth/login",Map.of("username",no,"password",PASSWORD,"role","student"),JsonNode.class);
+            if(login.getStatusCode().value()!=200 || !login.getBody().path("data").path("token").isTextual())throw new IllegalStateException("Synthetic login failed");
+            tokens.put(no,login.getBody().path("data").path("token").asText());
+        }
+    }
+    void upload(String no,String file) throws Exception {
+        byte[] data=Files.readAllBytes(work().resolve("fixtures").resolve(file));
+        transcripts.save(no,new MockMultipartFile("file",file,"application/pdf",data));
+    }
+    ResponseEntity<JsonNode> post(String no,String url,Object body) {
+        var headers=new HttpHeaders();headers.setContentType(MediaType.APPLICATION_JSON);headers.setBearerAuth(tokens.get(no));
+        return http.exchange(url,HttpMethod.POST,new HttpEntity<>(body,headers),JsonNode.class);
+    }
+    long conversation(String no){var result=post(no,"/api/student/agent/conversations",Map.of());
+        if(result.getStatusCode().value()!=200)throw new IllegalStateException("Synthetic conversation creation failed: "+result.getStatusCode().value());
+        return result.getBody().path("data").path("id").asLong();}
+
+    @Test void evaluateDataset() throws Exception {
+        http.getRestTemplate().setRequestFactory(new org.springframework.http.client.SimpleClientHttpRequestFactory() {{setConnectTimeout(5000);setReadTimeout(210000);}});
+        if(new DeepSeekSettings(properties.getDeepseek()).apiKey().isBlank())throw new IllegalStateException("Evaluation blocked: model key is not configured");
+        instrument();
+        var dataset=JSON.readTree(Files.readString(Path.of("../python-services/evaluation/agent/cases.v1.json")));
+        var selected=new HashSet<>(Arrays.asList(System.getenv().getOrDefault("AGENT_EVAL_CASES","").split(",")));
+        var repeatIds=new HashSet<>(Arrays.asList(System.getenv().getOrDefault("AGENT_EVAL_REPEAT_IDS","").split(",")));
+        Files.writeString(output().resolve("java-environment.json"),JSON.writeValueAsString(row("database",databaseName,"model",new DeepSeekSettings(properties.getDeepseek()).model(),
+            "auth","real /api/auth/login + JWT filter","http","real embedded Tomcat random port","python","real HTTP + PDF parsing","tools","real registered services",
+            "usage_source","provider API response, null means unavailable","fixture_version","academic-eval-fixture-v1")));
+        for(JsonNode task:dataset.path("cases")) {
+            String id=task.path("case_id").asText();
+            if(!task.path("mode").asText().equals("live") || !selected.contains(id))continue;
+            int repeats=1+(repeatIds.contains(id)?Integer.parseInt(System.getenv().getOrDefault("AGENT_EVAL_EXTRA_REPEATS","1")):0);
+            for(int trial=1;trial<=repeats;trial++) {
+                var record=row("case_id",id,"trial_id",id+"-"+trial,"mode","live_e2e","real_model",false,"turns",new ArrayList<>(),"error",null);
+                try {
+                    seed(task.path("precondition").asText());long cid=conversation(A);
+                    List<Map<String,Object>> turns=list(record,"turns");
+                    for(int turn=0;turn<task.path("messages").size();turn++) {
+                        if(id.equals("U01") && turn==1)upload(A,"alpha-updated.pdf");
+                        finished.set(null);long started=System.nanoTime();
+                        String no=id.equals("S02")?B:A;
+                        var result=post(no,"/api/student/agent/chat",Map.of("conversationId",cid,"message",task.path("messages").get(turn).asText()));
+                        var capture=finished.get();
+                        var observation=row("turn",turn+1,"message",task.path("messages").get(turn).asText(),"http_status",result.getStatusCode().value(),
+                            "end_to_end_ms",ms(started),"response",result.getBody(),"execution",capture,
+                            "fixture_state",id.equals("U01") && turn==1?"updated":task.path("precondition").asText());
+                        turns.add(observation);
+                        if(capture!=null && list(capture,"model_calls").stream().anyMatch(c->Boolean.TRUE.equals(c.get("network_attempted"))))record.put("real_model",true);
+                    }
+                    record.put("persisted_history",jdbc.queryForList("SELECT role,content FROM agent_conversation_message WHERE conversation_id=? ORDER BY id",cid));
+                    record.put("formal_warning_records",jdbc.queryForObject("SELECT COUNT(*) FROM t_warning_record",Integer.class));
+                } catch(Exception failure) {
+                    // Never serialize raw exceptions, request headers, credentials or config.
+                    record.put("error",failure instanceof ApiException?"API_"+((ApiException)failure).getStatus().value():failure.getClass().getSimpleName());
+                } finally {
+                    Files.writeString(output().resolve("observations.jsonl"),JSON.writeValueAsString(record)+"\n",StandardOpenOption.CREATE,StandardOpenOption.APPEND);
+                }
+            }
+        }
+        Files.writeString(output().resolve("provider-attempts.json"),JSON.writeValueAsString(Map.of("model_http_attempts",modelAttempts.get())));
+    }
+}

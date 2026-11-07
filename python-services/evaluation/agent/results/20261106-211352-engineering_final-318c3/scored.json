@@ -1,0 +1,162 @@
+[
+  {
+    "case_id": "E01",
+    "trial_id": "E01-1",
+    "mode": "engineering_regression",
+    "real_model": false,
+    "verdict": "PASS",
+    "checks": [
+      {
+        "name": "AgentConcurrencyIsolationTest.cachedFailureInOneStudentRequestDoesNotPoisonAnotherStudent",
+        "pass": true,
+        "detail": "PASS"
+      },
+      {
+        "name": "SingleAgentServiceTest.modelFailuresAreNotRetriedAndAuthenticationHappensBeforeModelAccess",
+        "pass": true,
+        "detail": "PASS"
+      },
+      {
+        "name": "SingleAgentServiceTest.exhaustedRequestBudgetStopsBeforeCallingModel",
+        "pass": true,
+        "detail": "PASS"
+      },
+      {
+        "name": "SingleAgentServiceTest.queueWaitCountsAgainstDeadlineAndFailureStateIsRequestLocal",
+        "pass": true,
+        "detail": "PASS"
+      },
+      {
+        "name": "DeepSeekClientTest.timeoutAndRateLimitHaveSafeActionableErrors",
+        "pass": true,
+        "detail": "PASS"
+      },
+      {
+        "name": "DeepSeekClientTest.authenticationFailureDoesNotRetryOrExposeProviderBody",
+        "pass": true,
+        "detail": "PASS"
+      }
+    ],
+    "turns": [],
+    "junit_seconds": 0.117,
+    "model_call_count": null,
+    "usage": null,
+    "category": "downstream"
+  },
+  {
+    "case_id": "E02",
+    "trial_id": "E02-1",
+    "mode": "engineering_regression",
+    "real_model": false,
+    "verdict": "PASS",
+    "checks": [
+      {
+        "name": "SingleAgentServiceTest.roundLimitStopsExecutionAndRequestsOneFinalSummary",
+        "pass": true,
+        "detail": "PASS"
+      },
+      {
+        "name": "SingleAgentServiceTest.callLimitDoesNotExecuteExcessCallsButProvidesAResultForEveryDeclaredId",
+        "pass": true,
+        "detail": "PASS"
+      }
+    ],
+    "turns": [],
+    "junit_seconds": 0.011,
+    "model_call_count": null,
+    "usage": null,
+    "category": "budget"
+  },
+  {
+    "case_id": "E03",
+    "trial_id": "E03-1",
+    "mode": "engineering_regression",
+    "real_model": false,
+    "verdict": "PASS",
+    "checks": [
+      {
+        "name": "SingleAgentServiceTest.invalidToolResultsAreFedBackWithoutCallingOtherApis",
+        "pass": true,
+        "detail": "PASS"
+      },
+      {
+        "name": "SingleAgentServiceTest.repeatedCallIdsAreRejectedBeforeSecondBatchExecution",
+        "pass": true,
+        "detail": "PASS"
+      },
+      {
+        "name": "DeepSeekClientTest.validatesRequiredProviderUsage",
+        "pass": true,
+        "detail": "PASS"
+      },
+      {
+        "name": "AcademicToolExecutorTest.strictParametersAndUnknownToolsFailBeforeAnyBusinessReads",
+        "pass": true,
+        "detail": "PASS"
+      },
+      {
+        "name": "AcademicToolExecutorTest.runtimeJsonNodeInputsAreAlsoValidatedAndSchemasMatchDefaultsAndBoundaries",
+        "pass": true,
+        "detail": "PASS"
+      }
+    ],
+    "turns": [],
+    "junit_seconds": 0.039,
+    "model_call_count": null,
+    "usage": null,
+    "category": "protocol"
+  },
+  {
+    "case_id": "E04",
+    "trial_id": "E04-1",
+    "mode": "engineering_regression",
+    "real_model": false,
+    "verdict": "PASS",
+    "checks": [
+      {
+        "name": "AgentConcurrencyIsolationTest.eightyInterleavedJwtChatsUseSharedSingletonsWithoutCrossUserData",
+        "pass": true,
+        "detail": "PASS"
+      },
+      {
+        "name": "AgentConcurrencyIsolationTest.foreignConversationIsRejectedBeforeAgentToolsOrModelEvenForStream",
+        "pass": true,
+        "detail": "PASS"
+      }
+    ],
+    "turns": [],
+    "junit_seconds": 0.8180000000000001,
+    "model_call_count": null,
+    "usage": null,
+    "category": "isolation"
+  },
+  {
+    "case_id": "E05",
+    "trial_id": "E05-1",
+    "mode": "engineering_regression",
+    "real_model": false,
+    "verdict": "PASS",
+    "checks": [
+      {
+        "name": "AgentConcurrencyIsolationTest.parallelAndSequentialFourToolsShareOneRequestSingleFlight",
+        "pass": true,
+        "detail": "PASS"
+      },
+      {
+        "name": "AgentConcurrencyIsolationTest.nextHttpRequestReadsUpdatedGradesAndCreatesNewSnapshot",
+        "pass": true,
+        "detail": "PASS"
+      },
+      {
+        "name": "AgentConcurrencyIsolationTest.historyCannotOverrideFreshToolFactsEvenWhenModelRepeatsClaim",
+        "pass": true,
+        "detail": "PASS"
+      }
+    ],
+    "turns": [],
+    "junit_seconds": 0.164,
+    "model_call_count": null,
+    "usage": null,
+    "category": "snapshot"
+  }
+]

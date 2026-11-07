@@ -43,4 +43,72 @@ class AcademicAnswerGroundingTest {
         var answer=AcademicAnswerGrounding.ground("当前 GPA 为 4.0",business(null));
         assertFalse(answer.contains("4.0"));assertFalse(answer.contains("0.0"));assertTrue(answer.contains("未采用"));
     }
+
+    private AcademicBusinessContext typed(String official, String level, String delta, String direction) {
+        var context=business(official);
+        var node=new ObjectMapper().createObjectNode();node.put("semester","春季");
+        if(level!=null)node.put("weightedGpa",new BigDecimal(level));
+        node.putArray("analysisNotes");
+        if(delta!=null) {
+            var change=node.putObject("changeFromPrevious").put("weightedGpaDelta",new BigDecimal(delta));
+            if(direction!=null)change.put("gpaDirection",direction);
+        }
+        var summary=new ObjectMapper().convertValue(node,AcademicToolDtos.SemesterSummary.class);
+        context.record(new AcademicToolResult<>("get_academic_trend","OK",null,new AcademicToolDtos.TrendOutput(null,"OK",3,1,null,
+                List.of(summary),1,"OK",0,"UNAVAILABLE",List.of())));
+        return context;
+    }
+    private void kept(AcademicBusinessContext context,String... texts) {
+        for(String text:texts)assertEquals(text,AcademicAnswerGrounding.ground(text,context),text);
+    }
+    private void rejected(AcademicBusinessContext context,String... texts) {
+        for(String text:texts)assertNotEquals(text,AcademicAnswerGrounding.ground(text,context),text);
+    }
+    @Test void downwardMagnitudesAndSignedChangesUseDeltaEvidence() {
+        var context=typed("2.63","0.9","-2.25","DOWN");
+        kept(context,"GPA下降2.25。","GPA下降了2.2500。","加权 GPA下降幅度为2.25。","GPA变化量为-2.25。","学期GPA变化为-2.2500。");
+        rejected(context,"GPA上升2.25。","GPA上升了2.25。","GPA下降0.9。","GPA变化量为0.9。","GPA下降-2.25。","GPA上升-2.25。");
+    }
+    @Test void levelsAndChangesCannotSubstituteForEachOther() {
+        var context=typed("2.63","0.9","-2.25","DOWN");
+        kept(context,"GPA下降至0.9。","学期 GPA 下降到 0.90。","GPA降至0.9000。","GPA为0.9。","官方 GPA 为2.6300。");
+        rejected(context,"GPA为-2.25。","GPA为2.25。","GPA下降至-2.25。","GPA变化量为2.63。");
+    }
+    @Test void explicitlyQualifiedLevelsMatchOnlyTheirOwnEvidence() {
+        var context=typed("2.63","0.9","-2.25","DOWN");
+        kept(context,"官方GPA为2.63；学期GPA为0.9。","本学期加权GPA为0.90。","官方的 GPA 是2.63。");
+        rejected(context,"官方GPA为0.9。","学期GPA为2.63。","加权GPA为2.63。","官方GPA下降至0.9。",
+                "官方GPA下降2.25。","官方GPA变化量为-2.25。");
+    }
+    @Test void explicitScopeCannotBorrowEvidenceWhenItsSourceIsAbsent() {
+        kept(business("2.63"),"GPA为2.63。");
+        rejected(business("2.63"),"学期GPA为2.63。","GPA下降2.63。");
+        rejected(typed(null,"0.9","-2.25","DOWN"),"官方GPA为0.9。","官方GPA为4.0。");
+    }
+    @Test void upwardAndStableEvidenceAreNotHardcodedAsDownward() {
+        kept(typed(null,"3.15","2.25","UP"),"GPA上升2.25。","GPA变化量为+2.25。");
+        rejected(typed(null,"3.15","2.25","UP"),"GPA下降2.25。","GPA变化量为-2.25。");
+        kept(typed(null,"0.9","0","STABLE"),"GPA变化量为0.00。");
+        rejected(typed(null,"0.9","0","STABLE"),"GPA上升0。","GPA下降0。");
+    }
+    @Test void exactDecimalAndExistingTwoAndFourPlaceRoundingRemainCompatible() {
+        var context=typed("2.63333","3.5185","-0.188","DOWN");
+        kept(context,"官方GPA为2.63。","官方GPA为2.6333。","学期GPA为3.52。","学期GPA为3.518500。",
+                "GPA下降0.1880。","GPA下降0.19。","GPA变化量为-0.19。");
+        rejected(context,"学期GPA为3.53。","GPA下降0.18。","GPA变化量为0.19。");
+    }
+    @Test void missingContradictoryAndUnknownDirectionDoNotCreateEvidence() {
+        rejected(typed(null,"0.9",null,null),"GPA下降0.9。","GPA变化量为-2.25。");
+        rejected(typed(null,"0.9","-2.25","UP"),"GPA下降2.25。","GPA变化量为-2.25。");
+        rejected(typed(null,"0.9","-2.25","UNAVAILABLE"),"GPA下降2.25。");
+        kept(typed(null,"0.9","-2.25",null),"GPA下降2.25。","GPA变化量为-2.25。");
+    }
+    @Test void wrongAndHistoricalNumbersStayBlockedAndDatesStayUntouched() {
+        var context=typed("2.63","0.9","-2.25","DOWN");
+        rejected(context,"官方GPA为4.0。","GPA下降9.9。","学期GPA为9.9。","GPA为4.0。");
+        kept(context,"GPA 在 2025-2026 春季有所变化，官方GPA为2.63。","2025-2026学年的学期GPA为0.9。");
+        var empty=new AcademicBusinessContext(mock(AcademicAnalysisReadContext.class));
+        rejected(empty,"GPA为0.0。","GPA下降2.25。","学期GPA为0.9。");
+        assertNull(AcademicAnswerGrounding.ground(null,context));
+    }
 }

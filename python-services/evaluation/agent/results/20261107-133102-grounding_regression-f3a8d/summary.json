@@ -1,0 +1,104 @@
+{
+  "unique_task_verdicts": {
+    "PASS": 5
+  },
+  "executed_unique_tasks": 5,
+  "planned_unique_tasks": 5,
+  "represented_unique_tasks": 5,
+  "trials": 5,
+  "executed_trials": 5,
+  "verdicts": {
+    "PASS": 5
+  },
+  "by_category": {
+    "downstream": {
+      "PASS": 1
+    },
+    "budget": {
+      "PASS": 1
+    },
+    "protocol": {
+      "PASS": 1
+    },
+    "isolation": {
+      "PASS": 1
+    },
+    "snapshot": {
+      "PASS": 1
+    }
+  },
+  "modes": {
+    "engineering_regression": {
+      "trials": 5,
+      "verdicts": {
+        "PASS": 5
+      },
+      "http_success_latency": {
+        "sample_count": 0,
+        "p50_ms": null,
+        "p95_ms": null
+      },
+      "http_failure_latency": {
+        "sample_count": 0,
+        "p50_ms": null,
+        "p95_ms": null
+      },
+      "junit_seconds": 1.369,
+      "rule_pass_request_latency": {
+        "sample_count": 0,
+        "p50_ms": null,
+        "p95_ms": null
+      },
+      "rule_fail_request_latency": {
+        "sample_count": 0,
+        "p50_ms": null,
+        "p95_ms": null
+      },
+      "expected_rejection_latency": {
+        "sample_count": 0,
+        "p50_ms": null,
+        "p95_ms": null
+      }
+    }
+  },
+  "repeat_stability": {},
+  "model_http_attempts": 0,
+  "model_successful_responses": 0,
+  "provider_usage": {
+    "promptTokens": {
+      "sample_count": 0,
+      "sum_observed": null,
+      "complete_coverage": false
+    },
+    "completionTokens": {
+      "sample_count": 0,
+      "sum_observed": null,
+      "complete_coverage": false
+    },
+    "totalTokens": {
+      "sample_count": 0,
+      "sum_observed": null,
+      "complete_coverage": false
+    },
+    "promptCacheHitTokens": {
+      "sample_count": 0,
+      "sum_observed": null,
+      "complete_coverage": false
+    },
+    "promptCacheMissTokens": {
+      "sample_count": 0,
+      "sum_observed": null,
+      "complete_coverage": false
+    }
+  },
+  "model_client_latency": {
+    "sample_count": 0,
+    "p50_ms": null,
+    "p95_ms": null
+  },
+  "analysis_calls": null,
+  "tool_calls": null,
+  "quality_judge": "not implemented; UNKNOWN fields are not human review",
+  "cost": null,
+  "token_estimation": false
+}

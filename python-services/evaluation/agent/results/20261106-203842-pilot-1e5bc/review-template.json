@@ -1,0 +1,13 @@
+[
+  {
+    "case_id": "N01",
+    "trial_id": "N01-1",
+    "reviewer": null,
+    "source": "manual_entry_required",
+    "fact_attribution": "UNKNOWN",
+    "explanation_relevance": "UNKNOWN",
+    "uncertainty_handling": "UNKNOWN",
+    "evidence": [],
+    "notes": null
+  }
+]

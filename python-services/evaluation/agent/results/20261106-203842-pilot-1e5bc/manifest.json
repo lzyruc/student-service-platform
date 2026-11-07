@@ -1,0 +1,45 @@
+{
+  "run_id": "20261106-203842-pilot-1e5bc",
+  "created_at": "2026-11-06T12:38:42.868882+00:00",
+  "mode": "live",
+  "code_revision": "5d1fe0e7ceb11b86e784eff200b6abe099dfa336",
+  "working_tree_dirty": true,
+  "dataset_version": "academic-agent-tasks-v1",
+  "dataset_sha256": "3bac4e29e5c7750e8cf831b3ab28f182fd6e04643c275855a64640ebc0120af3",
+  "fixture_version": "academic-eval-fixture-v1",
+  "prompt_sha256": "5f2e008ea87115b5a528f8fa8a9f36d06f6b002bf588e7aab0bd60d634e9097e",
+  "selected_cases": [
+    "N01",
+    "S01",
+    "S02"
+  ],
+  "repeat_ids": [
+    "N02",
+    "S01"
+  ],
+  "extra_repeats": 0,
+  "database": "mysql",
+  "runner_sha256": "231499c93ebbe2a847d98a63e6abf3ae019ed915d0a44a0e7b8d7b79e2df73be",
+  "scorer_sha256": "0670e679155fec6f9165f803cfedfc6eecd97661046d9322866351cf76438854",
+  "harness_sha256": "f244a6ce8f4a27bd02f7566b086fc9ea1e95087a3a95b389fd3fab14abb75cab",
+  "rescoring": [
+    {
+      "scorer_sha256": "ab1d19ff1468c88a6f4747a469ed6e2d164e103ca63b768e964e62b1fcc31c92",
+      "at": "2026-11-06T12:41:17.585226+00:00",
+      "uses_original_observations": true
+    },
+    {
+      "scorer_sha256": "eb07d85912334a4b98da7e03c7385936673407a215ee79c5cacafec8530078b4",
+      "reason": "decimal-equivalent numbers and actual follow-up answer delivery; original raw records unchanged",
+      "applied_dataset_sha256": "0b0afb6cd0e4a796c4505a2dc775f93b5887b67685378c055073109c00989fb1"
+    }
+  ],
+  "original_observations_sha256": "a8a629da90ae84dc977500bafeffab201f4509bd04fcb1492281c4435036bed4",
+  "final_grader": {
+    "scorer_sha256": "26658cfb882c29926c66653022646a5a406ac38bec295ea23219e1123651bba8",
+    "dataset_sha256": "0b0afb6cd0e4a796c4505a2dc775f93b5887b67685378c055073109c00989fb1",
+    "runner_sha256": "0d2812bb05865c79048a7cf139d3cb097ba325f643a25735d763e8763ecf5b6a",
+    "raw_records_unchanged": true
+  },
+  "grading_dataset_snapshot_sha256": "999d67f25e1a4408f02849e9797ab90ec78fa16164ce19e9be95353c6bef220c"
+}

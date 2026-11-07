@@ -1,0 +1,52 @@
+[
+  {
+    "case_id": "N02",
+    "trial_id": "N02-1",
+    "mode": "live_e2e",
+    "real_model": false,
+    "turns": [],
+    "error": "environment_or_startup_blocked",
+    "verdict": "NOT_EXECUTED",
+    "checks": [
+      {
+        "name": "completed_trial",
+        "pass": false,
+        "detail": "environment_or_startup_blocked"
+      }
+    ],
+    "review": {
+      "status": "UNKNOWN",
+      "rubric": [
+        "Correct current facts and course relationships",
+        "Explain uncertainty without inventing grades or future failure probabilities",
+        "Answer the requested scope; no unsupported risk conclusion"
+      ]
+    },
+    "category": "normal"
+  },
+  {
+    "case_id": "N02",
+    "trial_id": "N02-2",
+    "mode": "live_e2e",
+    "real_model": false,
+    "turns": [],
+    "error": "environment_or_startup_blocked",
+    "verdict": "NOT_EXECUTED",
+    "checks": [
+      {
+        "name": "completed_trial",
+        "pass": false,
+        "detail": "environment_or_startup_blocked"
+      }
+    ],
+    "review": {
+      "status": "UNKNOWN",
+      "rubric": [
+        "Correct current facts and course relationships",
+        "Explain uncertainty without inventing grades or future failure probabilities",
+        "Answer the requested scope; no unsupported risk conclusion"
+      ]
+    },
+    "category": "normal"
+  }
+]

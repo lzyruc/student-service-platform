@@ -1,0 +1,27 @@
+{
+  "fixture_version": "academic-eval-fixture-v1",
+  "local_parse_calls": 2,
+  "provider_calls": 0,
+  "facts": {
+    "base": {
+      "course_count": 6,
+      "official_gpa": 2.63,
+      "earned_credits": 15,
+      "semester_gpas": [
+        3.85,
+        3.15,
+        0.9
+      ]
+    },
+    "updated": {
+      "course_count": 6,
+      "official_gpa": 3.3,
+      "earned_credits": 18,
+      "semester_gpas": [
+        3.85,
+        3.15,
+        2.9
+      ]
+    }
+  }
+}

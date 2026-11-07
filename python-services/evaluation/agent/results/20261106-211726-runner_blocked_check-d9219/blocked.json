@@ -1,0 +1,4 @@
+{
+  "reason": "dedicated Python port occupied; choose --python-port, existing service left untouched",
+  "exception": "RuntimeError"
+}

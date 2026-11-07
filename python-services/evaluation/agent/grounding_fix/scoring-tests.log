@@ -1,0 +1,27 @@
+test_answer_and_tool_must_both_have_current_fact (test_scoring.ScoringTests.test_answer_and_tool_must_both_have_current_fact) ... ok
+test_correct_facts_remain_pending_not_human_review (test_scoring.ScoringTests.test_correct_facts_remain_pending_not_human_review) ... ok
+test_correct_followup_tool_with_generic_fallback_is_failure (test_scoring.ScoringTests.test_correct_followup_tool_with_generic_fallback_is_failure) ... ok
+test_duplicate_tool_call_is_not_hidden_by_snapshot (test_scoring.ScoringTests.test_duplicate_tool_call_is_not_hidden_by_snapshot) ... ok
+test_duplicate_trial_is_not_silently_replaced_as_success (test_scoring.ScoringTests.test_duplicate_trial_is_not_silently_replaced_as_success) ... ok
+test_generated_fixture_parses_into_independent_expected_facts (test_scoring.ScoringTests.test_generated_fixture_parses_into_independent_expected_facts) ... ok
+test_http_failure_with_text_is_not_success (test_scoring.ScoringTests.test_http_failure_with_text_is_not_success) ... ok
+test_log_redaction_happens_before_disk (test_scoring.ScoringTests.test_log_redaction_happens_before_disk) ... ok
+test_malformed_http_observation_cannot_pass (test_scoring.ScoringTests.test_malformed_http_observation_cannot_pass) ... ok
+test_missing_and_malformed_observation_not_executed (test_scoring.ScoringTests.test_missing_and_malformed_observation_not_executed) ... ok
+test_missing_data_response_without_tool_evidence_is_failure (test_scoring.ScoringTests.test_missing_data_response_without_tool_evidence_is_failure) ... ok
+test_missing_usage_is_null_and_partial_coverage_explicit (test_scoring.ScoringTests.test_missing_usage_is_null_and_partial_coverage_explicit) ... ok
+test_numeric_formats_match_but_other_numbers_do_not (test_scoring.ScoringTests.test_numeric_formats_match_but_other_numbers_do_not) ... ok
+test_one_failed_trial_does_not_erase_other_results (test_scoring.ScoringTests.test_one_failed_trial_does_not_erase_other_results) ... ok
+test_percentiles_and_empty_metrics (test_scoring.ScoringTests.test_percentiles_and_empty_metrics) ... ok
+test_reader_retains_valid_records_after_invalid_line (test_scoring.ScoringTests.test_reader_retains_valid_records_after_invalid_line) ... ok
+test_regression_missing_timing_is_unavailable (test_scoring.ScoringTests.test_regression_missing_timing_is_unavailable) ... ok
+test_repeat_and_mode_denominators_are_separate (test_scoring.ScoringTests.test_repeat_and_mode_denominators_are_separate) ... ok
+test_success_failure_latencies_are_separate (test_scoring.ScoringTests.test_success_failure_latencies_are_separate) ... ok
+test_unexpected_grader_exception_does_not_abort_batch (test_scoring.ScoringTests.test_unexpected_grader_exception_does_not_abort_batch) ... ok
+test_updated_fixture_rejects_old_gpa (test_scoring.ScoringTests.test_updated_fixture_rejects_old_gpa) ... ok
+test_wrong_agent_status_is_not_success (test_scoring.ScoringTests.test_wrong_agent_status_is_not_success) ... ok
+
+----------------------------------------------------------------------
+Ran 22 tests in 0.884s
+
+OK
