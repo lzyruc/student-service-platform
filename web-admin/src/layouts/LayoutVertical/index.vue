@@ -3,10 +3,10 @@
     ><el-aside
       ><div class="aside-box product-sidebar" :style="{ width: isCollapse ? '72px' : '236px' }">
         <div class="logo">
-          <div class="product-brand-mark">✦</div>
+          <div class="product-brand-mark">学</div>
           <div v-show="!isCollapse">
             <div class="product-brand-name">学生综合服务平台</div>
-            <div class="product-brand-sub">CAMPUS INTELLIGENCE</div>
+            <div class="product-brand-sub">校园事务管理</div>
           </div>
         </div>
         <el-scrollbar

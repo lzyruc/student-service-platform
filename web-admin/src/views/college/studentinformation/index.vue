@@ -1,6 +1,6 @@
 <template>
   <div class="student-information content-box">
-    <PageHeader title="学生档案" description="维护学生基本信息、账号状态与所属专业，支持批量导入。" eyebrow="STUDENT RECORDS"
+    <PageHeader title="学生档案" description="维护学生基本信息、账号状态与所属专业，支持批量导入。" eyebrow="学生管理"
       ><el-button
         type="primary"
         @click="

@@ -18,12 +18,12 @@ public final class AcademicSkill {
     private final String instructions;
 
     public AcademicSkill(AgentProperties properties) {
-        instructions = load(properties.getAcademic().getPromptFile());
+        instructions = loadPrompt(properties.getAcademic().getPromptFile(), DEFAULT_PROMPT_FILE, RESOURCE, "# Academic Analysis Skill");
     }
 
     public String instructions() { return instructions; }
 
-    private static String load(String configured) {
+    public static String loadPrompt(String configured, String defaultFile, String resource, String heading) {
         String location = configured == null ? "" : configured.trim();
         try {
             byte[] bytes;
@@ -33,8 +33,8 @@ public final class AcademicSkill {
                 bytes = Files.readAllBytes(path);
             } else {
                 // A packaged deployment need not retain the source directory.
-                if (!location.isEmpty() && !DEFAULT_PROMPT_FILE.equals(location)) throw invalid();
-                try (var stream = AcademicSkill.class.getResourceAsStream(RESOURCE)) {
+                if (!location.isEmpty() && !defaultFile.equals(location)) throw invalid();
+                try (var stream = AcademicSkill.class.getResourceAsStream(resource)) {
                     if (stream == null) throw invalid();
                     bytes = stream.readNBytes(MAX_BYTES + 1);
                 }
@@ -43,7 +43,7 @@ public final class AcademicSkill {
             String text = new String(bytes, StandardCharsets.UTF_8);
             if (text.startsWith("\uFEFF")) text = text.substring(1);
             text = text.strip();
-            if (!text.startsWith("# Academic Analysis Skill") || text.length() < 40) throw invalid();
+            if (!text.startsWith(heading) || text.length() < 40) throw invalid();
             return text;
         } catch (IOException | InvalidPathException e) {
             throw invalid();
@@ -51,6 +51,6 @@ public final class AcademicSkill {
     }
 
     private static IllegalStateException invalid() {
-        return new IllegalStateException("Academic Skill prompt 无法加载：请检查可信 UTF-8 文件、标题及大小，修改后重启后端");
+        return new IllegalStateException("Skill prompt 无法加载：请检查可信 UTF-8 文件、标题及大小，修改后重启后端");
     }
 }

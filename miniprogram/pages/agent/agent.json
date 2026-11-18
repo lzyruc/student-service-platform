@@ -1,5 +1,5 @@
 {
-  "navigationBarTitleText": "学业智能助手",
+  "navigationBarTitleText": "校园助手",
   "disableScroll": true,
   "usingComponents": {
     "execution-timeline": "/components/execution-timeline/execution-timeline",

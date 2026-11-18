@@ -45,7 +45,7 @@ public class AcademicToolMapper {
         boolean gpaAvailable = report.path("official_gpa_available").isBoolean()
                 && report.path("official_gpa_available").booleanValue() && number(report, "official_gpa") != null;
         List<String> notes = new ArrayList<>(strings(report.path("analysis_notes")));
-        if (!gpaAvailable) notes.add("未识别到官方整体 GPA，空值不代表零绩点");
+        if (!gpaAvailable) notes.add("成绩单未提供整体 GPA");
         notes.add("核心课程缺口表示已到计划开课学期但未见通过记录，需核实是否未修、待出分或课程名称差异");
         List<FailedCourse> failed = new ArrayList<>();
         for (JsonNode course : report.path("failed_courses"))

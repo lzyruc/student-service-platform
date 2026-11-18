@@ -8,7 +8,7 @@ from academic_analysis import AcademicWarningEngine, normalize_course_name, is_p
 
 
 LOW_SCORE_MIN = Decimal("60")
-LOW_SCORE_MAX_EXCLUSIVE = Decimal("70")
+LOW_SCORE_MAX_EXCLUSIVE = Decimal("80")
 _TERMS = {"秋季": (0, "秋季"), "春季": (1, "春季"),
           "国际小学期": (2, "国际小学期"), "夏季": (3, "夏季"), "暑期": (3, "夏季")}
 _SEMESTER = re.compile(r"(\d{4})[-—－](\d{4})学年(秋季|春季|国际小学期|夏季|暑期)(?:学期)?")
@@ -119,15 +119,11 @@ def _summarize(label, courses, unresolved, passed_names):
                                 normalize_course_name(item["name"])))
     notes = []
     if unknown:
-        notes.append("部分最终成绩无法判定，未默认通过，也未作为零分参与统计")
-    if pass_only_count:
-        notes.append(f"{pass_only_count} 门 P/通过制课程不参与 GPA 加权，但保留通过状态和已获学分；GPA 覆盖率表示参与记录占全部课程的比例，不把此排除视为成绩缺失")
+        notes.append("部分课程成绩待确认")
     if len(gpa_samples) < len(courses) - pass_only_count:
-        notes.append("学期 GPA 仅基于非 P/通过制、最终成绩可判定且具有有效绩点、正学分的记录，统计覆盖不完整")
+        notes.append("部分课程缺少有效绩点或学分，GPA 统计覆盖不完整")
     if len(valid_credits) < len(courses):
-        notes.append("部分学分无法识别，修读学分统计不完整")
-    if any(item["current_failure_status"] == "PASSED_RECORD_EXISTS" for item in failed):
-        notes.append("历史未通过课程另有通过记录，当前未列为待重修，不重复作为重点关注")
+        notes.append("部分课程学分缺失")
     return {
         "semester": label,
         "course_count": len(courses),
@@ -192,15 +188,12 @@ def build_academic_statistics(courses, report):
         previous = summary
     notes = list(report.get("analysis_notes", []))
     if unknown_semesters:
-        notes.append("部分课程学期未知，未用于最新学期选择或跨学期趋势，但仍保留在整体分析中")
+        notes.append("部分课程学期未知，未参与学期统计")
     if len(valid) < len(summaries):
-        notes.append("有学期尚无可判定的最终成绩，不作为 latest/previous 或有效趋势学期")
-    notes.append("学期 GPA 是按有效课程记录加权计算值；修读学分和未通过数量按本学期记录统计，不替代整体已获学分和当前预警结果")
-    notes.append("趋势描述有效样本统计变化；各学期课程构成或统计覆盖率不同，不能直接推断学习能力变化或预测挂科")
-    notes.append("previous 和趋势相邻项指上一有效成绩学期；没有成绩记录的学期不推测，不能假定学期记录连续")
+        notes.append("部分学期尚无有效成绩，未参与趋势比较")
     return {
         "schema_version": 1,
-        "rules": {"low_score_min": 60, "low_score_max_exclusive": 70,
+        "rules": {"low_score_min": 60, "low_score_max_exclusive": 80,
                   "semester_order": ["秋季", "春季", "国际小学期", "夏季/暑期"],
                   "weighted_gpa": "sum(credit * gpa) / sum(valid credit); exclude P/pass-only records, retain earned credit; GPA coverage uses all course records",
                   "average_numeric_score": "arithmetic mean of valid 0..100 final scores",

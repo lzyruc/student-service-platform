@@ -2,11 +2,11 @@
   <view class="agent-header">
     <view class="agent-heading-row">
       <view class="assistant-identity">
-        <text class="assistant-symbol">✦</text>
+        <text class="assistant-symbol">学</text>
         <view
-          ><text class="agent-heading">学业智能助手</text
+          ><text class="agent-heading">校园助手</text
           ><text class="agent-header-label"
-            >ACADEMIC ASSISTANT · 学生专属</text
+            >学业分析 · 政策查询</text
           ></view
         >
       </view>
@@ -19,12 +19,12 @@
       </button>
     </view>
     <text class="agent-description"
-      >基于你的成绩单与培养方案，读懂课程表现。</text
+      >成绩、课程和校园政策，都可以在这里问。</text
     >
     <view class="context-bar"
       ><text class="context-dot"></text
       ><text class="active-conversation-title"
-        >{{conversationTitle}} · 只读分析</text
+        >{{conversationTitle}}</text
       ><text class="transcript-link" bindtap="manageTranscript"
         >管理成绩单 ›</text
       ></view
@@ -89,7 +89,7 @@
         class="agent-message {{item.role==='user'?'message-user':'message-assistant'}}"
       >
         <text class="message-byline" wx:if="{{item.role==='assistant'}}"
-          >✦ 学业助手</text
+          >校园助手</text
         >
         <view class="message-bubble">
           <text class="message-notice" wx:if="{{item.notice}}"
@@ -113,7 +113,7 @@
               class="execution-toggle"
               bindtap="toggleExecution"
               data-id="{{item.id}}"
-              ><text>查看本次分析过程 · {{item.steps.length}} 个步骤</text
+              ><text>查看本次处理过程 · {{item.steps.length}} 个步骤</text
               ><text
                 >{{item.expanded?'收起':'展开'}} {{item.expanded?'⌃':'⌄'}}</text
               ></view
@@ -127,11 +127,11 @@
       </view>
       <view class="running-card" wx:if="{{asking}}" id="agent-thinking">
         <view class="running-heading"
-          ><text class="running-mark">✦</text
+          ><text class="running-mark">学</text
           ><text>{{currentStage}}</text></view
         >
         <text class="running-caption"
-          >{{realtimeAvailable?'实时展示本次分析的执行步骤':'等待结果，完成后查看执行记录'}}</text
+          >{{realtimeAvailable?'正在处理你的问题':'等待结果，完成后查看执行记录'}}</text
         >
         <execution-timeline
           wx:if="{{executionSteps.length}}"
@@ -154,7 +154,7 @@
         bindinput="onInput"
         maxlength="2000"
         disabled="{{asking || loadingMessages || conversationLoading}}"
-        placeholder="问问学习情况、课程表现或成绩趋势…"
+        placeholder="问成绩、课程或校园政策…"
         auto-height="true"
         adjust-position="true"
         cursor-spacing="24"
@@ -168,7 +168,7 @@
       </button></view
     >
     <text class="composer-footnote"
-      >重要结论请核对成绩单；学业建议不替代教务决定</text
+      >学业分析基于已存成绩单，政策回答附原文来源</text
     >
   </view>
   <view wx:if="{{showConversations}}" class="conversation-overlay">
@@ -217,7 +217,7 @@
         <view
           wx:if="{{!conversationLoading && !conversationError && !conversationList.length}}"
           class="empty-state"
-          >还没有已保存的会话，从一个学业问题开始。</view
+          >还没有已保存的会话，从一个问题开始。</view
         >
         <button
           wx:if="{{conversationHasMore}}"

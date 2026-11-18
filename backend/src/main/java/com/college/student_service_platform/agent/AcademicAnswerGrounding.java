@@ -11,6 +11,7 @@ import java.util.regex.Pattern;
 
 /** Limited validation of direct GPA level/change claims against this request's typed evidence. */
 public final class AcademicAnswerGrounding {
+    private static final org.slf4j.Logger log = org.slf4j.LoggerFactory.getLogger(AcademicAnswerGrounding.class);
     private static final Pattern GPA_CLAIM = Pattern.compile(
         "(?iu)(?:(?<scope>官方(?:\\s*的)?(?:\\s*加权)?|(?:本|该|当前|上一|上)?学期(?:\\s*的)?(?:\\s*加权)?|加权)\\s*)?"
         + "(?:GPA|绩点)\\s*"
@@ -49,7 +50,11 @@ public final class AcademicAnswerGrounding {
                     case UNSPECIFIED -> contains(evidence.officialLevels, value) || contains(evidence.semesterLevels, value);
                 };
             }
-            if (!accepted) return fallback(evidence.official);
+            if (!accepted) {
+                log.warn("GPA claim rejected: scope={}, operation={}, value={}, officialValues={}, semesterValues={}, changes={}",
+                        scope, op, value, evidence.officialLevels.size(), evidence.semesterLevels.size(), evidence.changes.size());
+                return fallback(evidence);
+            }
         }
         return answer;
     }
@@ -64,6 +69,7 @@ public final class AcademicAnswerGrounding {
                 addSummary(evidence, recent.summary());
             } else if (result.data() instanceof TrendOutput trend) {
                 for (var semester : trend.semesters()) addSummary(evidence, semester);
+                evidence.trend = trend;
             }
         }
         return evidence;
@@ -93,14 +99,34 @@ public final class AcademicAnswerGrounding {
         values.add(value.setScale(2, RoundingMode.HALF_UP).stripTrailingZeros());
         values.add(value.setScale(4, RoundingMode.HALF_UP).stripTrailingZeros());
     }
-    private static String fallback(BigDecimal official) {
-        if (official != null) return "当前可核验的官方 GPA 为 " + official.stripTrailingZeros().toPlainString()
-                + "。对话中的自述数字不能代替成绩单结果；其余与当前数据未能核对一致的解释暂不展示。";
-        return "本次未采用未经当前数据核实的 GPA 描述。请以本次成绩数据卡片为准；对话中的自述不能作为成绩或风险结论。";
+    private static String fallback(Evidence evidence) {
+        // Keep useful current-request evidence when model prose fails validation.
+        if (evidence.trend != null) {
+            var periods = evidence.trend.semesters().stream().filter(s -> s.weightedGpa() != null).toList();
+            if (!periods.isEmpty()) {
+                String answer = "学期 GPA：" + String.join("；", periods.stream()
+                        .map(s -> s.semester() + " " + s.weightedGpa().setScale(2, RoundingMode.HALF_UP).toPlainString()).toList()) + "。";
+                var last = evidence.trend.semesters().get(evidence.trend.semesters().size() - 1);
+                var change = last.changeFromPrevious();
+                if (last.weightedGpa() != null && change != null && change.weightedGpaDelta() != null
+                        && matchesChange(evidence.changes, change.weightedGpaDelta(), change.gpaDirection())) {
+                    BigDecimal delta = change.weightedGpaDelta();
+                    answer += delta.signum() == 0 ? "最近一学期较上一有效学期持平。"
+                            : "最近一学期较上一有效学期" + (delta.signum() > 0 ? "上升" : "下降")
+                            + delta.abs().setScale(2, RoundingMode.HALF_UP).toPlainString() + "。";
+                }
+                return answer;
+            }
+        }
+        BigDecimal official = evidence.official;
+        if (official != null) return "本次 GPA 描述与成绩单不符。整体 GPA 为 " + official.stripTrailingZeros().toPlainString()
+                + "。";
+        return "未采用无法核实的 GPA 描述，请重试。";
     }
     private record Change(String direction, Set<BigDecimal> values) { }
     private static final class Evidence {
         private BigDecimal official;
+        private TrendOutput trend;
         private final Set<BigDecimal> officialLevels = new HashSet<>();
         private final Set<BigDecimal> semesterLevels = new HashSet<>();
         private final List<Change> changes = new ArrayList<>();

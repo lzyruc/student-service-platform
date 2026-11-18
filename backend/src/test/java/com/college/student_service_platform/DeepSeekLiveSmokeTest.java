@@ -82,4 +82,45 @@ class DeepSeekLiveSmokeTest {
         verify(context, never()).getSnapshot();
     }
 
+    /** Real model routing only; stop before tool execution, no student records or business DB. */
+    @Test
+    void modelChoosesBetweenAcademicAndPolicySkills() throws Exception {
+        var mapper = new ObjectMapper().findAndRegisterModules();
+        var properties = new AgentProperties(); properties.getDeepseek().setMaxOutputTokens(512);
+        var actual = spy(new DeepSeekClient(new RestTemplateBuilder(), properties, mapper));
+        var tools = mock(AcademicToolExecutor.class); var context = mock(AcademicAnalysisReadContext.class);
+        var identity = new AgentIdentityContext(101, "synthetic-routing-test");
+        when(context.studentNo()).thenReturn(identity.studentNo()); when(tools.beginRequest(identity)).thenReturn(context);
+        var projection = new AcademicToolMapper(); var stats = new com.college.student_service_platform.service.AcademicStatisticsService();
+        when(tools.definitions()).thenReturn(List.of(new GetAcademicContextTool(projection).definition(),
+                new GetAcademicAssessmentTool(projection).definition(), new GetRecentCoursePerformanceTool(stats, projection).definition(),
+                new GetAcademicTrendTool(stats, projection).definition()));
+        var policy = new com.college.student_service_platform.agent.policy.PolicySkill(
+                mock(com.college.student_service_platform.service.external.AiServiceClient.class), mapper, properties);
+        var captured = new java.util.concurrent.atomic.AtomicReference<com.college.student_service_platform.agent.DeepSeekReply>();
+        doAnswer(call -> { captured.set((com.college.student_service_platform.agent.DeepSeekReply) call.callRealMethod()); throw new RoutingObserved(); })
+                .when(actual).complete(any(), anyList(), anyString());
+        var service = new SingleAgentService(actual, tools, properties, mapper, new AcademicSkill(properties), policy);
+        var records = new java.util.ArrayList<java.util.Map<String,Object>>();
+        for (String query : List.of("本科生休学最长可以多久？", "帮我看看最近两个学期的成绩变化")) {
+            long started = System.nanoTime();
+            var owned = new AgentConversationService.ChatInput(1, identity, 0, new AgentChatRequest(query, List.of()));
+            assertThrows(RoutingObserved.class, () -> service.chat(service.prepareRequest(owned, started), event -> {}));
+            var reply = captured.get(); var names = new java.util.ArrayList<String>();
+            for (var call : reply.message().path("tool_calls")) names.add(call.path("function").path("name").asText());
+            assertFalse(names.isEmpty(), "Model must choose a tool for " + query);
+            if (query.startsWith("本科生")) assertTrue(names.stream().allMatch("search_policy_documents"::equals), names.toString());
+            else assertTrue(names.stream().allMatch(n -> n.startsWith("get_academic_") || n.equals("get_recent_course_performance")), names.toString());
+            var row = new java.util.LinkedHashMap<String,Object>(); row.put("question", query); row.put("tools", names);
+            row.put("model", reply.model()); row.put("usage", reply.usage()); row.put("elapsedMs", (System.nanoTime()-started)/1_000_000);
+            records.add(row);
+        }
+        java.nio.file.Path output = java.nio.file.Path.of("target/dual-skill-routing-smoke.json");
+        mapper.writerWithDefaultPrettyPrinter().writeValue(output.toFile(), records);
+        verify(actual, times(2)).complete(any(), anyList(), anyString());
+        verify(tools, never()).execute(anyString(), anyString(), any()); verify(context, never()).getSnapshot();
+    }
+    private static final class RoutingObserved extends RuntimeException { }
+
+
 }

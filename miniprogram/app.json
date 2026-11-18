@@ -4,7 +4,6 @@
     "pages/main/main",
     "pages/profile/profile",
     "pages/academic/academic",
-    "pages/qa/qa",
     "pages/notice/notice",
     "pages/cert/cert",
     "pages/agent/agent"
@@ -13,11 +12,11 @@
     "navigationBarBackgroundColor": "#ffffff",
     "navigationBarTitleText": "学院综合服务平台",
     "navigationBarTextStyle": "black",
-    "backgroundColor": "#F4F7FD"
+    "backgroundColor": "#fffaf7"
   },
   "tabBar": {
     "color": "#8f9bb1",
-    "selectedColor": "#425bd8",
+    "selectedColor": "#d92332",
     "backgroundColor": "#ffffff",
     "borderStyle": "white",
     "list": [
@@ -25,13 +24,13 @@
         "pagePath": "pages/main/main",
         "text": "服务大厅",
         "iconPath": "assets/service.png",
-        "selectedIconPath": "assets/service-active.png"
+        "selectedIconPath": "assets/service.png"
       },
       {
         "pagePath": "pages/profile/profile",
         "text": "个人中心",
         "iconPath": "assets/account.png",
-        "selectedIconPath": "assets/account-active.png"
+        "selectedIconPath": "assets/account.png"
       }
     ]
   },

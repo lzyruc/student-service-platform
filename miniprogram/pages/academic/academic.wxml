@@ -1,5 +1,5 @@
 <view class="container"
-  ><text class="page-eyebrow">ACADEMIC RECORDS</text
+  ><text class="page-eyebrow">课程与成绩</text
   ><text class="page-title">课程分析</text
   ><text class="page-description">保存成绩单，对照培养方案了解学业进度。</text>
   <view class="glass-card upload-section">

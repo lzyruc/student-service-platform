@@ -59,8 +59,8 @@ withDefaults(
   width: 36px;
   height: 36px;
   border-radius: 10px;
-  background: #eef2ff;
-  color: #425bd8;
+  background: #fff0ec;
+  color: #d92332;
 }
 .kpi-icon.orange {
   background: #fff4e8;

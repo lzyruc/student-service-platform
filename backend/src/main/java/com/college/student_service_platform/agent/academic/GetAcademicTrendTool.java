@@ -19,7 +19,7 @@ public class GetAcademicTrendTool implements AcademicTool<TrendInput, TrendOutpu
         ObjectNode schema = AcademicToolArguments.schema();
         ((ObjectNode) schema.path("properties")).set("lastSemesters", AcademicToolArguments.integerSchema(2, 8, 4));
         return new AcademicToolDefinition("get_academic_trend",
-                "查询本人最近 2～8 个有效成绩学期的统计及确定性变化量、方向和覆盖率。数据不足时明确说明；不能预测挂科或推断能力变化。", schema);
+                "查询本人最近 2～8 个有效成绩学期的统计、变化量和方向。", schema);
     }
     @Override public TrendInput parseInput(JsonNode arguments) {
         AcademicToolArguments.object(arguments, "lastSemesters");

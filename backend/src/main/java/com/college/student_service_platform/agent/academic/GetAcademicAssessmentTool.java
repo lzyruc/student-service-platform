@@ -12,7 +12,7 @@ public class GetAcademicAssessmentTool implements AcademicTool<EmptyInput, Asses
 
     @Override public AcademicToolDefinition definition() {
         return new AcademicToolDefinition("get_academic_assessment",
-                "查询本人整体学业报告：已获学分、官方 GPA、已有预警等级、未通过和核心课程状态。缺口需核实；不能预测未来挂科概率。",
+                "查询本人已获学分、官方 GPA、预警等级、未通过和核心课程状态。",
                 AcademicToolArguments.schema());
     }
     @Override public EmptyInput parseInput(JsonNode arguments) {

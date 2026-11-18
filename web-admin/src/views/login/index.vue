@@ -1,17 +1,17 @@
 <template>
   <div class="product-login">
     <section class="login-story">
-      <div class="login-brand"><span class="product-brand-mark">✦</span><span>学生综合服务平台</span></div>
+      <div class="login-brand"><span class="product-brand-mark">学</span><span>学生综合服务平台</span></div>
       <div class="story-content">
-        <div class="product-kicker">CAMPUS INTELLIGENCE</div>
-        <h1>服务有序，<br />成长有据。</h1>
-        <p>连接学生事务、学业支持与智能服务，<br />让校园里的每一件事，都有清晰的下一步。</p>
-        <div class="story-pillars"><span>学生档案</span><span>事务协同</span><span>AI 学业支持</span></div>
+        <div class="product-kicker">校园事务管理</div>
+        <h1>学生事务，<br />一处办理。</h1>
+        <p>管理学生档案、通知与证明申请，<br />维护培养方案和政策知识库。</p>
+        <div class="story-pillars"><span>学生档案</span><span>事务协同</span><span>学业与政策</span></div>
       </div>
-      <small>UNIVERSITY OPERATIONS PLATFORM</small>
+      <small>学生综合服务平台</small>
     </section>
     <section class="login-form">
-      <div class="product-kicker">ADMIN WORKSPACE</div>
+      <div class="product-kicker">管理端登录</div>
       <h2>欢迎回到工作台</h2>
       <p>使用管理员账号登录，开始处理校园事务。</p>
       <LoginForm />
@@ -30,14 +30,14 @@ import LoginForm from "./components/LoginForm.vue";
   display: grid;
   grid-template-columns: 1.1fr 1fr;
   background: #fff;
-  color: #19243b;
+  color: #302624;
 }
 .login-story {
   display: flex;
   flex-direction: column;
   justify-content: space-between;
   padding: 48px 10%;
-  background: #f3f5fc;
+  background: #fff2ed;
   position: relative;
   overflow: hidden;
 }
@@ -46,13 +46,13 @@ import LoginForm from "./components/LoginForm.vue";
   position: absolute;
   width: 360px;
   height: 360px;
-  border: 1px solid #dde3f4;
+  border: 1px solid #f1c9bd;
   border-radius: 50%;
   right: -160px;
   bottom: 90px;
   box-shadow:
-    0 0 0 50px #f3f5fc,
-    0 0 0 51px #e4e9f5;
+    0 0 0 50px #fff2ed,
+    0 0 0 51px #f5d9cf;
   pointer-events: none;
 }
 .login-brand {

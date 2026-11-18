@@ -1,9 +1,9 @@
 <template>
   <div class="product-page dashboard">
     <PageHeader
-      eyebrow="STUDENT INTELLIGENCE"
+      eyebrow="服务概览"
       title="学生服务概览"
-      description="把学生事务、学业支持与 AI 能力，连接到同一个工作台。"
+      description="查看学生档案、待办审批、通知与政策文档。"
     >
       <span class="connection-pill" :class="{ online: health === true }"
         ><i />{{ health === true ? "后端已连接" : health === false ? "连接待检查" : "正在检查连接" }}</span
@@ -134,23 +134,23 @@
     </div>
     <div class="ai-heading">
       <div>
-        <div class="product-kicker">AI, CONNECTED TO YOUR WORK</div>
-        <h2>让已有数据，成为学生可用的答案</h2>
+        <div class="product-kicker">学生端服务</div>
+        <h2>学业与政策查询</h2>
       </div>
-      <span class="product-caption">学业分析仅面向学生本人 · 请在小程序中使用智能助手</span>
+      <span class="product-caption">学生在小程序中使用校园助手</span>
     </div>
     <div class="capability-grid">
       <CapabilityCard
-        title="学业分析 Agent"
+        title="校园助手"
         icon="MagicStick"
         badge="学生端"
-        description="读取本人学业资料，调用工具并解释结果。分析过程可实时查看。"
+        description="在同一对话中查询学业情况与校园政策，支持连续追问。"
         @open="capabilityVisible = true"
       /><CapabilityCard
-        title="政策知识库 RAG"
+        title="政策知识库"
         icon="Collection"
         badge="已接入"
-        description="统一维护政策、发布与入库，让学生问答有可追溯依据。"
+        description="上传、发布政策，供校园助手检索原文与页码。"
         @open="router.push('/college/knowledgeBase')"
       /><CapabilityCard
         title="成绩趋势与课程关注"
@@ -161,14 +161,14 @@
       />
     </div>
     <div class="data-footnote">
-      数据范围：学生档案、通知回执、证明申请与已发布政策。此页面暂不提供全校学业风险汇总与历史增长分析。
+      数据来自学生档案、通知回执、证明申请与已发布政策。
     </div>
-    <el-dialog v-model="capabilityVisible" title="学业智能助手 · 学生端专属" width="600px"
-      ><p class="capability-intro">学生在小程序服务大厅打开“学业智能助手”，即可基于已保存的成绩单和匹配培养方案提问。</p>
+    <el-dialog v-model="capabilityVisible" title="校园助手 · 学生端专属" width="600px"
+      ><p class="capability-intro">学生在小程序打开“校园助手”，即可查询学业情况或校园政策。</p>
       <ol class="capability-flow">
         <li>验证当前学生身份</li>
-        <li>按需读取学业信息与分析快照</li>
-        <li>查询整体评估、近期课程或成绩趋势</li>
+        <li>根据问题选择学业分析或政策查询</li>
+        <li>读取本人学业资料或已发布政策原文</li>
         <li>解释工具结果，展示真实执行记录</li>
       </ol>
       <el-alert
@@ -424,8 +424,8 @@ onMounted(load);
   width: 32px;
   height: 32px;
   border-radius: 9px;
-  background: #eef2ff;
-  color: #425bd8;
+  background: #fff0ec;
+  color: #d92332;
   flex-shrink: 0;
 }
 .activity-dot.orange {

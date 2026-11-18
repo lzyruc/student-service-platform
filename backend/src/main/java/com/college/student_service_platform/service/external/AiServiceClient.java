@@ -51,6 +51,26 @@ public class AiServiceClient {
                 () -> askRestTemplate.postForObject(url, request, Object.class));
     }
 
+    /** The model chooses the question; Java determines the searchable document scope. */
+    public com.fasterxml.jackson.databind.JsonNode retrievePolicies(String question) {
+        var scope = policyDocumentRepository.findQueryablePolicyIds();
+        if (scope.isEmpty()) {
+            var empty = com.fasterxml.jackson.databind.node.JsonNodeFactory.instance.objectNode().put("status", "success");
+            empty.putObject("data").putArray("passages");
+            return empty;
+        }
+        AiAskRequest request = new AiAskRequest();
+        request.setQuestion(question);
+        request.setPolicyIds(scope);
+        var result = callExecutor.executeOnce("政策检索服务", () -> askRestTemplate.postForObject(
+                properties.getAiServiceBaseUrl() + "/api/student/ai/retrieve", request, com.fasterxml.jackson.databind.JsonNode.class));
+        if (result == null || !"success".equals(result.path("status").asText())
+                || !result.path("data").path("passages").isArray()) throw new IllegalStateException("政策检索响应无效");
+        for (var passage : result.path("data").path("passages"))
+            if (!scope.contains(passage.path("policyId").asText())) throw new IllegalStateException("政策检索超出已发布范围");
+        return result;
+    }
+
     public RagIngestResponse ingestPolicy(
             Long policyId,
             Path filePath,

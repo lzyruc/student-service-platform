@@ -67,14 +67,16 @@ class AcademicStatisticsTests(unittest.TestCase):
         self.assertEqual("SCORE_UNAVAILABLE", data["semesters"][0]["focus_courses"][0]["reason"])
 
     def test_low_score_boundaries_use_unrounded_final_scores_and_do_not_change_risk(self):
-        courses = [course("未过", "59.9"), course("边界", "60"), course("低", "69.99999"), course("正常", "70")]
+        courses = [course("未过", "59.9"), course("边界", "60"), course("七十分", "70"),
+                   course("低", "79.99999"), course("正常", "80")]
         engine = AcademicWarningEngine()
         report = engine.analyze(courses)
         before = copy.deepcopy(report)
         data = build_academic_statistics(courses, report)
         period = data["semesters"][0]
-        self.assertEqual(["边界", "低"], [item["name"] for item in period["low_score_courses"]])
-        self.assertEqual(69.99999, period["low_score_courses"][1]["numeric_score"])
+        self.assertEqual(["边界", "七十分", "低"], [item["name"] for item in period["low_score_courses"]])
+        self.assertEqual(79.99999, period["low_score_courses"][2]["numeric_score"])
+        self.assertEqual(80, data["rules"]["low_score_max_exclusive"])
         self.assertEqual("UNRESOLVED_FAILURE", period["focus_courses"][0]["reason"])
         self.assertEqual(before, report)
         self.assertEqual("一般预警", report["warning_level"])
@@ -135,7 +137,8 @@ class AcademicStatisticsTests(unittest.TestCase):
         self.assertEqual("UP", period["change_from_previous"]["gpa_direction"])
         self.assertEqual("DOWN", period["change_from_previous"]["numeric_score_direction"])
         self.assertFalse(any("统计覆盖不完整" in note for note in period["analysis_notes"]))
-        self.assertTrue(any("P/通过制" in note for note in period["analysis_notes"]))
+        self.assertEqual([], period["analysis_notes"])
+        self.assertEqual([], data["analysis_notes"])
         self.assertEqual(27, AcademicWarningEngine().analyze(entries)["total_earned_credits"])
 
     def test_explicit_pass_grades_are_excluded_even_with_spurious_gpa_but_zero_failures_are_kept(self):

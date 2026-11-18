@@ -44,7 +44,7 @@ class AgentConcurrencyIsolationTest {
     @Import({AgentConversationRepository.class,AgentConversationService.class,ConversationChatService.class,
         AcademicAnalysisService.class,AcademicStatisticsService.class,AcademicToolMapper.class,AcademicToolExecutor.class,
         GetAcademicContextTool.class,GetAcademicAssessmentTool.class,GetRecentCoursePerformanceTool.class,
-        GetAcademicTrendTool.class,AcademicSkill.class,SingleAgentService.class,AgentChatController.class,
+        GetAcademicTrendTool.class,AcademicSkill.class,com.college.student_service_platform.agent.policy.PolicySkill.class,SingleAgentService.class,AgentChatController.class,
         AgentConversationController.class,GlobalExceptionHandler.class,AgentStreamingConfig.class})
     static class Config {
         @Bean JdbcTemplate jdbc() throws Exception {
@@ -80,6 +80,7 @@ class AgentConcurrencyIsolationTest {
     @SpyBean SingleAgentService agent;
     @SpyBean AcademicToolExecutor tools;
     @MockBean DeepSeekClient model;
+    @MockBean com.college.student_service_platform.service.external.AiServiceClient policyClient;
     @MockBean AcademicWarningClient python;
     @MockBean StudentTranscriptService transcripts;
     @MockBean TrainingPlanService plans;

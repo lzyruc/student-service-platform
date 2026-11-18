@@ -1,11 +1,11 @@
 :root {
-  --product-bg: #f5f7fb;
+  --product-bg: #fffaf7;
   --product-surface: #ffffff;
-  --product-text: #19243b;
-  --product-muted: #77839a;
-  --product-line: #e8edf5;
-  --product-primary: #425bd8;
-  --product-soft: #eef2ff;
+  --product-text: #302624;
+  --product-muted: #756864;
+  --product-line: #efdfd9;
+  --product-primary: #d92332;
+  --product-soft: #fff0ec;
   --product-radius: 12px;
   --product-shadow: 0 2px 8px rgb(26 42 75 / 3%);
   --space-1: 4px;
@@ -124,8 +124,8 @@ body {
   margin-bottom: 16px;
 }
 .el-table {
-  --el-table-header-bg-color: #f7f9fc;
-  --el-table-row-hover-bg-color: #f4f6ff;
+  --el-table-header-bg-color: #fffaf7;
+  --el-table-row-hover-bg-color: #fff1ed;
   --el-table-border-color: var(--product-line);
   color: var(--product-text);
   font-size: 13px;
@@ -210,7 +210,7 @@ a:focus-visible {
   flex-shrink: 0;
   border-radius: 10px;
   color: white;
-  background: #425bd8;
+  background: #d92332;
   font-size: 22px;
 }
 .product-brand-name {
@@ -240,7 +240,7 @@ a:focus-visible {
   border-radius: 8px;
 }
 .product-sidebar .el-menu-item.is-active {
-  color: #425bd8 !important;
+  color: #d92332 !important;
   background: var(--product-soft) !important;
   font-weight: 600;
 }

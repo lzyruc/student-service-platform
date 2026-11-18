@@ -1,5 +1,5 @@
 <view class="container"
-  ><text class="page-eyebrow">CAMPUS UPDATES</text
+  ><text class="page-eyebrow">校园通知</text
   ><text class="page-title">校园通知</text
   ><text class="page-description">重要信息不错过，阅读后确认接收。</text
   ><view wx:if="{{loading}}" class="glass-card"

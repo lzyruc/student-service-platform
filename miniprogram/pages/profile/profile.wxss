@@ -10,7 +10,7 @@
   width: 96rpx;
   height: 96rpx;
   border-radius: 24rpx;
-  background: #eef2ff;
+  background: #fff0ec;
   color: #526ccd;
   font-size: 42rpx;
   font-weight: 600;

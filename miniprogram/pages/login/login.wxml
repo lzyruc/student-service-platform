@@ -1,8 +1,8 @@
 <view class="container login-container"
   ><view class="login-brand"
-    ><text class="login-symbol">✦</text><text>学生综合服务平台</text></view
+    ><text class="login-symbol">学</text><text>学生综合服务平台</text></view
   ><view class="login-welcome"
-    ><text class="page-eyebrow">YOUR CAMPUS, CONNECTED</text
+    ><text class="page-eyebrow">校园服务</text
     ><text class="login-heading">你好，同学。</text
     ><text class="page-description"
       >登录后，开启你的校园服务工作台。</text

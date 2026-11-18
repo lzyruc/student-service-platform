@@ -68,6 +68,26 @@ class ManagedKnowledgeTest(unittest.TestCase):
         self.assertEqual([], self.engine.ask("政策", [])["sources"])
         self.engine.llm.invoke.assert_not_called()
 
+    def test_agent_retrieval_returns_scoped_passages_without_model_or_identity(self):
+        self.add_policy("ready", "100")
+        self.add_policy("draft", "200")
+        with patch.object(api, "rag_engine", self.engine):
+            result = api.api_student_retrieve(api.QuestionRequest(question="政策", policyIds=["100"]))
+        passages = result["data"]["passages"]
+        self.assertEqual(["100"], [p["policyId"] for p in passages])
+        self.assertEqual("测试政策条款", passages[0]["content"])
+        self.assertFalse(any("student" in key.lower() for p in passages for key in p))
+        self.engine.llm.invoke.assert_not_called()
+
+    def test_agent_retrieval_requires_explicit_scope_and_does_not_fallback_on_empty_scope(self):
+        with patch.object(api, "rag_engine", self.engine):
+            with self.assertRaises(api.HTTPException):
+                api.api_student_retrieve(api.QuestionRequest(question="政策"))
+            self.assertEqual([], api.api_student_retrieve(api.QuestionRequest(question="政策", policyIds=[]))["data"]["passages"])
+            with self.assertRaises(api.HTTPException):
+                api.api_student_retrieve(api.QuestionRequest(question=" ", policyIds=["100"]))
+        self.engine.llm.invoke.assert_not_called()
+
     def test_startup_cleanup_preserves_managed_vectors(self):
         self.add_policy("managed", "100")
         self.engine.vectorstore.add_documents([

@@ -1,6 +1,6 @@
 page {
   height: 100%;
-  background: #f5f7fb;
+  background: #fffaf7;
 }
 .agent-page {
   height: 100vh;
@@ -11,7 +11,7 @@ page {
 .agent-header {
   padding: 28rpx 32rpx 0;
   background: #fff;
-  border-bottom: 1rpx solid #e8edf5;
+  border-bottom: 1rpx solid #efdfd9;
   flex-shrink: 0;
 }
 .agent-heading-row {
@@ -31,8 +31,8 @@ page {
   justify-content: center;
   width: 62rpx;
   height: 62rpx;
-  background: #eef2ff;
-  color: #425bd8;
+  background: #fff0ec;
+  color: #d92332;
   border-radius: 18rpx;
   font-size: 38rpx;
 }
@@ -79,11 +79,11 @@ page {
   width: 8rpx;
   height: 8rpx;
   border-radius: 50%;
-  background: #9aaad7;
+  background: #d92332;
 }
 .transcript-link {
   margin-left: auto;
-  color: #526dba;
+  color: #bc2331;
 }
 .agent-chat {
   flex: 1;
@@ -118,7 +118,7 @@ page {
   line-height: 1.6;
   font-size: 23rpx;
   color: #526482;
-  border: 1rpx solid #e3e9f4;
+  border: 1rpx solid #efdfd9;
   background: #fff;
   border-radius: 14rpx;
 }
@@ -141,7 +141,7 @@ page {
 }
 .message-bubble {
   background: #fff;
-  border: 1rpx solid #e7ecf4;
+  border: 1rpx solid #efdfd9;
   border-radius: 20rpx;
   padding: 26rpx;
   font-size: 27rpx;
@@ -152,7 +152,7 @@ page {
 }
 .message-user .message-bubble {
   max-width: 88%;
-  background: #eef2ff;
+  background: #fff0ec;
   border-color: #e0e6fa;
   color: #3a5299;
   border-bottom-right-radius: 6rpx;
@@ -212,7 +212,7 @@ page {
 .agent-composer {
   padding: 18rpx 24rpx calc(18rpx + env(safe-area-inset-bottom));
   background: #fff;
-  border-top: 1rpx solid #e8edf5;
+  border-top: 1rpx solid #efdfd9;
   flex-shrink: 0;
 }
 .composer-box {
@@ -239,7 +239,7 @@ page {
   padding: 0 24rpx;
   line-height: 60rpx;
   font-size: 24rpx;
-  background: #425bd8;
+  background: #d92332;
   color: #fff;
   border-radius: 12rpx;
 }
@@ -272,7 +272,7 @@ page {
   padding: 0 14rpx;
   font-size: 20rpx;
   line-height: 48rpx;
-  color: #526dba;
+  color: #bc2331;
   background: #f1f4fe;
 }
 .conversation-toolbar text {
@@ -341,7 +341,7 @@ page {
   border-bottom: 1rpx solid #edf1f7;
 }
 .conversation-row.selected {
-  background: #f4f6ff;
+  background: #fff1ed;
   border-radius: 12rpx;
 }
 .conversation-row-body {

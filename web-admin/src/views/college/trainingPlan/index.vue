@@ -1,6 +1,6 @@
 <template>
   <div class="training-plan content-box">
-    <PageHeader title="培养方案" description="按专业和年级维护课程要求，为学业分析提供可靠依据。" eyebrow="ACADEMIC OPERATIONS">
+    <PageHeader title="培养方案" description="按专业和年级维护课程要求，为学业分析提供可靠依据。" eyebrow="教学管理">
       <el-button
         type="primary"
         @click="

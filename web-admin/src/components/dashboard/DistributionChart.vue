@@ -32,9 +32,9 @@ const draw = async () => {
     observer.observe(host.value);
   }
   const base = {
-    color: ["#425bd8", "#8d9ce8", "#b8c6f2", "#64ac96", "#e1ac6e"],
+    color: ["#d92332", "#ea7867", "#f6b7a5", "#64ac96", "#e1ac6e"],
     tooltip: { trigger: props.kind === "bar" ? "axis" : "item" },
-    textStyle: { fontFamily: "inherit", color: "#77839a" }
+    textStyle: { fontFamily: "inherit", color: "#756864" }
   };
   chart.setOption(
     props.kind === "donut"

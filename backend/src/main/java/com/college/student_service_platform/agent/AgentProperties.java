@@ -9,12 +9,15 @@ import java.time.Duration;
 public class AgentProperties {
     private final DeepSeek deepseek = new DeepSeek();
     private final Academic academic = new Academic();
+    private final Academic policy = new Academic();
+    public AgentProperties() { policy.setPromptFile("./src/main/resources/agent/skills/policy.md"); }
     private int maxToolRounds = 4;
     private int maxToolCalls = 12;
     private Duration requestTimeout = Duration.ofSeconds(180);
 
     public DeepSeek getDeepseek() { return deepseek; }
     public Academic getAcademic() { return academic; }
+    public Academic getPolicy() { return policy; }
     public int getMaxToolRounds() { return maxToolRounds; }
     public void setMaxToolRounds(int value) { maxToolRounds = value; }
     public int getMaxToolCalls() { return maxToolCalls; }

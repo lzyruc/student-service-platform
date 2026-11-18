@@ -111,4 +111,41 @@ class AcademicAnswerGroundingTest {
         rejected(empty,"GPA为0.0。","GPA下降2.25。","学期GPA为0.9。");
         assertNull(AcademicAnswerGrounding.ground(null,context));
     }
+    @Test void invalidModelGpaUsesAvailableTrendWithoutLosingTheAnswer() {
+        var mapper = new ObjectMapper();
+        var periods = new java.util.ArrayList<AcademicToolDtos.SemesterSummary>();
+        String[] names={"2024-2025学年春季学期","2024-2025学年国际小学期","2025-2026学年秋季学期","2025-2026学年春季学期"};
+        String[] values={"3.3938","3.3","3.7065","3.72"};
+        String[] changes={null,"-0.0938","0.4065","0.0135"};
+        for(int i=0;i<names.length;i++) {
+            var row=mapper.createObjectNode().put("semester",names[i]).put("weightedGpa",new BigDecimal(values[i]));
+            row.putArray("analysisNotes");
+            if(i>0) row.putObject("changeFromPrevious").put("semester",names[i-1])
+                    .put("weightedGpaDelta",new BigDecimal(changes[i])).put("gpaDirection",i==1?"DOWN":"UP");
+            periods.add(mapper.convertValue(row,AcademicToolDtos.SemesterSummary.class));
+        }
+        var context=new AcademicBusinessContext(mock(AcademicAnalysisReadContext.class));
+        context.record(new AcademicToolResult<>("get_academic_trend","OK",null,
+                new AcademicToolDtos.TrendOutput(null,"OK",4,4,null,periods,3,"OK",0,"UNAVAILABLE",List.of())));
+        String correct="学期 GPA 为3.72，上一学期GPA为3.71。";
+        assertEquals(correct,AcademicAnswerGrounding.ground(correct,context));
+        String fallback=AcademicAnswerGrounding.ground("学期GPA为4.0，完全没有问题。",context);
+        for(String value:List.of("3.39","3.30","3.71","3.72")) assertTrue(fallback.contains(value),fallback);
+        assertTrue(fallback.contains("上升0.01"));
+        assertFalse(fallback.contains("4.0")); assertFalse(fallback.contains("重试")); assertFalse(fallback.contains("完全没有问题"));
+    }
+    @Test void fallbackKeepsZeroButDoesNotExplainAnInconsistentChange() {
+        var zero=typed(null,"0","0","STABLE");
+        String answer=AcademicAnswerGrounding.ground("GPA为4.0。",zero);
+        assertTrue(answer.contains("0.00")); assertTrue(answer.contains("持平"));
+        var inconsistent=typed(null,"0.9","-2.25","UP");
+        answer=AcademicAnswerGrounding.ground("GPA为4.0。",inconsistent);
+        assertTrue(answer.contains("0.90"));
+        assertFalse(answer.contains("上升")); assertFalse(answer.contains("下降"));
+    }
+    @Test void trendWithoutAnyGpaStillDoesNotInventZeroOrRisk() {
+        String answer=AcademicAnswerGrounding.ground("GPA为4.0。",typed(null,null,null,null));
+        assertTrue(answer.contains("未采用")); assertFalse(answer.contains("0.00")); assertFalse(answer.contains("4.0"));
+    }
+
 }

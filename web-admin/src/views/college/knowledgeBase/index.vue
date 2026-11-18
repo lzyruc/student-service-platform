@@ -3,7 +3,7 @@
     <PageHeader
       title="政策知识库"
       description="从文件上传、发布到知识库就绪，让政策问答有据可查。"
-      eyebrow="KNOWLEDGE OPERATIONS"
+      eyebrow="政策文档"
     >
       <el-button @click="loadDocuments()">刷新</el-button>
       <el-button type="primary" @click="openCreateDialog">新增政策</el-button>

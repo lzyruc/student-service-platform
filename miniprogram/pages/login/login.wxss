@@ -1,7 +1,7 @@
 .login-container {
   min-height: 100vh;
   padding: 64rpx 40rpx;
-  background: #f5f7fb;
+  background: #fffaf7;
   box-sizing: border-box;
 }
 .login-brand {
@@ -18,7 +18,7 @@
   width: 52rpx;
   height: 52rpx;
   border-radius: 14rpx;
-  background: #425bd8;
+  background: #d92332;
   color: #fff;
   font-size: 34rpx;
 }
@@ -46,7 +46,7 @@
 }
 .input-box {
   height: 90rpx;
-  background: #f8faff;
+  background: #fffaf7;
   border: 1rpx solid #e1e7f1;
   border-radius: 14rpx;
   padding: 0 24rpx;
@@ -57,7 +57,7 @@
   height: 88rpx;
   line-height: 88rpx;
   box-shadow: none;
-  background: #425bd8;
+  background: #d92332;
   border-radius: 16rpx;
   font-size: 27rpx;
 }

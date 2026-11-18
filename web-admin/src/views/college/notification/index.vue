@@ -1,6 +1,6 @@
 <template>
   <div class="notification-page content-box">
-    <PageHeader title="通知管理" description="发布通知、管理附件，并跟进学生确认情况。" eyebrow="STUDENT AFFAIRS">
+    <PageHeader title="通知管理" description="发布通知、管理附件，并跟进学生确认情况。" eyebrow="事务办理">
       <el-button type="primary" @click="openCreate">新增</el-button>
       <el-button plain @click="refreshList">刷新</el-button>
     </PageHeader>

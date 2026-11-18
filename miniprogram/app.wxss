@@ -1,16 +1,16 @@
 page {
-  --c-primary: #425bd8;
-  --c-secondary: #657bdd;
-  --c-accent1: #8496e8;
-  --c-accent2: #a0ade9;
-  --c-text: #202c43;
-  --c-muted: #8290a6;
-  --c-line: #e7ecf4;
-  --grad-1: #425bd8;
-  --grad-2: #657bdd;
-  --grad-3: #425bd8;
-  --grad-4: #eef2ff;
-  background: #f5f7fb;
+  --c-primary: #d92332;
+  --c-secondary: #e64b43;
+  --c-accent1: #ed8473;
+  --c-accent2: #f3b3a4;
+  --c-text: #302624;
+  --c-muted: #82716b;
+  --c-line: #efdfd9;
+  --grad-1: #d92332;
+  --grad-2: #e64b43;
+  --grad-3: #d92332;
+  --grad-4: #fff0ec;
+  background: #fffaf7;
   color: var(--c-text);
   font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
   font-size: 28rpx;
@@ -104,7 +104,7 @@ button[disabled] {
   height: 24rpx;
   border-radius: 6rpx;
   margin-bottom: 20rpx;
-  background: linear-gradient(90deg, #edf0f5, #f7f9fc, #edf0f5);
+  background: linear-gradient(90deg, #edf0f5, #fffaf7, #edf0f5);
   background-size: 200% 100%;
   animation: shimmer 1.4s ease-in-out infinite;
 }

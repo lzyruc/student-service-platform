@@ -4,7 +4,7 @@ const { updateSteps, endSteps, normalizeEvidence } = require('../../utils/agent-
 const { formatMessage } = require('../../utils/message-format.js');
 const ENDPOINT = '/api/student/agent/chat/stream';
 const CONVERSATIONS = '/api/student/agent/conversations';
-const greeting = () => [{ id: 'greeting', role: 'assistant', steps: [], evidence: [], content: '你好！我可以根据你已保存的成绩单和培养方案，分析学习情况、关注课程和成绩趋势。' }];
+const greeting = () => [{ id: 'greeting', role: 'assistant', steps: [], evidence: [], content: '你好，可以问我课程成绩、学业情况或校园政策。' }];
 const validId = id => Number.isSafeInteger(Number(id)) && Number(id) > 0;
 const savedMessages = items => (Array.isArray(items) ? items : []).filter(item => item && ['USER', 'ASSISTANT'].includes(item.role) && typeof item.content === 'string').map(item => ({ id: 'saved-' + item.id, role: item.role.toLowerCase(), content: item.content, nodes: formatMessage(item.content), steps: [], evidence: [], expanded: false }));
 
@@ -13,7 +13,7 @@ Page({
     inputValue: '', asking: false, bottomId: '', messages: greeting(), executionSteps: [], evidence: [], currentStage: '', realtimeAvailable: false,
     activeConversationId: null, conversationTitle: '新会话', conversationList: [], conversationLoading: false, conversationError: false,
     loadingMessages: false, showConversations: false, conversationHasMore: false, conversationPage: 1, historyHasMore: false, nextBeforeMessageId: null,
-    suggestions: ['分析我的学习情况', '我有没有挂科风险', '最近哪些课程表现不好', '我的成绩趋势怎么样', '哪些课程需要重点关注']
+    suggestions: ['分析我的学习情况', '最近两学期成绩怎么样', '本科生休学需要什么条件', '考试作弊会受到什么处分']
   },
   onLoad() { this._unloaded = false; this._requestVersion = 0; this._nextId = 0; this._sessionToken = ''; this._sessionUrl = ''; this._initialized = false; },
   async onShow() { if (this.ensureSession() && !this._initialized) await this.loadConversations(true); },
@@ -153,7 +153,7 @@ Page({
     if (question.length > MAX_MESSAGE) return wx.showToast({ title: '问题请控制在2000字以内', icon: 'none' });
     const version = ++this._requestVersion;
     this.addMessage('user', question);
-    this.setData({ inputValue: '', asking: true, bottomId: 'agent-thinking', executionSteps: [], evidence: [], currentStage: '正在连接学业助手' });
+    this.setData({ inputValue: '', asking: true, bottomId: 'agent-thinking', executionSteps: [], evidence: [], currentStage: '正在连接校园助手' });
     wx.showNavigationBarLoading();
     try {
       if (!this.data.activeConversationId) {

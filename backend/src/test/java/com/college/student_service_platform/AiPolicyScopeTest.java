@@ -23,6 +23,7 @@ import static org.mockito.Mockito.times;
 import static org.mockito.ArgumentMatchers.any;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.springframework.test.web.client.match.MockRestRequestMatchers.content;
 import static org.springframework.test.web.client.match.MockRestRequestMatchers.requestTo;
 import static org.springframework.test.web.client.response.MockRestResponseCreators.withSuccess;
@@ -73,7 +74,26 @@ class AiPolicyScopeTest {
                         """))
                 .andRespond(withSuccess("{\"status\":\"success\"}", MediaType.APPLICATION_JSON));
 
+        server.expect(requestTo("http://rag-service/api/student/ai/retrieve"))
+                .andExpect(content().json("{\"question\":\"休学规定是什么？\",\"policyIds\":[\"100\"]}"))
+                .andRespond(withSuccess("{\"status\":\"success\",\"data\":{\"passages\":[{\"policyId\":\"100\"}]}}", MediaType.APPLICATION_JSON));
         client.ask(request);
+        assertEquals("100", client.retrievePolicies(request.getQuestion()).path("data").path("passages").get(0).path("policyId").asText());
         server.verify();
     }
+    @Test
+    void retrievalRejectsPassagesOutsidePublishedScopeAndEmptyScopeUsesNoHttp() {
+        RestTemplate http = new RestTemplate(); var server = MockRestServiceServer.createServer(http);
+        var properties = new ExternalServiceProperties(); properties.getAiService().setBaseUrl("http://rag-service");
+        var repository = mock(PolicyDocumentRepository.class);
+        when(repository.findQueryablePolicyIds()).thenReturn(List.of("100"), List.of());
+        var builder = new RestTemplateBuilder().requestFactory(settings -> http.getRequestFactory());
+        var client = new AiServiceClient(builder, properties, new ExternalCallExecutor(properties), repository);
+        server.expect(requestTo("http://rag-service/api/student/ai/retrieve"))
+                .andRespond(withSuccess("{\"status\":\"success\",\"data\":{\"passages\":[{\"policyId\":\"draft\"}]}}", MediaType.APPLICATION_JSON));
+        assertThrows(IllegalStateException.class, () -> client.retrievePolicies("休学"));
+        assertTrue(client.retrievePolicies("休学").path("data").path("passages").isEmpty());
+        server.verify();
+    }
+
 }

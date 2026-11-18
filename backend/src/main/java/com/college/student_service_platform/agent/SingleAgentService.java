@@ -1,6 +1,8 @@
 package com.college.student_service_platform.agent;
 
 import com.college.student_service_platform.agent.academic.AcademicToolExecutor;
+import com.college.student_service_platform.agent.policy.PolicySkill;
+import org.springframework.beans.factory.annotation.Autowired;
 import com.college.student_service_platform.agent.academic.AcademicSkill;
 import com.college.student_service_platform.agent.academic.AcademicToolResult;
 import com.college.student_service_platform.common.ApiException;
@@ -20,7 +22,7 @@ import java.util.function.Consumer;
 import com.college.student_service_platform.service.AgentConversationService;
 import com.college.student_service_platform.agent.academic.AcademicToolDtos;
 
-/** One Agent with an Academic tool set. All mutable state is local to this HTTP request. */
+/** One Agent with Academic and Policy skills. All mutable state is local to this HTTP request. */
 @Service
 public class SingleAgentService {
     private final DeepSeekClient model;
@@ -28,14 +30,22 @@ public class SingleAgentService {
     private final AgentProperties properties;
     private final ObjectMapper mapper;
     private final AcademicSkill skill;
+    private final PolicySkill policy;
 
     public SingleAgentService(DeepSeekClient model, AcademicToolExecutor tools, AgentProperties properties, ObjectMapper mapper, AcademicSkill skill) {
+        this(model, tools, properties, mapper, skill, null);
+    }
+
+    @Autowired
+    public SingleAgentService(DeepSeekClient model, AcademicToolExecutor tools, AgentProperties properties,
+                              ObjectMapper mapper, AcademicSkill skill, PolicySkill policy) {
         properties.validate();
         this.model = model;
         this.tools = tools;
         this.properties = properties;
         this.mapper = mapper;
         this.skill = skill;
+        this.policy = policy;
     }
 
     /** Capture one owned identity and a fresh lazy business context before streaming/queueing. */
@@ -56,15 +66,23 @@ public class SingleAgentService {
     }
     private AgentChatResponse run(AgentRequestContext context, Consumer<AgentExecutionEvent> events) {
         events.accept(AgentExecutionEvent.progress("identity", "验证学生身份", "done", "仅查询当前登录学生"));
-        ArrayNode messages = AgentPromptBuilder.build(mapper, skill.instructions(), context);
-        var definitions = tools.definitions();
+        String instructions = policy == null ? skill.instructions() : """
+                # Student Service Agent
+                你是校园助手，包含 Academic Skill 和 Policy Skill。根据当前问题与历史指代选择工具，可按需组合，所有查询只读。
+                本人课程、GPA、趋势和预警使用学业工具；政策、休复学规定、考试纪律和校历使用 search_policy_documents。
+                政策查询不需要成绩单，不先检查学业资料。政策问答已经接入，不属于 UNSUPPORTED_CAPABILITY。
+                每个 Skill 的规则只适用于对应业务；最终直接回答问题，不介绍路由过程或罗列能力。
+                """ + "\n" + skill.instructions() + "\n\n" + policy.instructions();
+        ArrayNode messages = AgentPromptBuilder.build(mapper, instructions, context);
+        var definitions = new java.util.ArrayList<>(tools.definitions());
+        if (policy != null) definitions.add(policy.definition());
         while (true) {
             context.checkDeadline();
             boolean limitReached = context.limitReached();
             // Scope refusals need no student data. Evidence is still required for academic conclusions.
             String choice = limitReached ? "none" : "auto";
             String modelId = "model-" + (context.toolRounds() + 1);
-            String modelLabel = context.toolRounds() == 0 ? "理解学业问题" : "整理工具结果";
+            String modelLabel = context.toolRounds() == 0 ? "理解问题并选择技能" : "整理工具结果";
             events.accept(AgentExecutionEvent.progress(modelId, modelLabel, "running", "正在等待模型响应"));
             DeepSeekReply reply = model.complete(messages, definitions, choice);
             events.accept(AgentExecutionEvent.progress(modelId, modelLabel, "done", "已收到模型响应"));
@@ -74,8 +92,10 @@ public class SingleAgentService {
             if (!requested.isArray() || requested.isEmpty()) {
                 var nonAnalysis = nonAnalysisReply(assistant.path("content").textValue(), context.trace(), context.toolRounds());
                 if (nonAnalysis != null) return nonAnalysis;
-                if (!context.business().analysisAvailable()) return noEvidence(context.trace(), context.business().nextActions(), context.toolRounds(), limitReached);
-                return new AgentChatResponse(AcademicAnswerGrounding.ground(assistant.path("content").asText(), context.business()),
+                if (!context.business().evidenceAvailable()) return noEvidence(context.trace(), context.business().nextActions(), context.toolRounds(), limitReached);
+                return new AgentChatResponse(context.business().analysisAvailable()
+                                ? AcademicAnswerGrounding.ground(assistant.path("content").asText(), context.business())
+                                : assistant.path("content").asText(),
                         limitReached ? "TOOL_LIMIT" : "COMPLETED", context.toolRounds(), context.trace());
             }
             if (limitReached) return noEvidence(context.trace(), context.business().nextActions(), context.toolRounds(), true);
@@ -93,14 +113,19 @@ public class SingleAgentService {
                 if (!context.tryStartToolCall()) {
                     result = new AcademicToolResult<>(name, "TOOL_LIMIT", "本请求工具执行次数已达上限", null);
                 } else {
-                    events.accept(AgentExecutionEvent.progress(eventId, eventLabel, "running", "正在执行受控学业查询"));
-                    result = tools.execute(name, call.path("function").path("arguments").asText(), context.business().analysis());
+                    boolean policyCall = PolicySkill.TOOL.equals(name) && policy != null;
+                    events.accept(AgentExecutionEvent.progress("skill-" + (policyCall ? "policy" : "academic"),
+                            policyCall ? "政策问答" : "学业分析", "done", policyCall ? "已选择政策 Skill" : "已选择学业 Skill"));
+                    events.accept(AgentExecutionEvent.progress(eventId, eventLabel, "running", policyCall ? "正在检索政策原文" : "正在查询学业数据"));
+                    String arguments = call.path("function").path("arguments").asText();
+                    result = policyCall ? policy.execute(arguments, context.identity())
+                            : tools.execute(name, arguments, context.business().analysis());
                 }
                 context.checkDeadline();
                 String dataStatus = result.data() == null ? null : mapper.valueToTree(result.data()).path("status").textValue();
                 context.addTrace(new AgentChatResponse.ToolTrace(result.tool(), result.status(), dataStatus));
                 boolean complete = "OK".equals(result.status()) && !"MISSING_DATA".equals(dataStatus)
-                        && !"INSUFFICIENT_DATA".equals(dataStatus);
+                        && !"INSUFFICIENT_DATA".equals(dataStatus) && !"EMPTY".equals(dataStatus);
                 events.accept(AgentExecutionEvent.progress(eventId, eventLabel, complete ? "done" : "warning",
                         complete ? "查询完成" : toolStatus(result.status(), dataStatus)));
                 if ("OK".equals(result.status())) emitEvidence(result.data(), events);
@@ -120,6 +145,7 @@ public class SingleAgentService {
 
     private String toolLabel(String name) {
         return switch (name) {
+            case "search_policy_documents" -> "检索政策与来源";
             case "get_academic_context" -> "读取学业资料与培养方案";
             case "get_academic_assessment" -> "读取成绩单并分析学业情况";
             case "get_recent_course_performance" -> "分析近期课程表现";
@@ -130,7 +156,8 @@ public class SingleAgentService {
 
     private String toolStatus(String status, String dataStatus) {
         if ("ACCESS_DENIED".equals(status)) return "当前请求无权读取";
-        if ("SERVICE_UNAVAILABLE".equals(status)) return "学业数据服务暂不可用";
+        if ("SERVICE_UNAVAILABLE".equals(status)) return "查询服务暂不可用";
+        if ("EMPTY".equals(dataStatus)) return "未找到相关政策";
         if ("MISSING_DATA".equals(status) || "MISSING_DATA".equals(dataStatus)) return "资料尚未齐全";
         if ("INSUFFICIENT_DATA".equals(dataStatus)) return "取得部分数据，覆盖不足";
         if ("TOOL_LIMIT".equals(status)) return "已达到本轮查询上限";
@@ -139,7 +166,10 @@ public class SingleAgentService {
 
     /** UI projections use computed Tool DTO values, not numbers extracted from model prose. */
     private void emitEvidence(Object data, Consumer<AgentExecutionEvent> events) {
-        if (data instanceof AcademicToolDtos.AssessmentOutput assessment) {
+        if (data instanceof PolicySkill.Output policyData && !policyData.passages().isEmpty()) {
+            events.accept(new AgentExecutionEvent("evidence", Map.of("kind", "policy", "sources",
+                    policyData.passages().stream().map(p -> Map.of("title", p.title(), "pageRange", p.pageRange())).distinct().toList())));
+        } else if (data instanceof AcademicToolDtos.AssessmentOutput assessment) {
             var metrics = List.of(metric("官方 GPA", assessment.officialGpaAvailable() ? assessment.officialGpa() : null),
                     metric("已获学分", assessment.totalEarnedCredits()), metric("待核实事项", assessment.issueCourseCount()),
                     metric("预警等级", assessment.warningLevel()));
@@ -175,10 +205,10 @@ public class SingleAgentService {
             return switch (decision.path("reason").textValue()) {
                 case "OTHER_STUDENT" -> refused(trace, rounds);
                 case "UNSUPPORTED_CAPABILITY" -> new AgentChatResponse(
-                        "目前学业助手支持本人学习概况、课程表现、预警情况和成绩趋势。政策问答或证明办理，请使用服务大厅的对应功能。",
+                        "证明办理请使用服务大厅的电子证明功能。",
                         "OUT_OF_SCOPE", rounds, trace);
                 case "NEEDS_CLARIFICATION" -> new AgentChatResponse(
-                        "你想了解自己的学习概况、近期课程、预警情况，还是成绩趋势？请说明想分析的方面。",
+                        "你想了解课程成绩、学业情况，还是校园政策？",
                         "NEEDS_CLARIFICATION", rounds, trace);
                 default -> null;
             };
@@ -189,7 +219,7 @@ public class SingleAgentService {
 
     private AgentChatResponse refused(List<AgentChatResponse.ToolTrace> trace, int rounds) {
         return new AgentChatResponse(
-                "我只能查询当前登录账号的学业信息，不能查看其他同学的成绩。你可以让我分析自己的学习情况、近期课程或成绩趋势。",
+                "不能查看其他同学的成绩，只能查询你自己的学业信息。",
                 "REFUSED", rounds, trace);
     }
 
@@ -200,12 +230,18 @@ public class SingleAgentService {
 
     private AgentChatResponse noEvidence(List<AgentChatResponse.ToolTrace> trace, List<String> nextActions, int rounds, boolean limit) {
         String answer;
-        if (!nextActions.isEmpty()) answer = "暂时无法完成学业分析，请先：" + String.join("；", nextActions) + "。";
+        if (trace.stream().anyMatch(item -> PolicySkill.TOOL.equals(item.tool()))) {
+            boolean failed = trace.stream().anyMatch(item -> PolicySkill.TOOL.equals(item.tool()) && "SERVICE_UNAVAILABLE".equals(item.status()));
+            boolean empty = trace.stream().anyMatch(item -> PolicySkill.TOOL.equals(item.tool()) && "EMPTY".equals(item.dataStatus()));
+            String message = failed ? "政策检索暂不可用，请稍后重试。" : empty ? "知识库中暂未找到相关政策。" : "本次未完成政策查询，请重试。";
+            return new AgentChatResponse(message, limit ? "TOOL_LIMIT" : "DATA_UNAVAILABLE", rounds, trace);
+        }
+        if (!nextActions.isEmpty()) answer = "请先：" + String.join("；", nextActions) + "。";
         else if (trace.stream().anyMatch(item -> "SERVICE_UNAVAILABLE".equals(item.status())))
-            answer = "学业分析服务暂时不可用，请检查 8002 服务并稍后重试。";
+            answer = "学业分析暂不可用，请稍后重试。";
         else if (trace.stream().anyMatch(item -> "MISSING_DATA".equals(item.status())))
-            answer = "本人学业数据缺失或不可用，请检查成绩单、专业年级和匹配的培养方案。";
-        else answer = "本次尚未取得可用学业分析结果，请明确要分析学习概况、近期课程或成绩趋势后重试。";
+            answer = "缺少学业资料，请检查成绩单和匹配的培养方案。";
+        else answer = "暂未取得分析结果，请说明想了解的学业问题后重试。";
         return new AgentChatResponse(answer, limit ? "TOOL_LIMIT" : "DATA_UNAVAILABLE", rounds, trace);
     }
 

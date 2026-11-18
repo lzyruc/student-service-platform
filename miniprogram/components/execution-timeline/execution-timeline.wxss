@@ -26,8 +26,8 @@
   height: 32rpx;
   font-size: 20rpx;
   border-radius: 50%;
-  background: #eef2ff;
-  color: #425bd8;
+  background: #fff0ec;
+  color: #d92332;
   z-index: 1;
 }
 .step-symbol.done {
@@ -69,7 +69,7 @@
   line-height: 32rpx;
 }
 .step-state.running {
-  color: #425bd8;
+  color: #d92332;
 }
 .step-state.warning {
   color: #b47d27;

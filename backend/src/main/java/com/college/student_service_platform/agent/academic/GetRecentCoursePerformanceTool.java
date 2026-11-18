@@ -23,7 +23,7 @@ public class GetRecentCoursePerformanceTool implements AcademicTool<RecentInput,
         semester.put("description", "latest 为最近有有效最终成绩的学期，previous 为上一有效成绩学期，由程序选择实际学期");
         properties.set("limit", AcademicToolArguments.integerSchema(1, 10, 5));
         return new AcademicToolDefinition("get_recent_course_performance",
-                "查询本人最近或上一有效成绩学期的统计与重点关注课程。低分固定为 60≤最终成绩<70；保留未知成绩和已通过重修记录说明。", schema);
+                "查询本人最近或上一有效成绩学期的统计与关注课程，低分范围见返回的 rules。", schema);
     }
     @Override public RecentInput parseInput(JsonNode arguments) {
         AcademicToolArguments.object(arguments, "semester", "limit");

@@ -400,6 +400,24 @@ def api_delete_policy_document(policy_id: int, originalName: str = ""):
     except Exception as exception:
         raise HTTPException(status_code=500, detail=f"删除政策文档向量失败：{exception}")
 
+@app.post("/api/student/ai/retrieve")
+def api_student_retrieve(req: QuestionRequest):
+    """Agent 只取原文；复用检索与重排，不在 Python 再调用模型。"""
+    question = req.question.strip()
+    if not question or len(question) > 4000:
+        raise HTTPException(status_code=400, detail="问题须为1至4000字")
+    if req.policyIds is None:
+        raise HTTPException(status_code=400, detail="需要 Java 提供政策检索范围")
+    docs = rag_engine.retrieve(question, req.policyIds)
+    passages = [{
+        "policyId": str(doc.metadata.get("policy_id", "")),
+        "title": str(doc.metadata.get("title") or os.path.basename(str(doc.metadata.get("source", "政策文档")).replace("\\", "/")))[:500],
+        "pageRange": str(doc.metadata.get("page_range", ""))[:80],
+        "content": doc.page_content[:6000],
+    } for doc in docs[:4]]
+    return {"status": "success", "data": {"passages": passages}}
+
+
 @app.post("/api/student/ask")
 def api_student_ask(req: QuestionRequest):
     """

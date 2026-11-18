@@ -10,7 +10,8 @@ function endSteps(steps, failed) {
   return steps.map(step => step.state === 'running' ? { ...step, state: failed ? 'error' : 'warning', detail: failed ? '本次执行未完成' : '未收到此步骤的完成记录' } : step);
 }
 function normalizeEvidence(data) {
-  if (!data || !['overview','trend','recent'].includes(data.kind)) return null;
+  if (!data || !['overview','trend','recent','policy'].includes(data.kind)) return null;
+  if (data.kind === 'policy') return { kind: 'policy', sources: (Array.isArray(data.sources) ? data.sources : []).slice(0,4).map(s => ({ key: String(s.title || '') + '|' + String(s.pageRange || ''), title: String(s.title || ''), pageRange: String(s.pageRange || ''), pageLabel: s.pageRange === 'image' ? '图片' : s.pageRange ? '第' + String(s.pageRange) + '页' : '' })) };
   if (data.kind === 'overview') return { kind: data.kind, metrics: (data.metrics || []).slice(0,4).map(m => ({ label: String(m.label || ''), value: m.value === null || m.value === undefined ? '—' : String(m.value) })) };
   if (data.kind === 'trend') {
     const semesters=(data.semesters || []).slice(0,8);const values=semesters.map(s=>s.weightedGpa).filter(v=>typeof v==='number');const scale=Math.max(1,...values);

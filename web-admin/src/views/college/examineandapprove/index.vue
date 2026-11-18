@@ -1,6 +1,6 @@
 <template>
   <div class="examine-approve content-box">
-    <PageHeader title="证明审批" description="集中处理学生证明申请，审核后生成可下载文件。" eyebrow="STUDENT AFFAIRS">
+    <PageHeader title="证明审批" description="集中处理学生证明申请，审核后生成可下载文件。" eyebrow="事务办理">
       <el-button type="primary" plain @click="refreshList">刷新列表</el-button>
     </PageHeader>
     <div class="card">

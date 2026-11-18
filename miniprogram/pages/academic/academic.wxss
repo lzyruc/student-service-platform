@@ -19,8 +19,8 @@
 }
 .transcript-status {
   padding: 24rpx;
-  background: #f7f9fd;
-  border: 1rpx solid #e8edf5;
+  background: #fffaf7;
+  border: 1rpx solid #efdfd9;
   border-radius: 14rpx;
   font-size: 23rpx;
   color: #72829c;
@@ -81,7 +81,7 @@
 }
 .divider {
   height: 1rpx;
-  background: #e8edf5;
+  background: #efdfd9;
   margin: 28rpx 0;
 }
 .info-row {
@@ -104,7 +104,7 @@
   color: #b8793d;
 }
 .suggestion-box {
-  background: #f7f9fd;
+  background: #fffaf7;
   padding: 26rpx;
   border: 1rpx solid #e6edf6;
   border-radius: 16rpx;

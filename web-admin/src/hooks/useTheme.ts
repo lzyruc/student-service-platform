@@ -95,6 +95,7 @@ export const useTheme = () => {
 
   // init theme
   const initTheme = () => {
+    if (primary.value.toLowerCase() === "#425bd8") globalStore.setGlobalState("primary", DEFAULT_PRIMARY);
     switchDark();
     if (isGrey.value) changeGreyOrWeak("grey", true);
     if (isWeak.value) changeGreyOrWeak("weak", true);

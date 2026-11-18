@@ -1,5 +1,5 @@
 <view class="container profile-container"
-  ><text class="page-eyebrow">MY CAMPUS</text
+  ><text class="page-eyebrow">我的校园</text
   ><text class="page-title">个人中心</text
   ><text class="page-description">你的身份、学业资料与校园服务。</text
   ><view class="surface-card profile-identity"

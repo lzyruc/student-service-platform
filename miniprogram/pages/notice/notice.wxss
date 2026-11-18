@@ -38,7 +38,7 @@
   display: flex;
   align-items: center;
   gap: 16rpx;
-  background: #f7f9fc;
+  background: #fffaf7;
   border: 1rpx solid #e6ebf2;
   border-radius: 8rpx;
   padding: 18rpx 20rpx;
@@ -107,7 +107,7 @@
 }
 
 .n-tag {
-  background: #eef2ff;
+  background: #fff0ec;
   color: #617ac1;
   border-radius: 6rpx;
   padding: 7rpx 14rpx;

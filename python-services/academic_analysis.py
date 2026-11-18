@@ -189,19 +189,17 @@ class AcademicWarningEngine:
                 report["pending_core_courses"].append(display_name)
             else:
                 report["missing_core_courses"].append(display_name)
-                report["course_suggestions"].append(f"已到计划开课学期，但成绩单未见通过记录：{display_name}；请核实是否未修、尚未出分或课程名称不同")
+                report["course_suggestions"].append(f"未见通过记录：{display_name}")
         for course in report["failed_courses"]:
-            report["course_suggestions"].append(f"建议重修未通过课程：{course['name']}（最终成绩：{course['score']}）")
-        if report["pending_core_courses"]:
-            report["analysis_notes"].append(f"{len(report['pending_core_courses'])} 门核心课程尚未到计划开课学期，不计入缺口")
+            report["course_suggestions"].append(f"建议重修：{course['name']}（成绩：{course['score']}）")
         if report["unscheduled_core_courses"]:
-            report["analysis_notes"].append(f"{len(report['unscheduled_core_courses'])} 门未见通过记录的核心课程缺少可用开课学期或成绩单进度，需核实，不自动判定补修")
+            report["analysis_notes"].append(f"{len(report['unscheduled_core_courses'])} 门核心课程开课时间或修读进度不明")
         if report["unknown_score_courses"]:
-            report["analysis_notes"].append("部分课程最终成绩为空或无法识别，未计为已通过，请核实：" + "、".join(report["unknown_score_courses"]))
+            report["analysis_notes"].append("以下课程成绩待确认：" + "、".join(report["unknown_score_courses"]))
         plan_grade = str(self.training_plan.get("grade", "")).removesuffix("级")
         transcript_grade = self.transcript_metadata.get("grade")
         if transcript_grade and plan_grade and transcript_grade != plan_grade:
-            report["analysis_notes"].append(f"成绩单年级为 {transcript_grade}，当前培养方案年级为 {plan_grade}；本次按所选培养方案比对，课程差异需人工确认")
+            report["analysis_notes"].append(f"成绩单为 {transcript_grade} 级，培养方案为 {plan_grade} 级，需核对方案")
         if len(report["failed_courses"]) >= 3 or len(report["missing_core_courses"]) >= 2:
             report["warning_level"] = "严重预警"
         elif report["failed_courses"] or report["missing_core_courses"]:

@@ -112,7 +112,7 @@
   text-decoration: underline;
 }
 .reason-panel {
-  background: #f7f9fc;
+  background: #fffaf7;
   border-radius: 12rpx;
   padding: 18rpx 20rpx;
   margin: 0 0 20rpx;
@@ -164,7 +164,7 @@
 }
 .f-picker,
 .f-textarea {
-  background: #fafbfe;
+  background: #fffaf7;
   border-color: #e2e8f2;
   font-size: 25rpx;
   padding: 22rpx;

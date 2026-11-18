@@ -9,7 +9,7 @@
   </header>
 </template>
 <script setup lang="ts">
-withDefaults(defineProps<{ title: string; description: string; eyebrow?: string }>(), { eyebrow: "CAMPUS OPERATIONS" });
+withDefaults(defineProps<{ title: string; description: string; eyebrow?: string }>(), { eyebrow: "学生事务" });
 </script>
 <style scoped>
 .page-heading {
